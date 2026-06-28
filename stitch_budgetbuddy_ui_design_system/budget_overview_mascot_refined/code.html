@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BudgetBuddy - Budget Overview</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#69577f",
+                    "on-primary-fixed": "#231437",
+                    "error": "#ba1a1a",
+                    "on-background": "#1d1b1e",
+                    "secondary-container": "#e8d1ff",
+                    "surface-container-low": "#f8f2f6",
+                    "tertiary-fixed": "#eae5a3",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#44410f",
+                    "on-tertiary-fixed": "#1e1c00",
+                    "tertiary-container": "#b2ae71",
+                    "secondary-fixed-dim": "#d4beeb",
+                    "primary-fixed-dim": "#d3beeb",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f5eff3",
+                    "on-primary-fixed-variant": "#503f65",
+                    "tertiary": "#63602c",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#ded8dc",
+                    "outline-variant": "#cbc4ce",
+                    "background": "#fef8fb",
+                    "on-surface-variant": "#4a454d",
+                    "tertiary-fixed-dim": "#cec98a",
+                    "primary-fixed": "#eddcff",
+                    "outline": "#7b757e",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#eedbff",
+                    "on-primary-container": "#fffbff",
+                    "surface-tint": "#68577e",
+                    "surface-container": "#f2ecf0",
+                    "surface-container-highest": "#e6e1e5",
+                    "on-error-container": "#93000a",
+                    "secondary": "#69577e",
+                    "surface-container-high": "#ece7ea",
+                    "primary-container": "#7f6d95",
+                    "primary": "#66547b",
+                    "on-surface": "#1d1b1e",
+                    "on-secondary-fixed-variant": "#503f65",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fef8fb",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#fef8fb",
+                    "inverse-primary": "#d3beeb",
+                    "surface-variant": "#e6e1e5",
+                    "inverse-surface": "#323033",
+                    "on-secondary-fixed": "#231437",
+                    "on-tertiary-fixed-variant": "#4b4816"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "48px",
+                    "base": "4px",
+                    "margin-desktop": "40px",
+                    "lg": "32px",
+                    "sm": "16px",
+                    "gutter": "24px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-xl-mobile": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .soft-shadow {
+            box-shadow: 0px 4px 20px rgba(151, 132, 174, 0.15);
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-background dark:bg-background flex justify-between items-center px-margin-mobile py-xs w-full">
+<div class="flex items-center gap-xs">
+<div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">https://lh3.googleusercontent.com/aida-public/AB6AXuCm0kJhAkzT6GOz78Rej3Lbd5KAxUmSOSKR9LReglPcKwH0JrXMbUm_326KzHojRJvGBXz6AjfzrXpIeRYuPeFz74-CbMFOFUTtOK_KOl-WZXXjmymSI7Oy8I1wPhWWchRdp5GxWeST6bGJtJT0AO8fEj4PfvxiK0zefmrO_7CuVCkmUMZJ4bRpVpmPaJQudekXebjI1CQI1To8dOl2gSz6pbIvcddiVrbEA1ttVSQe5I0IzTfQykGUqUOM7Ljk8vVaP32-zZJqfmQ</div>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">BudgetBuddy</span>
+</div>
+<button class="material-symbols-outlined text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity active:scale-95 transition-transform p-2">
+            notifications
+        </button>
+</header>
+<main class="px-margin-mobile py-md max-w-2xl mx-auto">
+<!-- Hero Section -->
+<section class="mb-lg"><div class="flex justify-between items-end mb-sm"><div><h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Monthly Pulse</h1><p class="font-body-md text-on-surface-variant">You're doing great! $859.50 left to spend.</p></div><div class="text-right"><p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Remaining</p></div></div><div class="w-full h-2 bg-secondary-container rounded-full overflow-hidden mb-xs"><div class="h-full bg-primary rounded-full transition-all duration-700 ease-out" style="width: 68%;"></div></div></section>
+<!-- Category Grid / List -->
+<div class="space-y-md">
+<!-- Category Card: Groceries -->
+<div class="bg-surface rounded-xl p-md soft-shadow border border-primary/5 hover:scale-[1.01] transition-transform duration-200" style="transform: scale(1); box-shadow: rgba(151, 132, 174, 0.15) 0px 4px 20px;"><div class="flex justify-between items-start mb-sm"><div class="flex items-center gap-sm"><div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary">shopping_basket</span></div><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Groceries</h3><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-container/20 text-tertiary"><span class="material-symbols-outlined text-xs">check_circle</span>On Track</span></div></div><div class="text-right"><p class="font-headline-sm text-headline-sm text-on-surface">$420.00</p><p class="font-body-sm text-on-surface-variant">Limit: $600.00</p></div></div><div class="space-y-2"><div class="w-full h-1.5 bg-secondary-container/40 rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width: 70%;"></div></div><div class="flex justify-between text-body-sm"><span class="text-tertiary font-medium">Great job! $180.00 left</span></div></div></div>
+<!-- Category Card: Dining Out -->
+<div class="bg-surface rounded-xl p-md soft-shadow border border-primary/5 hover:scale-[1.01] transition-transform duration-200"><div class="flex justify-between items-start mb-sm"><div class="flex items-center gap-sm"><div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary">restaurant</span></div><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Dining Out</h3><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-error-container/40 text-error"><span class="material-symbols-outlined text-xs">visibility</span>Watching</span></div></div><div class="text-right"><p class="font-headline-sm text-headline-sm text-on-surface">$285.00</p><p class="font-body-sm text-on-surface-variant">Limit: $300.00</p></div></div><div class="space-y-2"><div class="w-full h-1.5 bg-secondary-container/40 rounded-full overflow-hidden"><div class="h-full bg-error/70 rounded-full" style="width: 95%;"></div></div><div class="flex justify-between text-body-sm"><span class="text-error font-medium">Almost there! $15.00 left</span></div></div></div>
+<!-- Category Card: Shopping -->
+<div class="bg-surface rounded-xl p-md soft-shadow border border-primary/5 hover:scale-[1.01] transition-transform duration-200"><div class="flex justify-between items-start mb-sm"><div class="flex items-center gap-sm"><div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary">shopping_bag</span></div><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Shopping</h3><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-container/20 text-tertiary"><span class="material-symbols-outlined text-xs">check_circle</span>On Track</span></div></div><div class="text-right"><p class="font-headline-sm text-headline-sm text-on-surface">$112.50</p><p class="font-body-sm text-on-surface-variant">Limit: $450.00</p></div></div><div class="space-y-2"><div class="w-full h-1.5 bg-secondary-container/40 rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width: 25%;"></div></div><div class="flex justify-between text-body-sm"><span class="text-tertiary font-medium">You're doing great in Shopping!</span><span class="text-on-surface-variant">$337.50 left</span></div></div></div>
+<!-- Category Card: Transport -->
+<div class="bg-surface rounded-xl p-md soft-shadow border border-primary/5 hover:scale-[1.01] transition-transform duration-200"><div class="flex justify-between items-start mb-sm"><div class="flex items-center gap-sm"><div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary">directions_car</span></div><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Transport</h3><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-container/20 text-tertiary"><span class="material-symbols-outlined text-xs">check_circle</span>On Track</span></div></div><div class="text-right"><p class="font-headline-sm text-headline-sm text-on-surface">$205.00</p><p class="font-body-sm text-on-surface-variant">Limit: $350.00</p></div></div><div class="space-y-2"><div class="w-full h-1.5 bg-secondary-container/40 rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width: 58%;"></div></div><div class="flex justify-between text-body-sm"><span class="text-tertiary font-medium">Keep it up! $145.00 left</span></div></div></div>
+<!-- Category Card: Entertainment -->
+<div class="bg-surface rounded-xl p-md soft-shadow border border-primary/5 hover:scale-[1.01] transition-transform duration-200"><div class="flex justify-between items-start mb-sm"><div class="flex items-center gap-sm"><div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="material-symbols-outlined text-primary">movie</span></div><div><h3 class="font-headline-sm text-headline-sm text-on-surface">Entertainment</h3><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-container/20 text-tertiary"><span class="material-symbols-outlined text-xs">check_circle</span>On Track</span></div></div><div class="text-right"><p class="font-headline-sm text-headline-sm text-on-surface">$80.00</p><p class="font-body-sm text-on-surface-variant">Limit: $200.00</p></div></div><div class="space-y-2"><div class="w-full h-1.5 bg-secondary-container/40 rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full" style="width: 40%;"></div></div><div class="flex justify-between text-body-sm"><span class="text-tertiary font-medium">Nice work! $120.00 left</span></div></div></div>
+</div>
+<!-- Add Category Placeholder -->
+<button class="w-full mt-lg py-md border border-primary/20 rounded-xl flex items-center justify-center gap-xs text-primary bg-primary/5 hover:bg-primary/10 transition-all active:scale-95"><span class="material-symbols-outlined">add_circle</span><span class="font-label-md text-label-md">Add New Category</span></button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 bg-surface dark:bg-surface-container-low shadow-[0px_-4px_20px_rgba(151,132,174,0.15)] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container dark:text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-label-md text-label-md">Budget</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-md text-label-md">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline p-2 hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for budget cards
+        document.querySelectorAll('.soft-shadow').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.style.transform = 'scale(0.98)';
+                card.style.boxShadow = 'none';
+            });
+            card.addEventListener('mouseup', () => {
+                card.style.transform = 'scale(1.01)';
+                card.style.boxShadow = '0px 4px 20px rgba(151, 132, 174, 0.15)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+                card.style.boxShadow = '0px 4px 20px rgba(151, 132, 174, 0.15)';
+            });
+        });
+    </script>
+</body></html>

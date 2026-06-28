@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Buddy AI Assistant - BudgetBuddy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "on-error-container": "#93000a",
+                  "surface-container": "#f2ecf0",
+                  "inverse-on-surface": "#f5eff3",
+                  "surface-variant": "#e6e1e5",
+                  "secondary-container": "#e8d1ff",
+                  "background": "#fef8fb",
+                  "primary": "#66547b",
+                  "surface-container-low": "#f8f2f6",
+                  "surface-dim": "#ded8dc",
+                  "inverse-surface": "#323033",
+                  "on-tertiary-container": "#44410f",
+                  "inverse-primary": "#d3beeb",
+                  "on-error": "#ffffff",
+                  "surface-container-high": "#ece7ea",
+                  "secondary-fixed-dim": "#d4beeb",
+                  "surface-tint": "#68577e",
+                  "secondary-fixed": "#eedbff",
+                  "primary-fixed-dim": "#d3beeb",
+                  "on-secondary": "#ffffff",
+                  "surface-container-highest": "#e6e1e5",
+                  "on-tertiary-fixed-variant": "#4b4816",
+                  "on-primary-container": "#fffbff",
+                  "secondary": "#69577e",
+                  "on-primary": "#ffffff",
+                  "primary-container": "#7f6d95",
+                  "error-container": "#ffdad6",
+                  "on-primary-fixed": "#231437",
+                  "surface": "#fef8fb",
+                  "tertiary-container": "#b2ae71",
+                  "on-secondary-container": "#69577f",
+                  "tertiary": "#63602c",
+                  "on-tertiary": "#ffffff",
+                  "on-surface": "#1d1b1e",
+                  "tertiary-fixed": "#eae5a3",
+                  "on-primary-fixed-variant": "#503f65",
+                  "error": "#ba1a1a",
+                  "on-surface-variant": "#4a454d",
+                  "on-secondary-fixed": "#231437",
+                  "primary-fixed": "#eddcff",
+                  "outline-variant": "#cbc4ce",
+                  "surface-bright": "#fef8fb",
+                  "on-tertiary-fixed": "#1e1c00",
+                  "outline": "#7b757e",
+                  "tertiary-fixed-dim": "#cec98a",
+                  "on-background": "#1d1b1e",
+                  "surface-container-lowest": "#ffffff",
+                  "on-secondary-fixed-variant": "#503f65"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "margin-desktop": "40px",
+                  "lg": "32px",
+                  "xl": "48px",
+                  "xs": "8px",
+                  "md": "24px",
+                  "base": "4px",
+                  "sm": "16px",
+                  "gutter": "24px",
+                  "margin-mobile": "16px"
+          },
+          "fontFamily": {
+                  "body-sm": ["Inter"],
+                  "headline-lg": ["Plus Jakarta Sans"],
+                  "label-md": ["Inter"],
+                  "headline-md": ["Plus Jakarta Sans"],
+                  "headline-xl": ["Plus Jakarta Sans"],
+                  "body-md": ["Inter"],
+                  "headline-sm": ["Plus Jakarta Sans"],
+                  "body-lg": ["Inter"],
+                  "headline-xl-mobile": ["Plus Jakarta Sans"],
+                  "headline-lg-mobile": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+                  "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                  "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                  "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                  "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                  "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                  "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                  "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                  "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(151, 132, 174, 0.1);
+    }
+    .buddy-float {
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      overscroll-behavior: none;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="w-full top-0 sticky bg-background z-40 flex justify-between items-center px-margin-mobile h-16 transition-opacity duration-200">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-fixed">
+<img class="w-full h-full object-cover" data-alt="A friendly, close-up portrait of a young person with a warm smile, wearing stylish casual attire. The photography style is high-key with soft natural lighting, using a palette of soft lavenders and neutral whites to match a serene financial app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOGy4cCuVxSd8nbzOpXw5oGhANgDQj6I8W2J0DJLEqie0afA3xdhCUEsnehyjlYrTrWG5j-aKudgyY6uVJdNNooy-2h0x6wi64Vn0V1W2SJvQPV8__Je7hmxi-pvTg5yfMN4LcL65IaGjN_hWdrvZ4dYMMj1_DlQNx8a_Tak7Zm3Z3bYmtRgqm9X-LDKVXFdW_h_nutZ3S4Noubj3zkGoTCqT8zrlgIguJfjZ7FJeysWJPcGv9dYBieu1ZJu4ir3YSP-1I4vA4TQA"/>
+</div>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Buddy Finance</span>
+</div>
+<button class="text-primary hover:opacity-80 transition-opacity material-symbols-outlined" data-icon="smart_toy">smart_toy</button>
+</header>
+<main class="px-margin-mobile max-w-lg mx-auto">
+<!-- Welcome Header -->
+<section class="mt-6 mb-8 text-center md:text-left">
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface mb-2">Hey Alex!</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Buddy is here to help you stay on track.</p>
+</section>
+<!-- Buddy Avatar Area -->
+<section class="relative flex flex-col items-center justify-center mb-10">
+<div class="buddy-float relative z-10 w-48 h-48 rounded-full bg-gradient-to-tr from-secondary-container to-surface flex items-center justify-center shadow-[0px_4px_20px_rgba(151,132,174,0.15)] overflow-hidden">
+<img alt="Budget Buddy Mascot" class="w-40 h-40 object-contain" src="/Frontend/Assets/budgetbuddy-logo.png"/>
+</div>
+<!-- Subtle Pulsing Glow -->
+<div class="absolute w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+</section>
+<!-- Proactive Insights - Bento Style -->
+<section class="mb-10">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-4">Proactive Insights</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Insight 1 -->
+<div class="glass-card p-md rounded-xl shadow-[0px_4px_20px_rgba(151,132,174,0.1)] flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg" data-icon="restaurant">restaurant</span>
+<span class="text-xs font-bold text-tertiary bg-tertiary-fixed px-2 py-0.5 rounded-full">Good Job</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-2">You saved $40 on dining this week! 🍕</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">That's 15% less than your average spending.</p>
+</div>
+<!-- Insight 2 -->
+<div class="glass-card p-md rounded-xl shadow-[0px_4px_20px_rgba(151,132,174,0.1)] border-l-4 border-l-error">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-error" data-icon="event_note">event_note</span>
+<span class="font-label-md text-label-md text-error">Reminder</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold">Your rent is due in 2 days. 🏠</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Make sure you have $1,250 ready in your main account.</p>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="mb-24">
+<h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-4">Quick Actions</h2>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-md text-label-md text-on-surface text-center">Log Expense</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="font-label-md text-label-md text-on-surface text-center">Check Budget</span>
+</button>
+<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary shadow-sm hover:opacity-90 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined text-white text-3xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-md text-label-md text-white text-center">Ask Buddy</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Floating Chat Input -->
+<div class="fixed bottom-20 left-0 w-full px-margin-mobile z-50">
+<div class="max-w-lg mx-auto relative">
+<input class="w-full h-14 pl-12 pr-12 rounded-full border-none shadow-[0px_4px_30px_rgba(151,132,174,0.2)] bg-surface-container-lowest focus:ring-2 focus:ring-primary text-on-surface placeholder-outline transition-all" placeholder="Ask Buddy anything..." type="text"/>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary" data-icon="search">search</span>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:opacity-90 transition-opacity material-symbols-outlined" data-icon="mic">mic</button>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pb-2 pt-2 bg-surface shadow-[0px_-4px_20px_rgba(151,132,174,0.15)] rounded-t-xl z-50 h-16">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-md text-label-md">Budget</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-md text-label-md">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+    // Micro-interaction for input field
+    const chatInput = document.querySelector('input');
+    chatInput.addEventListener('focus', () => {
+      chatInput.parentElement.style.transform = 'translateY(-5px)';
+    });
+    chatInput.addEventListener('blur', () => {
+      chatInput.parentElement.style.transform = 'translateY(0)';
+    });
+
+    // Add staggered entrance animation for cards
+    document.querySelectorAll('.glass-card').forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      card.style.transition = 'all 0.5s ease forwards';
+      card.style.transitionDelay = `${index * 150}ms`;
+      
+      setTimeout(() => {
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, 100);
+    });
+  </script>
+</body></html>

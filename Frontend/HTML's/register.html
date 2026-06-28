@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Account - BudgetBuddy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Custom Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container-low": "#f8f2f6",
+                "on-secondary-container": "#69577f",
+                "inverse-primary": "#d3beeb",
+                "surface-container-high": "#ece7ea",
+                "surface-container": "#f2ecf0",
+                "on-surface-variant": "#4a454d",
+                "primary-container": "#7f6d95",
+                "on-secondary-fixed-variant": "#503f65",
+                "on-error-container": "#93000a",
+                "error-container": "#ffdad6",
+                "background": "#fef8fb",
+                "surface": "#fef8fb",
+                "tertiary": "#63602c",
+                "surface-variant": "#e6e1e5",
+                "on-tertiary-container": "#44410f",
+                "on-primary-fixed-variant": "#503f65",
+                "inverse-surface": "#323033",
+                "surface-container-lowest": "#ffffff",
+                "secondary-container": "#e8d1ff",
+                "primary-fixed": "#eddcff",
+                "tertiary-fixed": "#eae5a3",
+                "inverse-on-surface": "#f5eff3",
+                "primary": "#66547b",
+                "on-secondary-fixed": "#231437",
+                "surface-bright": "#fef8fb",
+                "tertiary-container": "#b2ae71",
+                "on-primary-fixed": "#231437",
+                "on-primary": "#ffffff",
+                "on-background": "#1d1b1e",
+                "error": "#ba1a1a",
+                "outline": "#7b757e",
+                "on-tertiary-fixed": "#1e1c00",
+                "surface-container-highest": "#e6e1e5",
+                "outline-variant": "#cbc4ce",
+                "secondary-fixed": "#eedbff",
+                "tertiary-fixed-dim": "#cec98a",
+                "on-error": "#ffffff",
+                "primary-fixed-dim": "#d3beeb",
+                "on-primary-container": "#fffbff",
+                "surface-dim": "#ded8dc",
+                "secondary": "#69577e",
+                "on-surface": "#1d1b1e",
+                "on-tertiary-fixed-variant": "#4b4816",
+                "on-tertiary": "#ffffff",
+                "surface-tint": "#68577e",
+                "on-secondary": "#ffffff",
+                "secondary-fixed-dim": "#d4beeb"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "base": "4px",
+                "md": "24px",
+                "gutter": "24px",
+                "xl": "48px",
+                "lg": "32px",
+                "margin-mobile": "16px",
+                "xs": "8px",
+                "sm": "16px",
+                "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                "label-md": ["Inter"],
+                "headline-sm": ["Plus Jakarta Sans"],
+                "headline-xl-mobile": ["Plus Jakarta Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "body-lg": ["Inter"],
+                "body-md": ["Inter"],
+                "headline-xl": ["Plus Jakarta Sans"],
+                "body-sm": ["Inter"],
+                "headline-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+      }
+      
+      .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+
+      .soft-shadow {
+        box-shadow: 0px 4px 20px rgba(151, 132, 174, 0.15);
+      }
+
+      .strength-bar {
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- Top AppBar (Identity Anchor) -->
+<header class="w-full top-0 sticky flex justify-between items-center px-margin-mobile md:px-margin-desktop py-xs bg-background/80 backdrop-blur-md z-50">
+<div class="font-headline-md text-headline-md font-extrabold text-primary flex items-center gap-3">
+
+    <div class="w-14 h-14 flex items-center justify-center flex-shrink-0">
+        <img
+            src="/Frontend/Assets/budgetbuddy-logo.png"
+            alt="BudgetBuddy Logo"
+            class="w-full h-full object-contain"
+        >
+    </div>
+
+    <span>BudgetBuddy</span>
+
+</div>
+<div class="hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-primary">info</span>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col items-center justify-center px-margin-mobile py-lg">
+<!-- Welcome Hero Section -->
+<div class="w-full max-w-md text-center mb-lg">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2">Start your journey.</h1>
+<p class="font-body-md text-on-surface-variant">Join thousands of students achieving financial serenity with effortless tracking.</p>
+</div>
+<!-- Create Account Form Card -->
+<div class="w-full max-w-md glass-card border border-outline-variant p-md md:p-lg rounded-xl soft-shadow relative overflow-hidden">
+<!-- Subtle Atmospheric Glow -->
+<div class="absolute -top-24 -right-24 w-48 h-48 bg-secondary-container/40 rounded-full blur-3xl -z-10"></div>
+<div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary-container/20 rounded-full blur-3xl -z-10"></div>
+<form class="space-y-sm" id="createAccountForm">
+<!-- Full Name Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="fullName">Full Name</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="fullName" name="fullName" placeholder="Jane Doe" required="" type="text"/>
+</div>
+</div>
+<!-- Email Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="email">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="email" name="email" placeholder="jane@university.edu" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="password">Password</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock</span>
+<input class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="password" name="password" placeholder="Min. 8 characters" required="" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="togglePassword('password', this)" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Password Strength Indicator -->
+<div class="mt-2 flex flex-col gap-1.5">
+<div class="flex gap-1 h-1.5 w-full">
+<div class="strength-bar h-full w-1/4 rounded-full bg-surface-variant" id="p-bar-1"></div>
+<div class="strength-bar h-full w-1/4 rounded-full bg-surface-variant" id="p-bar-2"></div>
+<div class="strength-bar h-full w-1/4 rounded-full bg-surface-variant" id="p-bar-3"></div>
+<div class="strength-bar h-full w-1/4 rounded-full bg-surface-variant" id="p-bar-4"></div>
+</div>
+<span class="font-body-sm text-body-sm text-outline" id="strength-text">Security level</span>
+</div>
+</div>
+<!-- Confirm Password -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="confirmPassword">Confirm Password</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock_reset</span>
+<input class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required="" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="togglePassword('confirmPassword', this)" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full mt-lg bg-primary text-on-primary py-4 rounded-xl font-headline-sm text-headline-sm soft-shadow hover:opacity-95 active:scale-[0.98] transition-all duration-200 flex justify-center items-center gap-2 group" type="submit">
+                    Create Account
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<!-- Login Redirect -->
+<div class="mt-md text-center">
+<p class="font-body-sm text-on-surface-variant">
+                    Already have an account? 
+                    <a class="text-primary font-semibold hover:underline transition-all" href="#">Log in</a>
+</p>
+</div>
+</div>
+<!-- Trust Note -->
+<div class="mt-lg flex items-center gap-2 text-outline font-body-sm">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+            Your data is protected with bank-grade encryption.
+        </div>
+</main>
+<!-- Footer Space -->
+<footer class="mt-auto px-margin-mobile py-md text-center opacity-40">
+<p class="font-body-sm text-on-surface-variant">© 2024 BudgetBuddy Finance. All rights reserved.</p>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+        // Password Visibility Toggle
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('.material-symbols-outlined');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.textContent = "visibility_off";
+            } else {
+                input.type = "password";
+                icon.textContent = "visibility";
+            }
+        }

@@ -1,0 +1,337 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BudgetBuddy | Your Financial Coach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#ece7ea",
+                    "surface-container": "#f2ecf0",
+                    "inverse-primary": "#d3beeb",
+                    "on-surface-variant": "#4a454d",
+                    "primary-container": "#7f6d95",
+                    "on-secondary-fixed-variant": "#503f65",
+                    "surface-container-low": "#f8f2f6",
+                    "on-secondary-container": "#69577f",
+                    "tertiary-fixed": "#eae5a3",
+                    "inverse-on-surface": "#f5eff3",
+                    "primary-fixed": "#eddcff",
+                    "on-secondary-fixed": "#231437",
+                    "primary": "#66547b",
+                    "tertiary-container": "#b2ae71",
+                    "surface-bright": "#fef8fb",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "background": "#fef8fb",
+                    "surface": "#fef8fb",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#63602c",
+                    "surface-variant": "#e6e1e5",
+                    "on-tertiary-container": "#44410f",
+                    "on-primary-fixed-variant": "#503f65",
+                    "inverse-surface": "#323033",
+                    "secondary-container": "#e8d1ff",
+                    "secondary-fixed": "#eedbff",
+                    "on-primary-fixed": "#231437",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "on-background": "#1d1b1e",
+                    "outline": "#7b757e",
+                    "on-tertiary-fixed": "#1e1c00",
+                    "surface-container-highest": "#e6e1e5",
+                    "outline-variant": "#cbc4ce",
+                    "on-surface": "#1d1b1e",
+                    "surface-dim": "#ded8dc",
+                    "secondary": "#69577e",
+                    "on-tertiary-fixed-variant": "#4b4816",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#d4beeb",
+                    "surface-tint": "#68577e",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#cec98a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#d3beeb",
+                    "on-primary-container": "#fffbff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1.25rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "md": "24px",
+                    "gutter": "24px",
+                    "xl": "48px",
+                    "lg": "32px",
+                    "margin-mobile": "16px",
+                    "xs": "8px",
+                    "sm": "16px",
+                    "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-xl-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fef8fb;
+            color: #1d1b1e;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .premium-shadow {
+            box-shadow: 0 4px 24px -1px rgba(104, 87, 126, 0.08), 0 2px 8px -1px rgba(104, 87, 126, 0.04);
+        }
+        .insight-gradient {
+            background: linear-gradient(135deg, #eddcff 0%, #fef8fb 100%);
+        }
+        .health-card-bg {
+            background: linear-gradient(225deg, #66547b 0%, #4a3a5e 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen pb-32">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-margin-mobile py-4 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full border-2 border-primary-fixed overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsR8MUmTImIsV3nFlFAtbGA44gJbjAYZOKdcPoniIhqkbezZQTOqR50qbDYRjD5pWpD8m7VKRjqw1ljvgBRrkyd6rgUuwd5aMv56MpFa8Nm3hn0wb1ZQDJ0S8pF9Zf-zBcki4XdCmC5sX73Hyy4aaOXWzQFN0FmncOenTgZ7IUGt3t62LfW5LoDO_qb7YivzUgBwH_2t0JAMmDzc5NKef6vdX3PO6a94UYzXpfl-9aD-h9MpFoX09lzH3OGxatVafk0ruHC7TAQKM">
+</div>
+<div>
+<p class="text-body-sm text-outline font-medium">Good morning,</p>
+<h1 class="text-headline-sm text-on-background font-bold">Alex Rivera</h1>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="px-margin-mobile max-w-2xl mx-auto space-y-6 mt-2">
+<!-- AI Insight -->
+<div class="insight-gradient p-4 rounded-2xl border border-primary-fixed/30 flex items-start gap-3 premium-shadow">
+<div class="bg-primary text-on-primary p-2 rounded-xl">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<p class="text-body-sm text-on-surface font-semibold">Coach Insight</p>
+<p class="text-body-sm text-on-surface-variant leading-tight">You've spent 15% less on dining than last week. You're crushing it! 🍟</p>
+</div>
+</div>
+<!-- Budget Health Section -->
+<section class="health-card-bg rounded-3xl p-6 text-on-primary premium-shadow relative overflow-hidden">
+<!-- Decorative circle -->
+<div class="absolute -top-12 -right-12 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="text-xs font-bold uppercase tracking-widest opacity-70">Financial Health</span>
+<h2 class="text-headline-lg-mobile font-bold mt-1">You're doing great!</h2>
+</div>
+<div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-bold">ON TRACK</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-8">
+<div>
+<p class="text-xs opacity-70 mb-1">REMAINING BUDGET</p>
+<p class="text-headline-md font-bold text-secondary-container">$760.00</p>
+</div>
+<div>
+<p class="text-xs opacity-70 mb-1">TOTAL SPENT</p>
+<p class="text-headline-md font-bold">$3,240.00</p>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium opacity-80">
+<span>82% of $4,000 monthly limit</span>
+<span>12 days left</span>
+</div>
+<div class="h-3 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 82%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Balance Quick Glance -->
+<div class="flex justify-between items-center px-2">
+<div>
+<p class="text-body-sm text-outline">Total Balance</p>
+<p class="text-headline-sm font-bold text-on-background">$12,450.80</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+</div>
+</div>
+<!-- Categories -->
+<section>
+<div class="flex justify-between items-end mb-4 px-2">
+<h3 class="text-headline-sm font-bold text-on-background">Categories</h3>
+<button class="text-body-sm font-bold text-primary">View Trends</button>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<!-- Food -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container/30 flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1.5">
+<span class="text-body-md font-bold text-on-surface">Food &amp; Dining</span>
+<span class="text-body-md font-bold text-on-surface">$850</span>
+</div>
+<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<!-- Rent -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1.5">
+<span class="text-body-md font-bold text-on-surface">Rent &amp; Bills</span>
+<span class="text-body-md font-bold text-on-surface">$1,800</span>
+</div>
+<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 90%"></div>
+</div>
+</div>
+</div>
+<!-- Fun -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-fixed/30 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">sports_esports</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between mb-1.5">
+<span class="text-body-md font-bold text-on-surface">Fun &amp; Entertainment</span>
+<span class="text-body-md font-bold text-on-surface">$590</span>
+</div>
+<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 30%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recent Transactions -->
+<section>
+<div class="flex justify-between items-end mb-4 px-2">
+<h3 class="text-headline-sm font-bold text-on-background">Activity</h3>
+<button class="text-body-sm font-bold text-primary">History</button>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container">
+<!-- Transaction 1 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-primary text-[20px]">shopping_bag</span>
+</div>
+<div>
+<p class="text-body-md font-bold text-on-background">Whole Foods</p>
+<p class="text-[12px] text-outline">Today, 2:45 PM</p>
+</div>
+</div>
+<p class="text-body-md font-bold text-error">-$124.50</p>
+</div>
+<!-- Transaction 2 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-primary text-[20px]">subscriptions</span>
+</div>
+<div>
+<p class="text-body-md font-bold text-on-background">Netflix</p>
+<p class="text-[12px] text-outline">Yesterday</p>
+</div>
+</div>
+<p class="text-body-md font-bold text-error">-$15.99</p>
+</div>
+<!-- Transaction 3 -->
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-primary text-[20px]">payments</span>
+</div>
+<div>
+<p class="text-body-md font-bold text-on-background">Salary</p>
+<p class="text-[12px] text-outline">Jan 28</p>
+</div>
+</div>
+<p class="text-body-md font-bold text-primary">+$4,500.00</p>
+</div>
+</div>
+</section>
+</main>
+<!-- AI Floating Action Button -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-white/90 backdrop-blur-lg border-t border-surface-container-high z-50 rounded-t-[24px] premium-shadow">
+<a class="flex flex-col items-center justify-center text-primary group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-bold mt-0.5">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-[10px] font-medium mt-0.5">Budget</span>
+</a>
+<a class="flex flex-col items-center justify-center -mt-8" href="#">
+<div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-background">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium mt-0.5">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium mt-0.5">Profile</span>
+</a>
+</nav>
+</body></html>

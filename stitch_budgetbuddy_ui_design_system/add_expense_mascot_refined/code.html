@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BudgetBuddy - Add Expense</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#69577f",
+                    "on-primary-fixed": "#231437",
+                    "error": "#ba1a1a",
+                    "on-background": "#1d1b1e",
+                    "secondary-container": "#e8d1ff",
+                    "surface-container-low": "#f8f2f6",
+                    "tertiary-fixed": "#eae5a3",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#44410f",
+                    "on-tertiary-fixed": "#1e1c00",
+                    "tertiary-container": "#b2ae71",
+                    "secondary-fixed-dim": "#d4beeb",
+                    "primary-fixed-dim": "#d3beeb",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f5eff3",
+                    "on-primary-fixed-variant": "#503f65",
+                    "tertiary": "#63602c",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#ded8dc",
+                    "outline-variant": "#cbc4ce",
+                    "background": "#fef8fb",
+                    "on-surface-variant": "#4a454d",
+                    "tertiary-fixed-dim": "#cec98a",
+                    "primary-fixed": "#eddcff",
+                    "outline": "#7b757e",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#eedbff",
+                    "on-primary-container": "#fffbff",
+                    "surface-tint": "#68577e",
+                    "surface-container": "#f2ecf0",
+                    "surface-container-highest": "#e6e1e5",
+                    "on-error-container": "#93000a",
+                    "secondary": "#69577e",
+                    "surface-container-high": "#ece7ea",
+                    "primary-container": "#7f6d95",
+                    "primary": "#66547b",
+                    "on-surface": "#1d1b1e",
+                    "on-secondary-fixed-variant": "#503f65",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fef8fb",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#fef8fb",
+                    "inverse-primary": "#d3beeb",
+                    "surface-variant": "#e6e1e5",
+                    "inverse-surface": "#323033",
+                    "on-secondary-fixed": "#231437",
+                    "on-tertiary-fixed-variant": "#4b4816"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "48px",
+                    "base": "4px",
+                    "margin-desktop": "40px",
+                    "lg": "32px",
+                    "sm": "16px",
+                    "gutter": "24px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-xl-mobile": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .form-input-focus:focus {
+            outline: none;
+            border-color: #9784ae;
+            box-shadow: 0 0 0 4px rgba(151, 132, 174, 0.1);
+        }
+        .soft-shadow {
+            box-shadow: 0px 8px 32px rgba(151, 132, 174, 0.12);
+        }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 flex justify-between items-center px-margin-mobile py-sm bg-background/80 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-secondary-container flex items-center justify-center">
+<img alt="BudgetBuddy Mascot" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCm0kJhAkzT6GOz78Rej3Lbd5KAxUmSOSKR9LReglPcKwH0JrXMbUm_326KzHojRJvGBXz6AjfzrXpIeRYuPeFz74-CbMFOFUTtOK_KOl-WZXXjmymSI7Oy8I1wPhWWchRdp5GxWeST6bGJtJT0AO8fEj4PfvxiK0zefmrO_7CuVCkmUMZJ4bRpVpmPaJQudekXebjI1CQI1To8dOl2gSz6pbIvcddiVrbEA1ttVSQe5I0IzTfQykGUqUOM7Ljk8vVaP32-zZJqfmQ"/>
+</div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">BudgetBuddy</h1>
+</div>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">notifications</button>
+</header>
+<main class="max-w-xl mx-auto px-margin-mobile pt-sm">
+<section class="mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-base">Add Expense</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Capture your spending instantly.</p>
+</section>
+<!-- Unified Form Experience -->
+<form class="space-y-lg" id="expenseForm">
+<!-- Large Amount Hero -->
+<div class="flex flex-col items-center py-md space-y-2">
+<div class="relative flex items-center justify-center w-full">
+<span class="text-headline-xl font-headline-xl text-primary/40 absolute left-1/4 -translate-x-full">$</span>
+<input class="bg-transparent border-none text-center font-headline-xl text-[56px] text-on-surface w-full focus:ring-0 placeholder:text-surface-dim font-bold" id="amountInput" placeholder="0.00" required="" step="0.01" type="number"/>
+</div>
+<p class="text-label-md text-primary font-semibold tracking-wider uppercase">Amount</p>
+</div>
+<!-- Prominent Merchant/Note Field -->
+<div class="space-y-xs">
+<div class="relative">
+<input class="w-full h-14 px-6 bg-surface-container-lowest border-none rounded-2xl font-body-lg text-body-lg soft-shadow form-input-focus placeholder:text-outline/60 pr-14" id="merchantInput" placeholder="Where did you spend?" required="" type="text"/>
+<button aria-label="Voice input" class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary p-2 hover:bg-surface-container rounded-full transition-all active:scale-90" onclick="const feedback = document.getElementById('voiceFeedback'); this.classList.toggle('voice-active'); if(this.classList.contains('voice-active')) { feedback.classList.remove('opacity-0'); this.innerText = 'graphic_eq'; } else { feedback.classList.add('opacity-0'); this.innerText = 'mic'; }" type="button">
+  mic
+</button></div><div class="flex items-center gap-2 mt-2 px-2 opacity-0 transition-opacity duration-300" id="voiceFeedback">
+<div class="flex items-end gap-1 h-4">
+<div class="wave-bar" style="animation-delay: 0.1s"></div>
+<div class="wave-bar" style="animation-delay: 0.3s"></div>
+<div class="wave-bar" style="animation-delay: 0.2s"></div>
+<div class="wave-bar" style="animation-delay: 0.4s"></div>
+</div>
+<span class="text-body-sm font-medium text-primary">Listening...</span>
+</div>
+</div>
+<!-- AI Category Suggestions -->
+<div class="space-y-sm">
+<div class="flex justify-between items-center px-base">
+<label class="font-label-md text-label-md text-on-surface-variant">Suggested for you</label>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="flex gap-sm overflow-x-auto no-scrollbar pb-1 -mx-margin-mobile px-margin-mobile">
+<button class="flex-none flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">coffee</span>
+<span class="font-label-md">Coffee</span>
+</button>
+<button class="flex-none flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span class="font-label-md">Groceries</span>
+</button>
+<button class="flex-none flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">train</span>
+<span class="font-label-md">Transport</span>
+</button>
+<button class="flex-none flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high text-on-surface border border-transparent hover:border-primary/20 transition-all active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">restaurant</span>
+<span class="font-label-md">Dining</span>
+</button>
+</div>
+</div>
+<!-- Secondary Details Grid -->
+<div class="grid grid-cols-2 gap-sm">
+<div class="space-y-xs">
+<label class="block font-label-md text-label-md text-on-surface-variant px-base">Date</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]" data-icon="calendar_today">calendar_today</span>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-none rounded-2xl font-body-md soft-shadow form-input-focus" type="date" value="2023-10-27"/>
+</div>
+</div>
+<div class="space-y-xs">
+<label class="block font-label-md text-label-md text-on-surface-variant px-base">Method</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]" data-icon="credit_card">credit_card</span>
+<select class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-none rounded-2xl font-body-md soft-shadow form-input-focus appearance-none">
+<option>Visa •• 42</option>
+<option>Cash</option>
+<option>Apple Pay</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Log Expense CTA -->
+<div class="pt-md">
+<button class="w-full h-16 bg-primary text-on-primary rounded-2xl font-headline-sm text-headline-sm hover:opacity-90 active:scale-[0.98] transition-all shadow-lg flex items-center justify-center gap-2" style="background-color: #9784AE;" type="submit">
+<span class="material-symbols-outlined">check_circle</span>
+                Log Expense
+            </button>
+</div>
+</form>
+</main>
+<!-- BottomNavBar (Consistent with existing) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 bg-surface shadow-[0px_-4px_20px_rgba(151,132,174,0.15)] z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-outline p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-label-md text-label-md">Budget</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle" style='font-variation-settings: "FILL" 1;'>add_circle</span>
+<span class="font-label-md text-label-md">Add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-md text-label-md">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+    // Frictionless interactions
+    const form = document.getElementById('expenseForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Logging...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<span class="material-symbols-outlined">done_all</span> Expense Saved';
+            btn.classList.replace('bg-primary', 'bg-tertiary-container');
+            btn.classList.add('text-on-tertiary-container');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.classList.replace('bg-tertiary-container', 'bg-primary');
+                btn.classList.remove('text-on-tertiary-container');
+                btn.disabled = false;
+                form.reset();
+                document.getElementById('amountInput').focus();
+            }, 1500);
+        }, 800);
+    });
+
+    // Auto-focus amount on load
+    window.onload = () => {
+        document.getElementById('amountInput').focus();
+    };
+
+    // Category suggestions behavior
+    const suggestButtons = document.querySelectorAll('.no-scrollbar button');
+    suggestButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            suggestButtons.forEach(b => b.classList.replace('bg-primary/20', 'bg-surface-container-high'));
+            btn.classList.replace('bg-surface-container-high', 'bg-primary/20');
+            btn.classList.add('border-primary/40');
+        });
+    });
+</script>
+</body></html>
