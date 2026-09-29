@@ -4,7 +4,7 @@
 //  fetch() calls outside this file.
 // ─────────────────────────────────────────────────────────────
 
-const API_BASE = 'http://localhost:8000';  // change to your Render URL on deploy
+const API_BASE = 'http://127.0.0.1:8000';  // change to your Render URL on deploy
 
 // ── Token helpers ─────────────────────────────────────────────
 function getToken()        { return localStorage.getItem('bb_token'); }
@@ -13,8 +13,8 @@ function clearToken()      { localStorage.removeItem('bb_token'); }
 function isLoggedIn()      { return !!getToken(); }
 
 // ── Redirect helpers ──────────────────────────────────────────
-function goToLogin()       { window.location.href = '/login.html'; }
-function goToDashboard()   { window.location.href = '/dashboard.html'; }
+function goToLogin()       { window.location.href = 'login.html'; }
+function goToDashboard()   { window.location.href = 'dashboard.html'; }
 
 // Guard: call this at the top of any protected page
 // e.g. dashboard.js → requireAuth();
@@ -77,31 +77,35 @@ async function apiPut(endpoint, body) {
     });
 }
 
+async function apiPatch(endpoint, body = {}) {
+    return apiRequest(endpoint, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    });
+}
+
 async function apiDelete(endpoint) {
     return apiRequest(endpoint, { method: 'DELETE' });
 }
 
-// ── Special case: login uses form encoding, not JSON ──────────
-// FastAPI's OAuth2PasswordRequestForm expects application/x-www-form-urlencoded.
-// This is the ONE place we don't use JSON.
-async function apiLogin(username, password) {
-    const body = new URLSearchParams({ username, password });
-
+// ── Special case: login uses JSON (matches your FastAPI LoginSchema) ──
+async function apiLogin(email, password) {
     const res = await fetch(`${API_BASE}/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({
+            email,
+            password
+        }),
     });
-
+    
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || 'Invalid username or password');
+        throw new Error(data.detail || 'Invalid email or password');
     }
-
-    // Store the token and return
-    setToken(data.access_token);
-    return data;
+     setToken(data.access_token);
+     return data;
 }
 
 // ── Logout ────────────────────────────────────────────────────

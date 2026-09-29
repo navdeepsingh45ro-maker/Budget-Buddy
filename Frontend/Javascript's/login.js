@@ -31,23 +31,32 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearError();
 
-    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
 
     // Basic client-side guard
-    if (!username || !password) {
-        showError('Please enter your username and password.');
+    if (!email || !password) {
+        showError('Please enter your email and password.');
         return;
     }
 
     setLoading(true);
 
     try {
-        await apiLogin(username, password);
-        // apiLogin already stored the token — go straight to dashboard
-        goToDashboard();
+        await apiLogin(email, password);
+        
+        // Show successful login toast feedback
+        const feedback = document.getElementById('login-feedback');
+        if (feedback) {
+            feedback.classList.remove('translate-y-20', 'opacity-0');
+            feedback.classList.add('translate-y-0', 'opacity-100');
+        }
+        
+        setTimeout(() => {
+            goToDashboard();
+        }, 1200); // Let the user see the premium toast before redirecting
     } catch (err) {
-        // Show the error from the backend (generic "Invalid username or password")
+        // Show the error from the backend (generic "Invalid email or password")
         showError(err.message);
     } finally {
         setLoading(false);

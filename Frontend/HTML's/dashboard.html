@@ -1,4 +1,6 @@
-<!DOCTYPE html><html class="light" lang="en"><head>
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>BudgetBuddy | Your Financial Coach</title>
@@ -132,15 +134,15 @@
 <header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md px-margin-mobile py-4 flex justify-between items-center">
 <div class="flex items-center gap-3">
 <div class="w-10 h-10 rounded-full border-2 border-primary-fixed overflow-hidden">
-<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsR8MUmTImIsV3nFlFAtbGA44gJbjAYZOKdcPoniIhqkbezZQTOqR50qbDYRjD5pWpD8m7VKRjqw1ljvgBRrkyd6rgUuwd5aMv56MpFa8Nm3hn0wb1ZQDJ0S8pF9Zf-zBcki4XdCmC5sX73Hyy4aaOXWzQFN0FmncOenTgZ7IUGt3t62LfW5LoDO_qb7YivzUgBwH_2t0JAMmDzc5NKef6vdX3PO6a94UYzXpfl-9aD-h9MpFoX09lzH3OGxatVafk0ruHC7TAQKM">
+<img id="profile-image" alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsR8MUmTImIsV3nFlFAtbGA44gJbjAYZOKdcPoniIhqkbezZQTOqR50qbDYRjD5pWpD8m7VKRjqw1ljvgBRrkyd6rgUuwd5aMv56MpFa8Nm3hn0wb1ZQDJ0S8pF9Zf-zBcki4XdCmC5sX73Hyy4aaOXWzQFN0FmncOenTgZ7IUGt3t62LfW5LoDO_qb7YivzUgBwH_2t0JAMmDzc5NKef6vdX3PO6a94UYzXpfl-9aD-h9MpFoX09lzH3OGxatVafk0ruHC7TAQKM">
 </div>
 <div>
-<p class="text-body-sm text-outline font-medium">Good morning,</p>
-<h1 class="text-headline-sm text-on-background font-bold">Alex Rivera</h1>
+<p id="greeting" class="text-body-sm text-outline font-medium">Good morning,</p>
+<h1 id="user-name" class="text-headline-sm text-on-background font-bold">Loading...</h1>
 </div>
 </div>
 <button class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined">notifications</span>
+<span id="notifications" class="material-symbols-outlined">notifications</span>
 </button>
 </header>
 <main class="px-margin-mobile max-w-2xl mx-auto space-y-6 mt-2">
@@ -150,8 +152,11 @@
 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
 </div>
 <div>
-<p class="text-body-sm text-on-surface font-semibold">Coach Insight</p>
-<p class="text-body-sm text-on-surface-variant leading-tight">You've spent 15% less on dining than last week. You're crushing it! 🍟</p>
+<p id="coach-insight-title" class="text-body-sm text-on-surface font-semibold flex items-center gap-2">
+  Coach Insight <span id="insight-time" class="text-[10px] text-outline font-normal"></span>
+</p>
+<p id="coach-insight-content" class="text-body-sm text-on-surface-variant leading-tight mb-1.5 animate-pulse">Loading your financial insights...</p>
+<p id="coach-reminder-content" class="text-[13px] text-primary font-medium leading-tight"></p>
 </div>
 </div>
 <!-- Budget Health Section -->
@@ -162,28 +167,28 @@
 <div class="flex justify-between items-start mb-6">
 <div>
 <span class="text-xs font-bold uppercase tracking-widest opacity-70">Financial Health</span>
-<h2 class="text-headline-lg-mobile font-bold mt-1">You're doing great!</h2>
+<h2 id="health-title" class="text-headline-lg-mobile font-bold mt-1">Loading...</h2>
 </div>
-<div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-bold">ON TRACK</div>
+<div id="health-status" class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[12px] font-bold">Loading...</div>
 </div>
 <div class="grid grid-cols-2 gap-4 mb-8">
 <div>
 <p class="text-xs opacity-70 mb-1">REMAINING BUDGET</p>
-<p class="text-headline-md font-bold text-secondary-container">$760.00</p>
+<p id="remaining-budget" class="text-headline-md font-bold text-secondary-container">₹0</p>
 </div>
 <div>
 <p class="text-xs opacity-70 mb-1">TOTAL SPENT</p>
-<p class="text-headline-md font-bold">$3,240.00</p>
+<p id="total-spent" class="text-headline-md font-bold">₹0</p>
 </div>
 </div>
 <!-- Progress Bar -->
 <div class="space-y-2">
 <div class="flex justify-between text-xs font-medium opacity-80">
-<span>82% of $4,000 monthly limit</span>
-<span>12 days left</span>
+<span id="progress-text">Loading...</span>
+<span id="days-left">0 days left</span>
 </div>
 <div class="h-3 bg-white/10 rounded-full overflow-hidden">
-<div class="h-full bg-secondary-container rounded-full" style="width: 82%"></div>
+<div id="progress-bar" class="h-full bg-secondary-container rounded-full" style="width: 0%"></div>
 </div>
 </div>
 </div>
@@ -191,123 +196,41 @@
 <!-- Balance Quick Glance -->
 <div class="flex justify-between items-center px-2">
 <div>
-<p class="text-body-sm text-outline">Total Balance</p>
-<p class="text-headline-sm font-bold text-on-background">$12,450.80</p>
+<p class="text-body-sm text-outline">Monthly Budget</p>
+<p id="total-balance" class="text-headline-sm font-bold text-on-background">₹0</p>
 </div>
 <div class="flex gap-2">
-<button class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors">
+<a href="add_expense.html" class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors flex items-center justify-center">
 <span class="material-symbols-outlined">add</span>
-</button>
-<button class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors">
+</a>
+<a href="budget_overview.html" class="bg-surface-container-high p-3 rounded-2xl text-primary hover:bg-primary-fixed transition-colors flex items-center justify-center">
 <span class="material-symbols-outlined">account_balance_wallet</span>
-</button>
+</a>
 </div>
 </div>
 <!-- Categories -->
 <section>
 <div class="flex justify-between items-end mb-4 px-2">
 <h3 class="text-headline-sm font-bold text-on-background">Categories</h3>
-<button class="text-body-sm font-bold text-primary">View Trends</button>
+<a href="budget_history.html" class="text-body-sm font-bold text-primary">View Trends</a>
 </div>
-<div class="grid grid-cols-1 gap-3">
-<!-- Food -->
-<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-secondary-container/30 flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined">restaurant</span>
-</div>
-<div class="flex-1">
-<div class="flex justify-between mb-1.5">
-<span class="text-body-md font-bold text-on-surface">Food &amp; Dining</span>
-<span class="text-body-md font-bold text-on-surface">$850</span>
-</div>
-<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-secondary rounded-full" style="width: 45%"></div>
-</div>
-</div>
-</div>
-<!-- Rent -->
-<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-primary-fixed/30 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined">home</span>
-</div>
-<div class="flex-1">
-<div class="flex justify-between mb-1.5">
-<span class="text-body-md font-bold text-on-surface">Rent &amp; Bills</span>
-<span class="text-body-md font-bold text-on-surface">$1,800</span>
-</div>
-<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-primary rounded-full" style="width: 90%"></div>
-</div>
-</div>
-</div>
-<!-- Fun -->
-<div class="bg-surface-container-lowest p-4 rounded-2xl border border-surface-variant/30 premium-shadow flex items-center gap-4">
-<div class="w-12 h-12 rounded-xl bg-tertiary-fixed/30 flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined">sports_esports</span>
-</div>
-<div class="flex-1">
-<div class="flex justify-between mb-1.5">
-<span class="text-body-md font-bold text-on-surface">Fun &amp; Entertainment</span>
-<span class="text-body-md font-bold text-on-surface">$590</span>
-</div>
-<div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
-<div class="h-full bg-tertiary rounded-full" style="width: 30%"></div>
-</div>
-</div>
-</div>
+<div id="categories-list" class="grid grid-cols-1 gap-3">
+<!-- JS will populate category cards here -->
 </div>
 </section>
 <!-- Recent Transactions -->
 <section>
 <div class="flex justify-between items-end mb-4 px-2">
 <h3 class="text-headline-sm font-bold text-on-background">Activity</h3>
-<button class="text-body-sm font-bold text-primary">History</button>
+<a href="history.html" class="text-body-sm font-bold text-primary">History</a>
 </div>
-<div class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container">
-<!-- Transaction 1 -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-<span class="material-symbols-outlined text-primary text-[20px]">shopping_bag</span>
-</div>
-<div>
-<p class="text-body-md font-bold text-on-background">Whole Foods</p>
-<p class="text-[12px] text-outline">Today, 2:45 PM</p>
-</div>
-</div>
-<p class="text-body-md font-bold text-error">-$124.50</p>
-</div>
-<!-- Transaction 2 -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-<span class="material-symbols-outlined text-primary text-[20px]">subscriptions</span>
-</div>
-<div>
-<p class="text-body-md font-bold text-on-background">Netflix</p>
-<p class="text-[12px] text-outline">Yesterday</p>
-</div>
-</div>
-<p class="text-body-md font-bold text-error">-$15.99</p>
-</div>
-<!-- Transaction 3 -->
-<div class="flex items-center justify-between p-4">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-<span class="material-symbols-outlined text-primary text-[20px]">payments</span>
-</div>
-<div>
-<p class="text-body-md font-bold text-on-background">Salary</p>
-<p class="text-[12px] text-outline">Jan 28</p>
-</div>
-</div>
-<p class="text-body-md font-bold text-primary">+$4,500.00</p>
-</div>
+<div id="transactions-list" class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container">
+<!-- JS will populate transaction items here -->
 </div>
 </section>
 </main>
 <!-- AI Floating Action Button -->
-<button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-all">
+<button onclick="window.location.href='profile.html'" class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center z-50 hover:scale-105 active:scale-95 transition-all">
 <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
 </button>
 <!-- BottomNavBar -->
@@ -316,22 +239,27 @@
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
 <span class="text-[10px] font-bold mt-0.5">Home</span>
 </a>
-<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="budget_overview.html">
 <span class="material-symbols-outlined">account_balance_wallet</span>
 <span class="text-[10px] font-medium mt-0.5">Budget</span>
 </a>
-<a class="flex flex-col items-center justify-center -mt-8" href="#">
+<a class="flex flex-col items-center justify-center -mt-8" href="add_expense.html">
 <div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-background">
 <span class="material-symbols-outlined text-[32px]">add</span>
 </div>
 </a>
-<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="history.html">
 <span class="material-symbols-outlined">history</span>
 <span class="text-[10px] font-medium mt-0.5">History</span>
 </a>
-<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="#">
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="profile.html">
 <span class="material-symbols-outlined">person</span>
 <span class="text-[10px] font-medium mt-0.5">Profile</span>
 </a>
 </nav>
-</body></html>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/notifications.js"></script>
+<script src="../Javascript's/dashboard.js"></script>
+</html>

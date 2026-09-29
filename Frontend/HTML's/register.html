@@ -136,7 +136,7 @@
 
     <div class="w-14 h-14 flex items-center justify-center flex-shrink-0">
         <img
-            src="/Frontend/Assets/budgetbuddy-logo.png"
+            src="../Assets/budgetbuddy-logo.png"
             alt="BudgetBuddy Logo"
             class="w-full h-full object-contain"
         >
@@ -161,13 +161,13 @@
 <!-- Subtle Atmospheric Glow -->
 <div class="absolute -top-24 -right-24 w-48 h-48 bg-secondary-container/40 rounded-full blur-3xl -z-10"></div>
 <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-primary-container/20 rounded-full blur-3xl -z-10"></div>
-<form class="space-y-sm" id="createAccountForm">
+<form class="space-y-sm" id="RegisterForm">
 <!-- Full Name Field -->
 <div class="space-y-xs">
-<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="fullName">Full Name</label>
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="name">Full Name</label>
 <div class="relative group">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">person</span>
-<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="fullName" name="fullName" placeholder="Jane Doe" required="" type="text"/>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="name" name="fullName" placeholder="Jane Doe" required="" type="text"/>
 </div>
 </div>
 <!-- Email Field -->
@@ -201,17 +201,18 @@
 </div>
 <!-- Confirm Password -->
 <div class="space-y-xs">
-<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="confirmPassword">Confirm Password</label>
+<label class="font-label-md text-label-md text-on-surface-variant block ml-1" for="confirm-password">Confirm Password</label>
 <div class="relative group">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">lock_reset</span>
-<input class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="confirmPassword" name="confirmPassword" placeholder="Repeat password" required="" type="password"/>
-<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="togglePassword('confirmPassword', this)" type="button">
+<input class="w-full pl-10 pr-12 py-3 bg-surface-container-lowest border border-primary/20 rounded-lg outline-none focus:border-secondary focus:ring-4 focus:ring-primary/5 transition-all font-body-md" id="confirm-password" name="confirmPassword" placeholder="Repeat password" required="" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none" onclick="togglePassword('confirm-password', this)" type="button">
 <span class="material-symbols-outlined">visibility</span>
 </button>
 </div>
 </div>
+<div id="register-error" style="display:none;" class="text-error bg-error-container/20 border border-error/20 p-4 rounded-xl text-body-sm font-medium text-center"></div>
 <!-- Action Button -->
-<button class="w-full mt-lg bg-primary text-on-primary py-4 rounded-xl font-headline-sm text-headline-sm soft-shadow hover:opacity-95 active:scale-[0.98] transition-all duration-200 flex justify-center items-center gap-2 group" type="submit">
+<button id="register-btn" class="w-full mt-lg bg-primary text-on-primary py-4 rounded-xl font-headline-sm text-headline-sm soft-shadow hover:opacity-95 active:scale-[0.98] transition-all duration-200 flex justify-center items-center gap-2 group" type="submit">
                     Create Account
                     <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
 </button>
@@ -220,7 +221,7 @@
 <div class="mt-md text-center">
 <p class="font-body-sm text-on-surface-variant">
                     Already have an account? 
-                    <a class="text-primary font-semibold hover:underline transition-all" href="#">Log in</a>
+                    <a class="text-primary font-semibold hover:underline transition-all" href="login.html">Log in</a>
 </p>
 </div>
 </div>
@@ -248,3 +249,6 @@
                 icon.textContent = "visibility";
             }
         }
+</script>
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/register.js"></script>

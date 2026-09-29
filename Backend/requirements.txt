@@ -1,0 +1,33 @@
+# ============================================================
+#  Budget Buddy — Backend Dependencies
+#  Install: pip install -r requirements.txt
+# ============================================================
+
+# ── Core Framework ──────────────────────────────────────────
+fastapi>=0.115.0            # Web framework (API, routing, middleware)
+uvicorn[standard]>=0.30.0   # ASGI server to run FastAPI
+
+# ── Database & ORM ──────────────────────────────────────────
+sqlalchemy>=2.0.0           # ORM & database toolkit
+pymysql>=1.1.0              # MySQL driver (used in DATABASE_URL)
+
+# ── Data Validation ─────────────────────────────────────────
+pydantic>=2.0.0             # Request/response schema validation (used by FastAPI)
+
+# ── Authentication & Security ──────────────────────────────
+python-jose[cryptography]>=3.3.0   # JWT token creation & verification
+passlib[bcrypt]>=1.7.4             # Password hashing (bcrypt scheme)
+
+# ── AI / LLM Integrations ──────────────────────────────────
+groq>=0.9.0                 # Groq API client (AI expense categorization)
+google-generativeai>=0.8.0  # Google Gemini API (insights & NLP parsing)
+
+# ── Environment & Config ───────────────────────────────────
+python-dotenv>=1.0.0        # Load .env variables (API keys, secrets)
+
+# ── Export Providers ────────────────────────────────────────
+fpdf2>=2.8.0                # PDF report generation
+openpyxl>=3.1.0             # Excel (.xlsx) export
+
+# ── Auth Form Support ──────────────────────────────────────
+python-multipart>=0.0.9     # Required by FastAPI for OAuth2 form login

@@ -73,7 +73,7 @@ form.addEventListener('submit', async (e) => {
     try {
         // Step 1: create the account
         // ⚠️ Change '/register' to match your actual route in user_routes.py
-        await apiPost('/register', { name, email, password });
+        await apiPost('/users/', { name, email, password });
 
         // Step 2: immediately log them in so they land on dashboard
         // This hits POST /login with form encoding (handled by apiLogin)
@@ -88,4 +88,54 @@ form.addEventListener('submit', async (e) => {
     } finally {
         setLoading(false);
     }
+});
+
+// ── Password Strength Checker ─────────────────────────────────
+const passwordInput = document.getElementById('password');
+const pBars = [
+    document.getElementById('p-bar-1'),
+    document.getElementById('p-bar-2'),
+    document.getElementById('p-bar-3'),
+    document.getElementById('p-bar-4')
+];
+const strengthText = document.getElementById('strength-text');
+
+passwordInput && passwordInput.addEventListener('input', () => {
+    const val = passwordInput.value;
+    let score = 0;
+    
+    if (!val) {
+        pBars.forEach(bar => {
+            bar.className = 'strength-bar h-full w-1/4 rounded-full bg-surface-variant';
+        });
+        strengthText.textContent = 'Security level';
+        return;
+    }
+
+    // Basic scoring
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    // Update bars and color schemes
+    pBars.forEach((bar, idx) => {
+        if (idx < score) {
+            if (score <= 1) {
+                // Weak: Red
+                bar.className = 'strength-bar h-full w-1/4 rounded-full bg-red-500';
+            } else if (score <= 3) {
+                // Medium: Amber/Orange
+                bar.className = 'strength-bar h-full w-1/4 rounded-full bg-amber-500';
+            } else {
+                // Strong: Emerald/Green
+                bar.className = 'strength-bar h-full w-1/4 rounded-full bg-emerald-500';
+            }
+        } else {
+            bar.className = 'strength-bar h-full w-1/4 rounded-full bg-surface-variant';
+        }
+    });
+
+    const labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    strengthText.textContent = labels[score - 1] || 'Weak';
 });

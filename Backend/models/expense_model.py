@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Date
 from datetime import datetime
 from database import Base
 
@@ -12,4 +13,6 @@ class Expense(Base):
     subcategory = Column(String(50), nullable=True)
     note = Column(String(200))
     created_at = Column(DateTime, default=datetime.utcnow)
+    payment_method = Column(String(50), nullable=True)
+    expense_date = Column(Date, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)

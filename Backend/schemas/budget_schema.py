@@ -1,8 +1,10 @@
 from pydantic import BaseModel, Field   
 class BudgetCreate(BaseModel):
-    monthly_budget: float = Field(..., gt=0, description="Monthly budget amount")
-    month: int = Field(..., ge=1, le=12, description="Month (1-12)")
-    year: int = Field(..., ge=2000, le=2100, description="Year (2000-2100)")
+    monthly_budget: float = Field(
+        ...,
+        gt=0,
+        description="Monthly budget amount"
+    )
 
 class BudgetResponse(BaseModel):
     id: int
@@ -12,3 +14,6 @@ class BudgetResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class BudgetDetailResponse(BudgetResponse):
+    monthly_budget: float

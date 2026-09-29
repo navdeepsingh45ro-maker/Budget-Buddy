@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>BudgetBuddy - History</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-high": "#ece7ea",
+                    "surface-container": "#f2ecf0",
+                    "inverse-primary": "#d3beeb",
+                    "on-surface-variant": "#4a454d",
+                    "primary-container": "#7f6d95",
+                    "on-secondary-fixed-variant": "#503f65",
+                    "surface-container-low": "#f8f2f6",
+                    "on-secondary-container": "#69577f",
+                    "tertiary-fixed": "#eae5a3",
+                    "inverse-on-surface": "#f5eff3",
+                    "primary-fixed": "#eddcff",
+                    "on-secondary-fixed": "#231437",
+                    "primary": "#66547b",
+                    "tertiary-container": "#b2ae71",
+                    "surface-bright": "#fef8fb",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "background": "#fef8fb",
+                    "surface": "#fef8fb",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#63602c",
+                    "surface-variant": "#e6e1e5",
+                    "on-tertiary-container": "#44410f",
+                    "on-primary-fixed-variant": "#503f65",
+                    "inverse-surface": "#323033",
+                    "secondary-container": "#e8d1ff",
+                    "secondary-fixed": "#eedbff",
+                    "on-primary-fixed": "#231437",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "on-background": "#1d1b1e",
+                    "outline": "#7b757e",
+                    "on-tertiary-fixed": "#1e1c00",
+                    "surface-container-highest": "#e6e1e5",
+                    "outline-variant": "#cbc4ce",
+                    "on-surface": "#1d1b1e",
+                    "surface-dim": "#ded8dc",
+                    "secondary": "#69577e",
+                    "on-tertiary-fixed-variant": "#4b4816",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#d4beeb",
+                    "surface-tint": "#68577e",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#cec98a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#d3beeb",
+                    "on-primary-container": "#fffbff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1.25rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "md": "24px",
+                    "gutter": "24px",
+                    "xl": "48px",
+                    "lg": "32px",
+                    "margin-mobile": "16px",
+                    "xs": "8px",
+                    "sm": "16px",
+                    "margin-desktop": "40px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-xl-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body {
+            background-color: #fef8fb;
+            color: #1d1b1e;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .premium-shadow {
+            box-shadow: 0 4px 24px -1px rgba(104, 87, 126, 0.08), 0 2px 8px -1px rgba(104, 87, 126, 0.04);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #ece7ea 25%, #f8f2f6 50%, #ece7ea 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen pb-32">
+
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm">
+    <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-full overflow-hidden bg-secondary-container flex items-center justify-center">
+            <img alt="BudgetBuddy Mascot" class="w-full h-full object-cover" src="../Assets/budgetbuddy-logo.png"/>
+        </div>
+        <h1 class="font-headline-sm text-headline-sm font-bold text-primary">BudgetBuddy</h1>
+    </div>
+    <button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">notifications</button>
+</header>
+
+<main class="px-margin-mobile max-w-xl mx-auto space-y-6 mt-2">
+    <!-- Header -->
+    <section>
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-base">History</h2>
+        <p class="font-body-sm text-body-sm text-on-surface-variant">Review and manage your logged expenses.</p>
+    </section>
+    <!-- Tab Navigation -->
+    <section class="flex gap-1 bg-surface-container-low rounded-2xl p-1">
+        <button id="tab-expenses" class="flex-1 py-2.5 rounded-xl text-label-md font-label-md text-center transition-all bg-surface-container-lowest premium-shadow text-primary font-bold">Expenses</button>
+        <button id="tab-recurring" class="flex-1 py-2.5 rounded-xl text-label-md font-label-md text-center transition-all text-on-surface-variant hover:text-primary">Recurring</button>
+    </section>
+
+    <!-- ═══ EXPENSES TAB ═══ -->
+    <div id="expenses-tab">
+        <!-- Search & Filter Toolbar (reusable component) -->
+        <section id="sf-toolbar"></section>
+
+    <!-- Loading Skeleton -->
+    <section id="history-skeleton" class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container">
+        <div class="p-4 flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-full"></div><div class="flex-1 space-y-2"><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-3 w-1/2"></div></div><div class="skeleton h-5 w-16"></div></div>
+        <div class="p-4 flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-full"></div><div class="flex-1 space-y-2"><div class="skeleton h-4 w-2/3"></div><div class="skeleton h-3 w-1/3"></div></div><div class="skeleton h-5 w-16"></div></div>
+        <div class="p-4 flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-full"></div><div class="flex-1 space-y-2"><div class="skeleton h-4 w-1/2"></div><div class="skeleton h-3 w-1/4"></div></div><div class="skeleton h-5 w-16"></div></div>
+    </section>
+
+    <!-- Empty State -->
+    <section id="history-empty" class="hidden text-center py-16">
+        <div class="w-16 h-16 mx-auto mb-4 bg-surface-container rounded-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-[32px] text-outline">receipt_long</span>
+        </div>
+        <p class="text-headline-sm font-bold text-on-background mb-2">No expenses found</p>
+        <p class="text-body-sm text-on-surface-variant">Try adjusting your filters or add a new expense.</p>
+    </section>
+
+    <!-- Error State -->
+    <section id="history-error" class="hidden text-center py-16">
+        <div class="w-16 h-16 mx-auto mb-4 bg-error-container rounded-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-[32px] text-on-error-container">cloud_off</span>
+        </div>
+        <p class="text-headline-sm font-bold text-on-background mb-2">Failed to load expenses</p>
+        <p class="text-body-sm text-on-surface-variant mb-6">Please try again.</p>
+        <button id="history-retry-btn" class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-[18px]">refresh</span>
+            Retry
+        </button>
+    </section>
+
+    <!-- Pagination -->
+    <section id="history-pagination" class="hidden flex justify-between items-center mt-2">
+        <button id="prev-page-btn" class="px-4 py-2 border border-outline-variant/30 rounded-xl text-body-sm text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>Previous</button>
+        <span id="page-indicator" class="text-body-sm text-on-surface-variant font-medium">Page 1 of 1</span>
+        <button id="next-page-btn" class="px-4 py-2 border border-outline-variant/30 rounded-xl text-body-sm text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>Next</button>
+    </section>
+
+    <!-- History list -->
+    <section id="history-container" class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container hidden"></section>
+    </div>
+
+    <!-- ═══ RECURRING TAB ═══ -->
+    <div id="recurring-tab" class="hidden space-y-4">
+        <!-- Add button -->
+        <button id="rt-add-btn" class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-on-primary rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all premium-shadow">
+            <span class="material-symbols-outlined text-[20px]">add_circle</span>
+            New Recurring Transaction
+        </button>
+
+        <!-- Loading -->
+        <section id="rt-skeleton" class="bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow divide-y divide-surface-container">
+            <div class="p-4 flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-full"></div><div class="flex-1 space-y-2"><div class="skeleton h-4 w-3/4"></div><div class="skeleton h-3 w-1/2"></div></div><div class="skeleton h-5 w-16"></div></div>
+            <div class="p-4 flex items-center gap-3"><div class="skeleton w-10 h-10 rounded-full"></div><div class="flex-1 space-y-2"><div class="skeleton h-4 w-2/3"></div><div class="skeleton h-3 w-1/3"></div></div><div class="skeleton h-5 w-16"></div></div>
+        </section>
+
+        <!-- Empty State -->
+        <section id="rt-empty" class="hidden text-center py-12">
+            <div class="w-16 h-16 mx-auto mb-4 bg-surface-container rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-[32px] text-outline">event_repeat</span>
+            </div>
+            <p class="text-headline-sm font-bold text-on-background mb-2">No recurring transactions</p>
+            <p class="text-body-sm text-on-surface-variant">Create one to automate regular expenses.</p>
+        </section>
+
+        <!-- Error State -->
+        <section id="rt-error" class="hidden text-center py-12">
+            <div class="w-16 h-16 mx-auto mb-4 bg-error-container rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-[32px] text-on-error-container">cloud_off</span>
+            </div>
+            <p class="text-headline-sm font-bold text-on-background mb-2">Failed to load</p>
+            <button id="rt-retry-btn" class="mt-4 inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-[18px]">refresh</span> Retry
+            </button>
+        </section>
+
+        <!-- Recurring List -->
+        <section id="rt-list" class="hidden space-y-3"></section>
+    </div>
+
+    <!-- ═══ CREATE / EDIT MODAL ═══ -->
+    <div id="rt-modal-backdrop" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center">
+        <div id="rt-modal" class="w-full max-w-lg bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 id="rt-modal-title" class="text-headline-sm font-bold text-on-background">New Recurring Transaction</h3>
+                <button id="rt-modal-close" class="material-symbols-outlined p-2 text-outline hover:text-on-surface rounded-full hover:bg-surface-container transition-all">close</button>
+            </div>
+            <form id="rt-form" class="space-y-4">
+                <input type="hidden" id="rt-edit-id" value="" />
+                <div>
+                    <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Title</label>
+                    <input id="rt-title" type="text" required placeholder="e.g. Netflix, Rent, Gym" class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Amount</label>
+                        <input id="rt-amount" type="number" required min="1" step="any" placeholder="₹0" class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Frequency</label>
+                        <select id="rt-frequency" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Category</label>
+                    <select id="rt-category" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="Food">Food</option><option value="Transport">Transport</option><option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option><option value="Bills" selected>Bills</option><option value="Health">Health</option>
+                        <option value="Education">Education</option><option value="Subscriptions">Subscriptions</option><option value="EMI Loans">EMI Loans</option>
+                        <option value="Rent">Rent</option><option value="Investments">Investments</option><option value="Savings">Savings</option>
+                        <option value="Travel">Travel</option><option value="Family">Family</option><option value="Personal Care">Personal Care</option>
+                        <option value="Gifts">Gifts</option><option value="Donations">Donations</option><option value="Insurance">Insurance</option>
+                        <option value="Taxes">Taxes</option><option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Notes</label>
+                    <input id="rt-notes" type="text" placeholder="Optional notes" class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Start Date</label>
+                        <input id="rt-start-date" type="date" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    </div>
+                    <div>
+                        <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">End Date</label>
+                        <input id="rt-end-date" type="date" class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    </div>
+                </div>
+                <button type="submit" id="rt-submit-btn" class="w-full py-3 bg-primary text-on-primary rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">Create</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- ═══ EDIT EXPENSE MODAL ═══ -->
+<div id="edit-expense-modal-backdrop" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center">
+    <div id="edit-expense-modal" class="w-full max-w-lg bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto translate-y-full transition-transform duration-300 sm:translate-y-0">
+        <div class="flex justify-between items-center">
+            <h3 class="text-headline-sm font-bold text-on-background">Edit Expense</h3>
+            <button id="edit-modal-close" class="material-symbols-outlined p-2 text-outline hover:text-on-surface rounded-full hover:bg-surface-container transition-all">close</button>
+        </div>
+        <form id="edit-expense-form" class="space-y-4">
+            <input type="hidden" id="edit-expense-id" value="" />
+            <div>
+                <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Amount</label>
+                <input id="edit-amount" type="number" required min="0.01" step="any" class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            </div>
+            <div>
+                <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Note</label>
+                <input id="edit-note" type="text" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+            </div>
+            <div>
+                <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Category</label>
+                <select id="edit-category" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    <option value="Food">Food</option><option value="Transport">Transport</option><option value="Entertainment">Entertainment</option>
+                    <option value="Shopping">Shopping</option><option value="Bills">Bills</option><option value="Health">Health</option>
+                    <option value="Education">Education</option><option value="Subscriptions">Subscriptions</option><option value="EMI Loans">EMI Loans</option>
+                    <option value="Rent">Rent</option><option value="Investments">Investments</option><option value="Savings">Savings</option>
+                    <option value="Travel">Travel</option><option value="Family">Family</option><option value="Personal Care">Personal Care</option>
+                    <option value="Gifts">Gifts</option><option value="Donations">Donations</option><option value="Insurance">Insurance</option>
+                    <option value="Taxes">Taxes</option><option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Date</label>
+                    <input id="edit-date" type="date" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                </div>
+                <div>
+                    <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-1.5 block">Payment Method</label>
+                    <select id="edit-payment" required class="w-full px-4 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="Card">Card</option>
+                        <option value="Cash">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" id="edit-submit-btn" class="w-full py-3 bg-primary text-on-primary rounded-2xl font-label-md text-label-md hover:opacity-90 active:scale-95 transition-all">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ EXPORT MODAL ═══ -->
+<div id="export-modal-backdrop" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center">
+    <div id="export-modal" class="w-full max-w-md bg-surface-container-lowest rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-xl translate-y-full transition-transform duration-300 sm:translate-y-0">
+        <div class="flex justify-between items-center">
+            <h3 class="text-headline-sm font-bold text-on-background">Export Expenses</h3>
+            <button id="export-modal-close" class="material-symbols-outlined p-2 text-outline hover:text-on-surface rounded-full hover:bg-surface-container transition-all">close</button>
+        </div>
+        
+        <!-- Summary -->
+        <div class="bg-surface-container-low p-4 rounded-xl text-body-sm space-y-2 border border-surface-variant/30">
+            <div class="flex justify-between items-center">
+                <span class="text-on-surface-variant">Expenses Selected</span>
+                <span id="export-count" class="font-bold text-on-background text-[16px]">0</span>
+            </div>
+            <div class="flex justify-between items-start">
+                <span class="text-on-surface-variant">Filters Applied</span>
+                <span id="export-filters-summary" class="font-medium text-primary text-right max-w-[200px] leading-tight">None</span>
+            </div>
+        </div>
+
+        <!-- Format Options -->
+        <div>
+            <label class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider mb-2 block">Choose Format</label>
+            <div class="grid grid-cols-3 gap-2" id="export-format-options">
+                <button data-format="csv" class="export-format-btn py-3 border border-outline-variant/30 rounded-xl text-center font-medium hover:bg-surface-container-low focus:ring-2 focus:ring-primary focus:border-primary transition-all">CSV</button>
+                <button data-format="excel" class="export-format-btn py-3 border border-outline-variant/30 rounded-xl text-center font-medium hover:bg-surface-container-low focus:ring-2 focus:ring-primary focus:border-primary transition-all">Excel</button>
+                <button data-format="pdf" class="export-format-btn py-3 border border-outline-variant/30 rounded-xl text-center font-medium hover:bg-surface-container-low focus:ring-2 focus:ring-primary focus:border-primary transition-all">PDF</button>
+            </div>
+        </div>
+
+        <button id="export-download-btn" class="w-full py-3 mt-2 bg-primary text-on-primary rounded-xl font-label-md hover:opacity-90 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            <span class="material-symbols-outlined" id="export-download-icon">download</span>
+            <span id="export-download-text">Download</span>
+        </button>
+    </div>
+</div>
+
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-white/90 backdrop-blur-lg border-t border-surface-container-high z-50 rounded-t-[24px] soft-shadow">
+    <a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="dashboard.html">
+        <span class="material-symbols-outlined">home</span>
+        <span class="text-[10px] font-medium mt-0.5">Home</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="budget_overview.html">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        <span class="text-[10px] font-medium mt-0.5">Budget</span>
+    </a>
+    <a class="flex flex-col items-center justify-center -mt-8" href="add_expense.html">
+        <div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-background">
+            <span class="material-symbols-outlined text-[32px]">add</span>
+        </div>
+    </a>
+    <a class="flex flex-col items-center justify-center text-primary group" href="#">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+        <span class="text-[10px] font-bold mt-0.5">History</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="profile.html">
+        <span class="material-symbols-outlined">person</span>
+        <span class="text-[10px] font-medium mt-0.5">Profile</span>
+    </a>
+</nav>
+
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/search-filter.js"></script>
+<script src="../Javascript's/notifications.js"></script>
+<script src="../Javascript's/history.js"></script>
+<script src="../Javascript's/recurring.js"></script>
+</body>
+</html>

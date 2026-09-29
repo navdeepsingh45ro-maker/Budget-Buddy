@@ -1,4 +1,3 @@
-from unicodedata import category
 
 from groq import Groq
 import os
@@ -13,12 +12,10 @@ class AICategorizer:
 
     def __init__(self):
         self.groq_key = os.getenv("GROQ_API_KEY")
-        print(self.groq_key)
-
         self.client = Groq(api_key=self.groq_key)
         self.model = "llama-3.1-8b-instant"
 
-    def categorize_expense(self, description: str) -> dict:
+    def categorize_expense(self, description: str, category: str = "Unknown") -> dict:
 
         prompt = f"""
         You are an expense classification system.
@@ -69,11 +66,4 @@ class AICategorizer:
 
         ai_response = response.choices[0].message.content.strip()
         print(ai_response)
-        try:
-            subcategory_dict = json.loads(ai_response)
-            return subcategory_dict
-        except json.JSONDecodeError:
-            print("Failed to parse AI response as JSON. Returning default subcategory.")
-            pass
-
-        return {"subcategory": "Other"}
+        return {"subcategory": ai_response}

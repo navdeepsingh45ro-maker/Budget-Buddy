@@ -135,25 +135,25 @@
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen pb-24">
 <!-- Top App Bar -->
-<header class="w-full top-0 sticky bg-background z-40 flex justify-between items-center px-margin-mobile h-16 transition-opacity duration-200">
+<header class="w-full top-0 sticky z-40 bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile py-sm">
 <div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-fixed">
-<img class="w-full h-full object-cover" data-alt="A friendly, close-up portrait of a young person with a warm smile, wearing stylish casual attire. The photography style is high-key with soft natural lighting, using a palette of soft lavenders and neutral whites to match a serene financial app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOGy4cCuVxSd8nbzOpXw5oGhANgDQj6I8W2J0DJLEqie0afA3xdhCUEsnehyjlYrTrWG5j-aKudgyY6uVJdNNooy-2h0x6wi64Vn0V1W2SJvQPV8__Je7hmxi-pvTg5yfMN4LcL65IaGjN_hWdrvZ4dYMMj1_DlQNx8a_Tak7Zm3Z3bYmtRgqm9X-LDKVXFdW_h_nutZ3S4Noubj3zkGoTCqT8zrlgIguJfjZ7FJeysWJPcGv9dYBieu1ZJu4ir3YSP-1I4vA4TQA"/>
+<div class="w-12 h-12 rounded-full overflow-hidden bg-secondary-container flex items-center justify-center">
+<img alt="BudgetBuddy Mascot" class="w-full h-full object-cover" src="../Assets/budgetbuddy-logo.png"/>
 </div>
-<span class="font-headline-sm text-headline-sm font-bold text-primary">Buddy Finance</span>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">BudgetBuddy</h1>
 </div>
-<button class="text-primary hover:opacity-80 transition-opacity material-symbols-outlined" data-icon="smart_toy">smart_toy</button>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all">notifications</button>
 </header>
 <main class="px-margin-mobile max-w-lg mx-auto">
 <!-- Welcome Header -->
 <section class="mt-6 mb-8 text-center md:text-left">
-<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface mb-2">Hey Alex!</h1>
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface mb-2" id="profile-greeting">Loading...</h1>
 <p class="font-body-md text-body-md text-on-surface-variant">Buddy is here to help you stay on track.</p>
 </section>
 <!-- Buddy Avatar Area -->
 <section class="relative flex flex-col items-center justify-center mb-10">
 <div class="buddy-float relative z-10 w-48 h-48 rounded-full bg-gradient-to-tr from-secondary-container to-surface flex items-center justify-center shadow-[0px_4px_20px_rgba(151,132,174,0.15)] overflow-hidden">
-<img alt="Budget Buddy Mascot" class="w-40 h-40 object-contain" src="/Frontend/Assets/budgetbuddy-logo.png"/>
+<img alt="Budget Buddy Mascot" class="w-40 h-40 object-contain" src="../Assets/budgetbuddy-logo.png"/>
 </div>
 <!-- Subtle Pulsing Glow -->
 <div class="absolute w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
@@ -166,10 +166,10 @@
 <div class="glass-card p-md rounded-xl shadow-[0px_4px_20px_rgba(151,132,174,0.1)] flex flex-col gap-2">
 <div class="flex items-center justify-between">
 <span class="material-symbols-outlined text-primary bg-primary/10 p-2 rounded-lg" data-icon="restaurant">restaurant</span>
-<span class="text-xs font-bold text-tertiary bg-tertiary-fixed px-2 py-0.5 rounded-full">Good Job</span>
+<span class="text-xs font-bold text-tertiary bg-tertiary-fixed px-2 py-0.5 rounded-full" id="insight1-badge">Loading...</span>
 </div>
-<p class="font-headline-sm text-headline-sm text-on-surface mt-2">You saved $40 on dining this week! 🍕</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant">That's 15% less than your average spending.</p>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-2" id="insight1-title">Loading...</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="insight1-detail">Loading...</p>
 </div>
 <!-- Insight 2 -->
 <div class="glass-card p-md rounded-xl shadow-[0px_4px_20px_rgba(151,132,174,0.1)] border-l-4 border-l-error">
@@ -177,8 +177,8 @@
 <span class="material-symbols-outlined text-error" data-icon="event_note">event_note</span>
 <span class="font-label-md text-label-md text-error">Reminder</span>
 </div>
-<p class="font-body-lg text-body-lg text-on-surface font-semibold">Your rent is due in 2 days. 🏠</p>
-<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Make sure you have $1,250 ready in your main account.</p>
+<p class="font-body-lg text-body-lg text-on-surface font-semibold" id="insight2-title">Loading...</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1" id="insight2-detail">Loading...</p>
 </div>
 </div>
 </section>
@@ -186,55 +186,73 @@
 <section class="mb-24">
 <h2 class="font-label-md text-label-md text-outline uppercase tracking-wider mb-4">Quick Actions</h2>
 <div class="grid grid-cols-3 gap-3">
-<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<button onclick="window.location.href='add_expense.html'" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
 <span class="material-symbols-outlined text-primary text-3xl" data-icon="add_circle" style="font-variation-settings: 'FILL' 1;">add_circle</span>
 <span class="font-label-md text-label-md text-on-surface text-center">Log Expense</span>
 </button>
-<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
+<button onclick="window.location.href='budget_overview.html'" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface shadow-sm border border-outline-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-150">
 <span class="material-symbols-outlined text-primary text-3xl" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
 <span class="font-label-md text-label-md text-on-surface text-center">Check Budget</span>
 </button>
-<button class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary shadow-sm hover:opacity-90 transition-opacity active:scale-95 duration-150">
+<button onclick="document.querySelector('input').focus()" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-primary shadow-sm hover:opacity-90 transition-opacity active:scale-95 duration-150">
 <span class="material-symbols-outlined text-white text-3xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
 <span class="font-label-md text-label-md text-white text-center">Ask Buddy</span>
 </button>
 </div>
 </section>
+<!-- Logout Section -->
+<section class="mb-24">
+    <button onclick="handleLogout()" class="w-full py-3 bg-surface shadow-sm border border-outline-variant rounded-xl font-label-md text-error hover:bg-error-container transition-colors flex items-center justify-center gap-2">
+        <span class="material-symbols-outlined">logout</span>
+        Log Out
+    </button>
+</section>
 </main>
 <!-- Floating Chat Input -->
 <div class="fixed bottom-20 left-0 w-full px-margin-mobile z-50">
 <div class="max-w-lg mx-auto relative">
-<input class="w-full h-14 pl-12 pr-12 rounded-full border-none shadow-[0px_4px_30px_rgba(151,132,174,0.2)] bg-surface-container-lowest focus:ring-2 focus:ring-primary text-on-surface placeholder-outline transition-all" placeholder="Ask Buddy anything..." type="text"/>
+<!-- Chat Response Area -->
+<div id="chat-response-card" class="hidden absolute bottom-full mb-4 left-0 w-full bg-surface-container-highest p-4 rounded-2xl shadow-xl z-50 transition-all">
+    <div class="flex justify-between items-center mb-2">
+        <span class="font-bold text-primary text-label-md flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">auto_awesome</span> Buddy
+        </span>
+        <button onclick="document.getElementById('chat-response-card').classList.add('hidden')" class="material-symbols-outlined text-[18px]">close</button>
+    </div>
+    <div id="chat-response-text" class="text-body-sm text-on-surface whitespace-pre-line"></div>
+</div>
+<input id="chat-input" class="w-full h-14 pl-12 pr-12 rounded-full border-none shadow-[0px_4px_30px_rgba(151,132,174,0.2)] bg-surface-container-lowest focus:ring-2 focus:ring-primary text-on-surface placeholder-outline transition-all" placeholder="Ask Buddy anything..." type="text"/>
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary" data-icon="search">search</span>
-<button class="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:opacity-90 transition-opacity material-symbols-outlined" data-icon="mic">mic</button>
+<button id="chat-submit" class="absolute right-3 top-1/2 -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:opacity-90 transition-opacity material-symbols-outlined flex items-center justify-center">send</button>
 </div>
 </div>
-<!-- Bottom Navigation Bar -->
-<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 pb-2 pt-2 bg-surface shadow-[0px_-4px_20px_rgba(151,132,174,0.15)] rounded-t-xl z-50 h-16">
-<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="home">home</span>
-<span class="font-label-md text-label-md">Home</span>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 bg-white/90 backdrop-blur-lg border-t border-surface-container-high z-50 rounded-t-[24px] shadow-[0px_4px_20px_rgba(151,132,174,0.15)]">
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium mt-0.5">Home</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
-<span class="font-label-md text-label-md">Budget</span>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="budget_overview.html">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-[10px] font-medium mt-0.5">Budget</span>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
-<span class="font-label-md text-label-md">Add</span>
+<a class="flex flex-col items-center justify-center -mt-8" href="add_expense.html">
+<div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg border-4 border-background">
+<span class="material-symbols-outlined text-[32px]">add</span>
+</div>
 </a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
-<span class="material-symbols-outlined" data-icon="history">history</span>
-<span class="font-label-md text-label-md">History</span>
+<a class="flex flex-col items-center justify-center text-outline hover:text-primary transition-colors" href="history.html">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium mt-0.5">History</span>
 </a>
-<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1" href="#">
-<span class="material-symbols-outlined" data-icon="person">person</span>
-<span class="font-label-md text-label-md">Profile</span>
+<a class="flex flex-col items-center justify-center text-primary group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-bold mt-0.5">Profile</span>
 </a>
 </nav>
 <script>
     // Micro-interaction for input field
-    const chatInput = document.querySelector('input');
+    const chatInput = document.getElementById('chat-input');
     chatInput.addEventListener('focus', () => {
       chatInput.parentElement.style.transform = 'translateY(-5px)';
     });
@@ -255,4 +273,7 @@
       }, 100);
     });
   </script>
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/notifications.js"></script>
+<script src="../Javascript's/profile.js"></script>
 </body></html>
