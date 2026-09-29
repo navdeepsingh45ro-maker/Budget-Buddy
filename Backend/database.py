@@ -1,17 +1,21 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-load_dotenv()
+BACKEND_DIR = Path(__file__).resolve().parent
+load_dotenv(BACKEND_DIR / ".env")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Local development uses a SQLite file next to this module; production sets
+# DATABASE_URL to a hosted Postgres database.
+DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite:///{BACKEND_DIR / 'database.db'}"
 
-# Fallback to SQLite if DATABASE_URL is missing or using the default placeholder
-if not DATABASE_URL or "root:your_password@localhost" in DATABASE_URL:
-    DATABASE_URL = "sqlite:///./database.db"
+# Hosts like Render/Heroku hand out "postgres://" URLs, which SQLAlchemy 2 rejects.
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

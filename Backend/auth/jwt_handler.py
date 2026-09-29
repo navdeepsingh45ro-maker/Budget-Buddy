@@ -1,8 +1,15 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
-SECRET_KEY = os.getenv("JWT_SECRET", "your_secret_key")
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+# Refuse to start without a real secret: a known default lets anyone forge tokens.
+SECRET_KEY = os.getenv("JWT_SECRET")
+if not SECRET_KEY or SECRET_KEY == "your_secure_jwt_secret_here":
+    raise RuntimeError("JWT_SECRET is not set. Add a long random value to Backend/.env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
