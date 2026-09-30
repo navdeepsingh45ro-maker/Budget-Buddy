@@ -170,10 +170,10 @@ function renderCategoryCards(categoryBreakdown, monthlyBudget) {
             <div class="flex justify-between items-start mb-sm">
                 <div class="flex items-center gap-sm">
                     <div class="w-12 h-12 rounded-lg bg-primary-container/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary">${config.icon}</span>
+                        <span class="material-symbols-outlined text-primary">${escapeHtml(config.icon)}</span>
                     </div>
                     <div>
-                        <h3 class="font-headline-sm text-headline-sm text-on-surface">${category}</h3>
+                        <h3 class="font-headline-sm text-headline-sm text-on-surface">${escapeHtml(category)}</h3>
                         ${renderStatusBadge(status)}
                     </div>
                 </div>
@@ -187,7 +187,7 @@ function renderCategoryCards(categoryBreakdown, monthlyBudget) {
                     <div class="h-full ${getBarColorClass(status)} rounded-full transition-all duration-500" style="width: ${pct}%;"></div>
                 </div>
                 <div class="flex justify-between text-body-sm">
-                    <span class="${getMessageColorClass(status)} font-medium">${getStatusMessage(category, remaining, status)}</span>
+                    <span class="${getMessageColorClass(status)} font-medium">${escapeHtml(getStatusMessage(category, remaining, status))}</span>
                     ${remaining > 0 ? `<span class="text-on-surface-variant">${formatCurrency(remaining)} left</span>` : ''}
                 </div>
             </div>

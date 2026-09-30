@@ -9,21 +9,26 @@ uvicorn[standard]>=0.30.0   # ASGI server to run FastAPI
 
 # ── Database & ORM ──────────────────────────────────────────
 sqlalchemy>=2.0.0           # ORM & database toolkit
-pymysql>=1.1.0              # MySQL driver (used in DATABASE_URL)
+psycopg2-binary>=2.9.9      # Postgres driver (production DATABASE_URL)
+pymysql>=1.1.0              # MySQL driver (optional, only for mysql:// URLs)
 
 # ── Data Validation ─────────────────────────────────────────
 pydantic>=2.0.0             # Request/response schema validation (used by FastAPI)
+email-validator>=2.0.0      # Needed by pydantic EmailStr
 
 # ── Authentication & Security ──────────────────────────────
 python-jose[cryptography]>=3.3.0   # JWT token creation & verification
 passlib[bcrypt]>=1.7.4             # Password hashing (bcrypt scheme)
+bcrypt==4.0.1                      # Pinned: passlib 1.7.4 breaks with bcrypt>=4.1
 
 # ── AI / LLM Integrations ──────────────────────────────────
 groq>=0.9.0                 # Groq API client (AI expense categorization)
-google-generativeai>=0.8.0  # Google Gemini API (insights & NLP parsing)
+google-genai>=2.25.0       # Gemini (voice parsing, receipt scan) via services/gemini_client.py
+google-generativeai>=0.8.0  # Old Gemini SDK, still used by insights/chat until migrated
 
 # ── Environment & Config ───────────────────────────────────
 python-dotenv>=1.0.0        # Load .env variables (API keys, secrets)
+python-dateutil>=2.8.0      # Month arithmetic for recurring expenses
 
 # ── Export Providers ────────────────────────────────────────
 fpdf2>=2.8.0                # PDF report generation
@@ -31,3 +36,6 @@ openpyxl>=3.1.0             # Excel (.xlsx) export
 
 # ── Auth Form Support ──────────────────────────────────────
 python-multipart>=0.0.9     # Required by FastAPI for OAuth2 form login
+
+# ── Testing (dev only) ─────────────────────────────────────
+pytest>=8.0.0               # Run: python3 -m pytest tests -q

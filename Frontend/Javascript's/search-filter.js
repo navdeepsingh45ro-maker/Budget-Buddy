@@ -110,7 +110,7 @@ class SearchFilterToolbar {
                 <div class="relative">
                     <select id="sf-sort"
                         class="appearance-none pl-3 pr-8 py-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
-                        ${this.sortOptions.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
+                        ${this.sortOptions.map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
                     </select>
                     <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">unfold_more</span>
                 </div>` : ''}
@@ -133,7 +133,7 @@ class SearchFilterToolbar {
                     <select id="sf-category"
                         class="w-full px-3 py-2.5 bg-surface-container-low border border-outline-variant/20 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                         <option value="">All Categories</option>
-                        ${this.categories.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        ${this.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}
                     </select>
                 </div>` : ''}
 
@@ -313,8 +313,8 @@ class SearchFilterToolbar {
     _chipHTML(key, label) {
         return `
             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-fixed/30 text-primary rounded-full text-[12px] font-semibold">
-                ${label}
-                <button data-chip-remove="${key}" class="hover:text-error transition-colors">
+                ${escapeHtml(label)}
+                <button data-chip-remove="${escapeHtml(key)}" class="hover:text-error transition-colors">
                     <span class="material-symbols-outlined text-[14px]">close</span>
                 </button>
             </span>

@@ -1,85 +1,97 @@
-import json
+"""Keeps each user's optional AI coach tip in step with their spending situation.
+
+Called in the background after an expense or budget changes. The rule-based
+insight itself is computed live on every request (see /ai/insight), so this only
+decides whether the AI tip needs refreshing. It calls Gemini only when the
+situation id changes (e.g. "under_pace" -> "projected_overspend"), not when an
+amount changes, and at most MAX_TIPS_PER_DAY times per user per day.
+"""
 import hashlib
 import logging
+
 from sqlalchemy.orm import Session
+
 from database import SessionLocal
-from services.summary_service import FinancialSummaryGenerator
-from services.ai_insight_generator import AIInsightGenerator
 from models.ai_insight_model import AIInsight
+from models.notification_preferences_model import NotificationPreferences
+from services.ai_insight_generator import generate_coach_tip
+from services.insight_engine import build_insight
+from services.notification_service import NotificationService
+from services.summary_service import FinancialSummaryGenerator, local_today
 
 logger = logging.getLogger("insight_updater")
 
+MAX_TIPS_PER_DAY = 3
+
+# Situations worth a one-off in-app alert (once per month each).
+ALERT_SITUATIONS = {
+    "projected_overspend": "You're on course to overspend",
+    "weekly_spike": "Spending jumped this week",
+}
+
+
+def situation_key(summary: dict, insight: dict) -> str:
+    return f"{summary['year']}-{summary['month']:02d}:{insight['situation']}"
+
+
+def key_hash(key: str) -> str:
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()
+
+
 def refresh_user_insight(user_id: int):
-    """
-    Background task to refresh the AI insight for a user.
-    Uses SHA-256 hashing to prevent redundant calls to Gemini.
-    """
     db: Session = SessionLocal()
     try:
-        # Generate current financial summary
         summary = FinancialSummaryGenerator.generate_summary(user_id, db)
-        
-        # Create a stable string representation and hash it
-        # Sort keys to ensure deterministic hashing
-        summary_str = json.dumps(summary, sort_keys=True)
-        summary_hash = hashlib.sha256(summary_str.encode('utf-8')).hexdigest()
-        
-        # Check existing insight
-        existing_insight = db.query(AIInsight).filter(AIInsight.user_id == user_id).first()
-        
-        if existing_insight and existing_insight.summary_hash == summary_hash:
-            logger.info(f"Skipping AI generation for user {user_id}; financial summary hash unchanged.")
+        insight = build_insight(summary)
+        key = situation_key(summary, insight)
+
+        record = db.query(AIInsight).filter(AIInsight.user_id == user_id).first()
+        if record and record.summary_hash == key_hash(key):
+            logger.info("User %s: situation unchanged (%s); no AI call.", user_id, key)
             return
 
-        logger.info(f"Generating new AI insight for user {user_id}...")
-        ai_generator = AIInsightGenerator()
-        ai_response = ai_generator.generate_insight(summary)
-        
-        insight_text = ai_response.get("insight", "")
-        reminder_text = ai_response.get("reminder", "")
-        
-        if existing_insight:
-            existing_insight.summary_hash = summary_hash
-            existing_insight.summary_snapshot = summary
-            existing_insight.insight = insight_text
-            existing_insight.reminder = reminder_text
+        _maybe_alert(db, user_id, summary, insight)
+
+        today = local_today().isoformat()
+        meta = (record.summary_snapshot or {}) if record else {}
+        tips_today = meta.get("tips_today", 0) if meta.get("tip_date") == today else 0
+        if tips_today >= MAX_TIPS_PER_DAY:
+            logger.info("User %s: daily AI tip limit reached; keeping rule-based text only.", user_id)
+            return
+
+        tip = generate_coach_tip(insight, summary)
+
+        # Storage: summary_hash = hash of the situation the tip was written for,
+        # insight = the AI tip ("" if the AI was unavailable), reminder unused.
+        snapshot = {"situation_key": key, "tip_date": today, "tips_today": tips_today + 1}
+        if record:
+            record.summary_hash = key_hash(key)
+            record.summary_snapshot = snapshot
+            record.insight = tip or ""
+            record.reminder = ""
         else:
-            new_insight = AIInsight(
-                user_id=user_id,
-                summary_hash=summary_hash,
-                summary_snapshot=summary,
-                insight=insight_text,
-                reminder=reminder_text
-            )
-            db.add(new_insight)
-            
+            db.add(AIInsight(user_id=user_id, summary_hash=key_hash(key), summary_snapshot=snapshot,
+                             insight=tip or "", reminder=""))
         db.commit()
-        
-        # Trigger AI Notification
-        from services.notification_service import NotificationService
-        from models.notification_preferences_model import NotificationPreferences
-        from datetime import datetime
-        
-        prefs = db.query(NotificationPreferences).filter(NotificationPreferences.user_id == user_id).first()
-        if prefs and not prefs.notify_ai:
-            logger.info(f"Skipping AI notification for user {user_id} due to preferences.")
-        else:
-            now = datetime.now()
-            NotificationService.create_ai_notification(
-            db=db,
-            user_id=user_id,
-            title="New AI Insight Available",
-            message="Buddy generated new financial insights for this month.",
-            insight_type="monthly_insight",
-            month=now.month,
-            year=now.year
-            )
-            # Commit the notification
-            db.commit()
-        
-        logger.info(f"Successfully updated AI insight for user {user_id}.")
-        
-    except Exception as e:
-        logger.error(f"Failed to refresh AI insight for user {user_id}: {e}")
+        logger.info("User %s: AI tip refreshed for %s.", user_id, key)
+    except Exception:
+        logger.exception("Failed to refresh insight for user %s", user_id)
     finally:
         db.close()
+
+
+def _maybe_alert(db: Session, user_id: int, summary: dict, insight: dict):
+    situation = insight["situation"]
+    if situation not in ALERT_SITUATIONS:
+        return
+    prefs = db.query(NotificationPreferences).filter(NotificationPreferences.user_id == user_id).first()
+    if prefs and not prefs.notify_ai:
+        return
+    meta = {"insight_type": situation, "month": summary["month"], "year": summary["year"]}
+    if NotificationService.has_duplicate(db, user_id, "ai", meta):
+        return
+    NotificationService.create_ai_notification(
+        db=db, user_id=user_id, title=ALERT_SITUATIONS[situation], message=insight["insight"],
+        insight_type=situation, month=summary["month"], year=summary["year"],
+    )
+    db.commit()

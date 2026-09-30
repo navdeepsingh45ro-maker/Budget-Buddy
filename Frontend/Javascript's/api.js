@@ -4,7 +4,23 @@
 //  fetch() calls outside this file.
 // ─────────────────────────────────────────────────────────────
 
-const API_BASE = 'http://127.0.0.1:8000';  // change to your Render URL on deploy
+// Backend URL: local API when the page is served from this machine, otherwise
+// the deployed API. Set PRODUCTION_API_BASE once the backend is hosted.
+const PRODUCTION_API_BASE = 'https://YOUR-BACKEND-URL.onrender.com';
+const IS_LOCAL = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
+const API_BASE = window.BB_API_BASE || (IS_LOCAL ? 'http://127.0.0.1:8000' : PRODUCTION_API_BASE);
+
+// ── HTML escaping ─────────────────────────────────────────────
+// Wrap every user-supplied value (notes, titles, names) in escapeHtml()
+// before putting it inside an innerHTML template string.
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 // ── Token helpers ─────────────────────────────────────────────
 function getToken()        { return localStorage.getItem('bb_token'); }
@@ -86,6 +102,28 @@ async function apiPatch(endpoint, body = {}) {
 
 async function apiDelete(endpoint) {
     return apiRequest(endpoint, { method: 'DELETE' });
+}
+
+// File uploads (multipart). The browser sets the Content-Type boundary itself.
+async function apiUpload(endpoint, formData) {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData,
+    });
+
+    if (res.status === 401) {
+        clearToken();
+        goToLogin();
+        return;
+    }
+
+    const data = await res.json();
+    if (!res.ok) {
+        throw new Error(typeof data.detail === 'string' ? data.detail : 'Something went wrong');
+    }
+    return data;
 }
 
 // ── Special case: login uses JSON (matches your FastAPI LoginSchema) ──

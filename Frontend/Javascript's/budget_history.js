@@ -266,7 +266,7 @@ function renderTimeline(history) {
         const yearHeader = document.createElement('div');
         yearHeader.className = 'flex items-center gap-3 mb-3';
         yearHeader.innerHTML = `
-            <h3 class="text-headline-sm font-bold text-on-background">${year}</h3>
+            <h3 class="text-headline-sm font-bold text-on-background">${escapeHtml(year)}</h3>
             <div class="flex-1 h-px bg-outline-variant/50"></div>
         `;
         historyList.appendChild(yearHeader);
@@ -300,12 +300,12 @@ function createMonthCard(item) {
                     <span class="material-symbols-outlined text-primary text-[20px]">calendar_month</span>
                 </div>
                 <div>
-                    <p class="text-body-md font-bold text-on-background">${monthName}</p>
+                    <p class="text-body-md font-bold text-on-background">${escapeHtml(monthName)}</p>
                     <p class="text-[12px] text-outline">Budget: ${formatCurrency(item.budget)}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${colors.bg} ${colors.text}">${item.status.label}</span>
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${colors.bg} ${colors.text}">${escapeHtml(item.status.label)}</span>
                 <span class="material-symbols-outlined text-outline-variant text-[18px] transition-transform duration-300 chevron-icon">expand_more</span>
             </div>
         </div>
@@ -427,7 +427,7 @@ function buildDetailView(report) {
                 <div class="flex items-center justify-between py-2.5">
                     <div class="flex items-center gap-3 flex-1 min-w-0">
                         <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${dotColor}"></div>
-                        <span class="text-body-sm font-semibold text-on-surface truncate">${cat}</span>
+                        <span class="text-body-sm font-semibold text-on-surface truncate">${escapeHtml(cat)}</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-body-sm font-bold text-on-surface">${formatCurrency(amount)}</span>
@@ -450,9 +450,9 @@ function buildDetailView(report) {
                 </div>
                 <div class="flex-1">
                     <p class="text-[12px] text-outline">Largest Expense</p>
-                    <p class="text-body-sm font-bold text-on-surface">${formatCurrency(le.amount)} · ${le.category}</p>
+                    <p class="text-body-sm font-bold text-on-surface">${formatCurrency(le.amount)} · ${escapeHtml(le.category)}</p>
                 </div>
-                <span class="text-[11px] text-outline">${le.date}</span>
+                <span class="text-[11px] text-outline">${escapeHtml(le.date)}</span>
             </div>
         `;
     }
@@ -477,8 +477,8 @@ function buildDetailView(report) {
                     <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
                     <p class="text-body-sm font-semibold text-primary">Monthly AI Report</p>
                 </div>
-                <p class="text-body-sm text-on-surface">${report.ai_report.data.insight || ''}</p>
-                <p class="text-[12px] text-primary font-medium">${report.ai_report.data.recommendation || ''}</p>
+                <p class="text-body-sm text-on-surface">${escapeHtml(report.ai_report.data.insight)}</p>
+                <p class="text-[12px] text-primary font-medium">${escapeHtml(report.ai_report.data.recommendation)}</p>
             </div>
         `;
     }
@@ -511,7 +511,7 @@ function buildDetailView(report) {
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-variant/20">
                     <p class="text-[10px] text-outline uppercase">Top Category</p>
-                    <p class="text-body-sm font-bold text-on-surface truncate">${report.top_category || '—'}</p>
+                    <p class="text-body-sm font-bold text-on-surface truncate">${escapeHtml(report.top_category || '—')}</p>
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-variant/20">
                     <p class="text-[10px] text-outline uppercase">Avg/Day</p>

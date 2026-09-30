@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from database import SessionLocal
 from services.recurring_transaction_service import RecurringTransactionService
+from services.reminder_engine import run_reminders
 
 logger = logging.getLogger("recurring_scheduler")
 
@@ -11,7 +12,7 @@ _scheduler_thread = None
 _scheduler_running = False
 
 # How often the scheduler checks for due transactions (in seconds)
-CHECK_INTERVAL = 60 * 60  # every hour
+CHECK_INTERVAL = 30 * 60  # every 30 minutes
 
 
 def _scheduler_loop():
@@ -38,6 +39,13 @@ def _scheduler_loop():
             logger.error(f"Scheduler cycle failed: {e}")
         finally:
             db.close()
+
+        # Time-based reminders (daily log, bills due, weekly/monthly summaries).
+        # Each is de-duplicated, so running every cycle is safe.
+        try:
+            run_reminders()
+        except Exception as e:
+            logger.error(f"Reminder cycle failed: {e}")
 
         time.sleep(CHECK_INTERVAL)
 

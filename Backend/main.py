@@ -1,4 +1,4 @@
-
+import os
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import engine, Base
@@ -18,6 +18,8 @@ from routes.device_routes import router as device_router
 from routes.notification_preferences_routes import router as preferences_router
 from routes.recurring_routes import router as recurring_router
 from routes.export_routes import router as export_router
+from routes.auth_routes import router as auth_router
+from models.password_reset_model import PasswordReset
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -30,6 +32,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
+app.include_router(auth_router)
 app.include_router(expense_router)
 app.include_router(budget_router)
 app.include_router(ai_router)
@@ -47,16 +50,20 @@ Base.metadata.create_all(bind=engine)
 def home():
    return {"message": "Expense Tracker API is running!"} 
 
+LOCAL_ORIGINS = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+]
+# Deployed frontend URL(s), comma-separated, e.g. "https://budgetbuddy.netlify.app"
+EXTRA_ORIGINS = [o.strip().rstrip("/") for o in os.getenv("FRONTEND_ORIGINS", "").split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500", 
-        "http://localhost:5500",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:8080",
-        "http://127.0.0.1:8000"
-    ],
+    allow_origins=LOCAL_ORIGINS + EXTRA_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

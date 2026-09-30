@@ -13,7 +13,7 @@ class BudgetResponse(BaseModel):
     user_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class BudgetDetailResponse(BudgetResponse):
     monthly_budget: float

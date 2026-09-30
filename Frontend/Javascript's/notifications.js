@@ -47,6 +47,8 @@ function initNotifications() {
     document.getElementById('nc-close-btn').addEventListener('click', closeDrawer);
     backdropEl.addEventListener('click', closeDrawer);
     document.getElementById('nc-mark-read-btn').addEventListener('click', markAllRead);
+    document.getElementById('nc-settings-btn').addEventListener('click', openSettings);
+    document.getElementById('nc-back-btn').addEventListener('click', closeSettings);
 
     // 5. Initial fetch & polling
     pollUnreadCount();
@@ -91,10 +93,9 @@ async function checkSyncParams() {
         }
         
         // Navigate
-        if (actionType === 'budget_history' && !window.location.pathname.includes('budget_history.html')) {
-            window.location.href = 'budget_history.html';
-        } else if (actionType === 'ai_insight' && !window.location.pathname.includes('dashboard.html')) {
-            window.location.href = 'dashboard.html';
+        const target = getNotificationTarget(actionType, null);
+        if (target && !window.location.pathname.includes(target)) {
+            window.location.href = target;
         }
     }
 }
@@ -112,14 +113,24 @@ function injectDrawerHTML() {
             <div class="px-6 py-4 flex items-center justify-between border-b border-surface-variant/30 bg-surface-container-lowest/80 backdrop-blur-md">
                 <div class="flex items-center gap-3">
                     <button id="nc-close-btn" class="material-symbols-outlined p-2 -ml-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all active:scale-95">close</button>
-                    <h2 class="font-headline-sm font-bold text-on-background">Notifications</h2>
+                    <button id="nc-back-btn" aria-label="Back to notifications" class="material-symbols-outlined p-2 -ml-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all active:scale-95 hidden">arrow_back</button>
+                    <h2 id="nc-title" class="font-headline-sm font-bold text-on-background">Notifications</h2>
                 </div>
-                <button id="nc-mark-read-btn" class="text-label-md font-bold text-primary hover:text-primary-fixed transition-colors hidden">Mark all read</button>
+                <div class="flex items-center gap-2">
+                    <button id="nc-mark-read-btn" class="text-label-md font-bold text-primary hover:text-primary-fixed transition-colors hidden">Mark all read</button>
+                    <button id="nc-settings-btn" aria-label="Notification settings" class="material-symbols-outlined p-2 -mr-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all active:scale-95">settings</button>
+                </div>
             </div>
 
             <!-- Content Area -->
             <div id="nc-list" class="flex-1 overflow-y-auto p-4 space-y-6">
                 <!-- Injected via JS -->
+            </div>
+
+            <!-- Settings Area -->
+            <div id="nc-settings" class="flex-1 overflow-y-auto p-4 space-y-3 hidden">
+                <p id="nc-settings-error" role="alert" class="hidden text-body-sm text-error bg-error-container/30 rounded-xl px-3 py-2"></p>
+                <div id="nc-settings-rows" class="space-y-2"></div>
             </div>
         </div>
     `;
@@ -214,11 +225,7 @@ function showLocalNotification(notif) {
             n.close();
             window.focus();
             apiPatch(`/notifications/${notif.id}/read`).catch(console.error);
-            if (notif.action_type === 'budget_history') {
-                window.location.href = 'budget_history.html';
-            } else if (notif.action_type === 'ai_insight') {
-                window.location.href = 'dashboard.html';
-            }
+            navigateForNotification(notif.action_type, notif.action_payload);
         };
     }
 }
@@ -257,6 +264,7 @@ function openDrawer() {
     drawerEl.classList.remove('translate-x-full');
     drawerEl.classList.add('translate-x-0');
 
+    showListView();
     fetchNotifications();
 }
 
@@ -326,7 +334,7 @@ function renderGroupedNotifications(notifs) {
         section.className = 'space-y-3';
         
         section.innerHTML = `
-            <h3 class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider pl-1 pt-2">${groupName}</h3>
+            <h3 class="text-label-md font-bold text-on-surface-variant uppercase tracking-wider pl-1 pt-2">${escapeHtml(groupName)}</h3>
             <div class="space-y-2 group-list"></div>
         `;
         
@@ -365,16 +373,16 @@ function createNotificationCard(n) {
         <div class="flex gap-3 relative z-10">
             <!-- Icon -->
             <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${iconColorClass} mt-1">
-                <span class="material-symbols-outlined text-[20px]">${n.icon || 'notifications'}</span>
+                <span class="material-symbols-outlined text-[20px]">${escapeHtml(n.icon || 'notifications')}</span>
             </div>
             
             <!-- Content -->
             <div class="flex-1 min-w-0 pr-6">
                 <div class="flex items-start justify-between gap-2 mb-1">
-                    <p class="text-label-lg font-bold text-on-surface truncate">${n.title}</p>
-                    <span class="text-[11px] text-outline flex-shrink-0 whitespace-nowrap mt-0.5">${timeAgo}</span>
+                    <p class="text-label-lg font-bold text-on-surface truncate">${escapeHtml(n.title)}</p>
+                    <span class="text-[11px] text-outline flex-shrink-0 whitespace-nowrap mt-0.5">${escapeHtml(timeAgo)}</span>
                 </div>
-                <p class="text-body-sm text-on-surface-variant line-clamp-2">${n.message}</p>
+                <p class="text-body-sm text-on-surface-variant line-clamp-2">${escapeHtml(n.message)}</p>
             </div>
         </div>
 
@@ -435,14 +443,34 @@ async function handleNotificationClick(n, cardEl) {
     
     // Quick timeout to allow drawer close animation to start
     setTimeout(() => {
-        if (n.action_type === 'budget_history') {
-            window.location.href = 'budget_history.html';
-            // In a real SPA we would scroll to the specific month via payload, 
-            // but for now redirecting to the right page is sufficient.
-        } else if (n.action_type === 'ai_insight') {
-            window.location.href = 'dashboard.html';
-        }
+        navigateForNotification(n.action_type, n.action_payload);
     }, 200);
+}
+
+// Single source of truth for notification tap destinations.
+// budget_history.js reads no URL params, so monthly_report just opens the page.
+function getNotificationTarget(actionType, payload) {
+    switch (actionType) {
+        case 'budget_history':
+        case 'monthly_report':
+            return 'budget_history.html';
+        case 'ai_insight':
+            return 'dashboard.html';
+        case 'add_expense':
+            return 'add_expense.html';
+        case 'recurring':
+        case 'history':
+            return 'history.html';
+        case 'set_budget':
+            return 'budget_overview.html';
+        default:
+            return null;
+    }
+}
+
+function navigateForNotification(actionType, payload) {
+    const target = getNotificationTarget(actionType, payload);
+    if (target) window.location.href = target;
 }
 
 async function markAllRead() {
@@ -462,6 +490,147 @@ async function markAllRead() {
     } catch (err) {
         console.error('Failed to mark all read', err);
     }
+}
+
+// ── Settings View ───────────────────────────────────────────────────
+
+const NC_SETTINGS = [
+    { key: 'notify_budget',    icon: 'account_balance_wallet', title: 'Budget alerts',  desc: "When you pass 50%, 80% and 100% of your budget, or haven't set one" },
+    { key: 'notify_reminders', icon: 'notifications_active',   title: 'Reminders',      desc: 'Evening nudge to log expenses, and bills due tomorrow' },
+    { key: 'notify_weekly',    icon: 'date_range',             title: 'Weekly summary', desc: "Every Monday morning: last week's spending" },
+    { key: 'notify_monthly',   icon: 'assessment',             title: 'Monthly report', desc: 'On the 1st: how last month went' },
+    { key: 'notify_ai',        icon: 'auto_awesome',           title: "Buddy's alerts", desc: "When you're on course to overspend or spending jumps" },
+    { key: 'notify_system',    icon: 'info',                   title: 'App updates',    desc: 'Account and system messages' }
+];
+
+function showListView() {
+    document.getElementById('nc-settings').classList.add('hidden');
+    document.getElementById('nc-back-btn').classList.add('hidden');
+    document.getElementById('nc-close-btn').classList.remove('hidden');
+    document.getElementById('nc-settings-btn').classList.remove('hidden');
+    document.getElementById('nc-title').textContent = 'Notifications';
+    listEl.classList.remove('hidden');
+    updateBadge(unreadCount); // restores "Mark all read" visibility
+}
+
+function closeSettings() {
+    showListView();
+}
+
+async function openSettings() {
+    listEl.classList.add('hidden');
+    document.getElementById('nc-mark-read-btn').classList.add('hidden');
+    document.getElementById('nc-settings-btn').classList.add('hidden');
+    document.getElementById('nc-close-btn').classList.add('hidden');
+    document.getElementById('nc-back-btn').classList.remove('hidden');
+    document.getElementById('nc-title').textContent = 'Notification settings';
+    document.getElementById('nc-settings').classList.remove('hidden');
+    showSettingsError('');
+
+    const rowsEl = document.getElementById('nc-settings-rows');
+    rowsEl.innerHTML = buildSettingsSkeleton();
+
+    try {
+        const prefs = await apiGet('/notification-preferences/');
+        renderSettingsRows(prefs || {});
+    } catch (err) {
+        console.error('Failed to load notification preferences', err);
+        rowsEl.innerHTML = '';
+        showSettingsError("Couldn't load your settings. Please try again.");
+    }
+}
+
+function showSettingsError(msg) {
+    const el = document.getElementById('nc-settings-error');
+    el.textContent = msg;
+    el.classList.toggle('hidden', !msg);
+}
+
+function renderSettingsRows(prefs) {
+    const rowsEl = document.getElementById('nc-settings-rows');
+    rowsEl.innerHTML = '';
+    NC_SETTINGS.forEach(def => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 p-4 rounded-2xl border border-surface-variant/30 bg-surface-container-lowest';
+
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-primary bg-primary-fixed/30';
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined text-[20px]';
+        icon.textContent = def.icon;
+        iconWrap.appendChild(icon);
+
+        const text = document.createElement('div');
+        text.className = 'flex-1 min-w-0';
+        const title = document.createElement('p');
+        title.className = 'text-label-lg font-bold text-on-surface';
+        title.textContent = def.title;
+        const desc = document.createElement('p');
+        desc.className = 'text-body-sm text-on-surface-variant';
+        desc.textContent = def.desc;
+        text.appendChild(title);
+        text.appendChild(desc);
+
+        const sw = document.createElement('button');
+        sw.type = 'button';
+        sw.setAttribute('role', 'switch');
+        sw.setAttribute('aria-label', def.title);
+        sw.dataset.key = def.key;
+        sw.className = 'relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary';
+        const knob = document.createElement('span');
+        knob.className = 'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-surface-container-lowest transition-transform';
+        sw.appendChild(knob);
+        setSwitchState(sw, !!prefs[def.key]);
+
+        sw.addEventListener('click', () => toggleSetting(sw));
+
+        row.appendChild(iconWrap);
+        row.appendChild(text);
+        row.appendChild(sw);
+        rowsEl.appendChild(row);
+    });
+}
+
+function setSwitchState(sw, on) {
+    sw.setAttribute('aria-checked', on ? 'true' : 'false');
+    sw.classList.toggle('bg-primary', on);
+    sw.classList.toggle('bg-outline-variant', !on);
+    const knob = sw.firstElementChild;
+    if (knob) {
+        knob.classList.toggle('translate-x-5', on);
+    }
+}
+
+async function toggleSetting(sw) {
+    const key = sw.dataset.key;
+    const previous = sw.getAttribute('aria-checked') === 'true';
+    const next = !previous;
+
+    showSettingsError('');
+    setSwitchState(sw, next); // optimistic
+    sw.disabled = true;
+
+    try {
+        await apiPut('/notification-preferences/', { [key]: next });
+    } catch (err) {
+        console.error('Failed to save notification preference', err);
+        setSwitchState(sw, previous); // revert
+        showSettingsError("Couldn't save that change. Please try again.");
+    } finally {
+        sw.disabled = false;
+    }
+}
+
+function buildSettingsSkeleton() {
+    return Array(NC_SETTINGS.length).fill(0).map(() => `
+        <div class="p-4 rounded-2xl border border-surface-variant/30 bg-surface-container-lowest flex gap-3">
+            <div class="skeleton w-10 h-10 rounded-full flex-shrink-0"></div>
+            <div class="flex-1 space-y-2 mt-1">
+                <div class="skeleton h-4 w-1/2"></div>
+                <div class="skeleton h-3 w-full"></div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ── States ──────────────────────────────────────────────────────────

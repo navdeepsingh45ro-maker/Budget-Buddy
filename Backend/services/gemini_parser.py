@@ -1,12 +1,10 @@
 import os
-import re
 import json
 import logging
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
-import google.generativeai as genai
-import traceback
+from services.gemini_client import generate_json
 
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
@@ -67,134 +65,79 @@ Text to parse:
 """
 
 
+def normalize_expense(parsed: dict, fallback_note: str | None) -> dict:
+    """Validate Gemini's raw fields into values the expense form accepts."""
+    # Category: whitelist check
+    category = parsed.get("category")
+    if category not in VALID_CATEGORIES:
+        category = "Other"
+
+    # Payment method: normalize aliases
+    raw_payment = parsed.get("payment_method")
+    payment_method = None
+    if isinstance(raw_payment, str) and raw_payment.strip():
+        payment_method = PAYMENT_METHOD_ALIASES.get(raw_payment.lower().strip())
+        if payment_method is None and raw_payment in VALID_PAYMENT_METHODS:
+            payment_method = raw_payment
+
+    # Confidence: clamp to 0-1
+    try:
+        confidence = float(parsed.get("confidence", 0))
+    except (TypeError, ValueError):
+        confidence = 0.0
+    confidence = max(0.0, min(confidence, 1.0))
+
+    # Date: validate YYYY-MM-DD format
+    expense_date = parsed.get("expense_date")
+    if expense_date:
+        try:
+            datetime.strptime(str(expense_date), "%Y-%m-%d")
+        except ValueError:
+            expense_date = None
+
+    # Amount: validate and convert to float
+    amount = parsed.get("amount")
+    try:
+        amount = round(float(amount), 2)
+        if amount <= 0:
+            amount = None
+    except (TypeError, ValueError):
+        amount = None
+
+    # Subcategory: limit to 3 words
+    subcategory = parsed.get("subcategory")
+    if isinstance(subcategory, str) and subcategory.strip():
+        subcategory = " ".join(subcategory.split()[:3])
+    else:
+        subcategory = None
+
+    return {
+        "amount": amount,
+        "category": category,
+        "subcategory": subcategory,
+        "note": parsed.get("note") or fallback_note,
+        "payment_method": payment_method,
+        "expense_date": expense_date,
+        "confidence": confidence,
+    }
+
+
 class GeminiParser:
-
-    def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY not found in .env file")
-
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
 
     def parse_expense(self, text: str) -> dict:
         """
-        Accepts a natural language expense string and returns
-        structured JSON parsed by Gemini 2.5 Flash.
-
-        Example input:  "Spent 450 rupees on Domino's using UPI"
-        Example output: {
-            "amount": 450,
-            "category": "Food",
-            "subcategory": "Domino's",
-            "note": "Spent 450 rupees on Domino's using UPI",
-            "payment_method": "UPI",
-            "expense_date": null,
-            "confidence": 0.95
-        }
+        Accepts a natural language expense string and returns structured
+        expense fields, e.g. "Spent 450 rupees on Domino's using UPI" ->
+        {"amount": 450, "category": "Food", "subcategory": "Domino's", ...}
         """
+        parsed = generate_json(EXPENSE_PARSER_PROMPT + f'"{text}"')
+        if not isinstance(parsed, dict):
+            logger.warning(f"Gemini returned unexpected response: {parsed!r}")
+            parsed = {}
 
-        prompt = EXPENSE_PARSER_PROMPT + f'"{text}"'
-
-        response = self.model.generate_content(
-            prompt,
-            generation_config=genai.GenerationConfig(temperature=0)
-        )
-        raw = response.text.strip()
-
-        # Clean up in case the model wraps in code fences despite instructions
-        if raw.startswith("```"):
-            raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
-        if raw.endswith("```"):
-            raw = raw[:-3].strip()
-        if raw.startswith("json"):
-            raw = raw[4:].strip()
-
-        try:
-            parsed = json.loads(raw)
-        except json.JSONDecodeError:
-            logger.warning(f"Gemini returned unparseable response: {raw}")
-            return {
-                "amount": None,
-                "category": None,
-                "subcategory": None,
-                "note": text,
-                "payment_method": None,
-                "expense_date": None,
-                "confidence": 0.0
-            }
-
-        # ── Post-processing & validation ────────────────────────
-
-        # Category: whitelist check
-        category = parsed.get("category")
-        if category not in VALID_CATEGORIES:
-            category = "Other"
-
-        # Payment method: normalize aliases
-        raw_payment = parsed.get("payment_method")
-        if raw_payment:
-            payment_method = PAYMENT_METHOD_ALIASES.get(
-                raw_payment.lower().strip(), None
-            )
-            if payment_method is None and raw_payment in VALID_PAYMENT_METHODS:
-                payment_method = raw_payment
-            elif payment_method is None:
-                payment_method = None
-        else:
-            payment_method = None
-
-        # Confidence: clamp to 0-1
-        try:
-            confidence = float(parsed.get("confidence", 0))
-        except (TypeError, ValueError):
-            confidence = 0.0
-        confidence = max(0.0, min(confidence, 1.0))
-
-        # Date: validate YYYY-MM-DD format
-        expense_date = parsed.get("expense_date")
-        if expense_date:
-            if not re.match(r"^\d{4}-\d{2}-\d{2}$", str(expense_date)):
-                expense_date = None
-            else:
-                try:
-                    datetime.strptime(expense_date, "%Y-%m-%d")
-                except ValueError:
-                    expense_date = None
-
-        # Amount: validate and convert to float
-        amount = parsed.get("amount")
-        try:
-            amount = float(amount)
-            if amount <= 0:
-                amount = None
-        except (TypeError, ValueError):
-            amount = None
-        
-        # Subcategory: limit to 3 words
-        subcategory = parsed.get("subcategory")
-        if subcategory:
-            words = subcategory.split()
-            if len(words) > 3:
-                subcategory = " ".join(words[:3])
-
-        # Note: fallback to original text if note is missing
-        note = parsed.get("note") or text
-
-        result = {
-            "amount": amount,
-            "category": category,
-            "subcategory": subcategory,
-            "note": note,
-            "payment_method": payment_method,
-            "expense_date": expense_date,
-            "confidence": confidence
-        }
-
-        # ── Debug logging (transcript → parsed) ────────────────
+        result = normalize_expense(parsed, fallback_note=text)
         logger.info(f"Transcript: {text}")
         logger.info(f"Parsed: {json.dumps(result, indent=2)}")
-
         return result
 
 

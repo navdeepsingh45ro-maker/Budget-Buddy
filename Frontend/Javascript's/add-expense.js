@@ -95,6 +95,9 @@ let recognition = null;
 // Check browser support once
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+// Never leave the mic running when the user leaves the page.
+window.addEventListener('pagehide', stopRecognition);
+
 window.toggleMicState = function(btn) {
     const feedback = document.getElementById('voiceFeedback');
     const text = document.getElementById('voice-state-text');
@@ -123,6 +126,9 @@ window.toggleMicState = function(btn) {
 
         recognition.onresult = async (event) => {
             const transcript = event.results[0][0].transcript;
+            // We have what we need: release the mic now. Safari keeps it open
+            // (orange mic indicator) until stop() is called explicitly.
+            stopRecognition();
             
             // ── Switch to Processing state ──────────────────
             voiceState = 'processing';
@@ -178,20 +184,132 @@ window.toggleMicState = function(btn) {
 
     } else {
         // ── Stop / Cancel ───────────────────────────────────
-        if (recognition) {
-            recognition.abort();
-            recognition = null;
-        }
         resetMicState(btn, feedback);
     }
 };
 
+// Stop listening and release the microphone, whatever state we're in.
+function stopRecognition() {
+    if (!recognition) return;
+    const active = recognition;
+    recognition = null;
+    // Detach handlers first: abort() fires an 'aborted' error in some browsers.
+    active.onresult = active.onerror = active.onend = null;
+    try { active.abort(); } catch (e) { /* already stopped */ }
+}
+
 function resetMicState(btn, feedback) {
     voiceState = 'idle';
-    recognition = null;
+    stopRecognition();
     btn.classList.remove('text-error', 'bg-error-container', 'text-primary', 'bg-primary-container');
     btn.innerText = 'mic';
     feedback.classList.add('opacity-0', 'pointer-events-none');
+}
+
+// ── Receipt Scanner — camera/file + Gemini vision via backend ──
+const scanBtn = document.getElementById('scanBtn');
+const receiptInput = document.getElementById('receiptInput');
+const RECEIPT_MAX_SIDE = 1600;
+let scanInProgress = false;
+
+// Resize + JPEG-compress an image file; resolves to the original file if decoding fails.
+async function compressReceipt(file) {
+    try {
+        let source, w, h, cleanup = () => {};
+        if (window.createImageBitmap) {
+            source = await createImageBitmap(file);
+            w = source.width; h = source.height;
+            cleanup = () => { if (source.close) source.close(); };
+        } else {
+            const url = URL.createObjectURL(file);
+            try {
+                source = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('decode failed'));
+                    img.src = url;
+                });
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+            w = source.naturalWidth; h = source.naturalHeight;
+        }
+        if (!w || !h) { cleanup(); return file; }
+        const scale = Math.min(1, RECEIPT_MAX_SIDE / Math.max(w, h));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(w * scale);
+        canvas.height = Math.round(h * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+        cleanup();
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+        return blob || file;
+    } catch (e) {
+        console.warn('Receipt compression failed, uploading original:', e);
+        return file;
+    }
+}
+
+function setScanBusy(busy) {
+    scanInProgress = busy;
+    if (scanBtn) {
+        scanBtn.disabled = busy;
+        scanBtn.classList.toggle('opacity-50', busy);
+        scanBtn.classList.toggle('pointer-events-none', busy);
+    }
+}
+
+async function handleReceiptSelected(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+        showError('Please choose an image of your receipt.');
+        return;
+    }
+    if (scanInProgress) return;
+
+    const originalText = processingText ? processingText.textContent : '';
+    setScanBusy(true);
+    processingOverlay.classList.remove('hidden');
+    setTimeout(() => processingOverlay.classList.remove('opacity-0'), 10);
+    if (processingText) processingText.textContent = 'Reading your receipt…';
+
+    try {
+        const blob = await compressReceipt(file);
+        const fd = new FormData();
+        fd.append('file', blob, 'receipt.jpg');
+        // Fresh scan = fresh state, same as voice input
+        manuallyEdited.clear();
+        const result = await apiUpload('/ai/scan-receipt', fd);
+        if (result) populateFormFromAI(result); // also shows the confidence banner
+    } catch (err) {
+        console.error('Receipt scan failed:', err);
+        if (err instanceof TypeError) {
+            showError("Can't reach the server. Please try again.");
+        } else {
+            showError(err.message || 'Could not read that receipt. Please try again.');
+        }
+    } finally {
+        processingOverlay.classList.add('opacity-0');
+        setTimeout(() => processingOverlay.classList.add('hidden'), 300);
+        if (processingText) processingText.textContent = originalText;
+        setScanBusy(false);
+    }
+}
+
+if (scanBtn && receiptInput) {
+    scanBtn.addEventListener('click', () => {
+        if (!scanInProgress) receiptInput.click();
+    });
+    receiptInput.addEventListener('change', async () => {
+        const file = receiptInput.files && receiptInput.files[0];
+        try {
+            await handleReceiptSelected(file);
+        } finally {
+            receiptInput.value = '';
+        }
+    });
 }
 
 /**
@@ -225,7 +343,7 @@ function populateFormFromAI(parsed) {
 
     // Payment Method (skip if user manually changed)
     if (parsed.payment_method && paymentMethod && !manuallyEdited.has('payment_method')) {
-        const valMap = { 'Cash': 'cash', 'Card': 'card', 'UPI': 'upi' };
+        const valMap = { 'Cash': 'cash', 'Card': 'card', 'UPI': 'upi', 'Bank Transfer': 'bank transfer' };
         const selectVal = valMap[parsed.payment_method];
         if (selectVal) {
             paymentMethod.value = selectVal;
@@ -328,12 +446,10 @@ form.addEventListener('submit', async function(e) {
         subcategory = aiParsedData.subcategory;
     }
     
-    // Format Payment Method (capitalize first letter: "card" -> "Card", "upi" -> "UPI")
-    if (rawPaymentMethod === 'upi') {
-        rawPaymentMethod = 'UPI';
-    } else {
-        rawPaymentMethod = rawPaymentMethod.charAt(0).toUpperCase() + rawPaymentMethod.slice(1);
-    }
+    // Format Payment Method to the backend's labels: "card" -> "Card", "bank transfer" -> "Bank Transfer"
+    const PAYMENT_LABELS = { card: 'Card', cash: 'Cash', upi: 'UPI', 'bank transfer': 'Bank Transfer' };
+    rawPaymentMethod = PAYMENT_LABELS[rawPaymentMethod]
+        || rawPaymentMethod.charAt(0).toUpperCase() + rawPaymentMethod.slice(1);
     
     // Default date to today if empty
     if (!rawDate) {

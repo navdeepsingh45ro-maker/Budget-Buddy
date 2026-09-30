@@ -62,6 +62,7 @@ const greetingEl         = document.getElementById('greeting');
 const userNameEl         = document.getElementById('user-name');
 const coachInsightEl     = document.getElementById('coach-insight-content');
 const coachReminderEl    = document.getElementById('coach-reminder-content');
+const coachTipEl         = document.getElementById('coach-tip-content');
 const insightTimeEl      = document.getElementById('insight-time');
 const healthTitleEl      = document.getElementById('health-title');
 const healthStatusEl     = document.getElementById('health-status');
@@ -81,7 +82,6 @@ async function loadDashboard() {
     try {
         // Set time-based greeting immediately
         setGreeting();
-        setDaysLeft();
 
         // Fetch all data in parallel — catch individually so one
         // failure doesn't block the rest
@@ -92,6 +92,9 @@ async function loadDashboard() {
             apiGet('/expenses').catch(e => { console.warn('expenses:', e.message); return []; }),
             apiGet('/ai/insight').catch(e => { console.warn('ai insight:', e.message); return null; }),
         ]);
+
+        // Set days left after analytics is loaded
+        setDaysLeft(analytics);
 
         // ── User name ────────────────────────────────────────
         if (user && user.name) {
@@ -136,11 +139,18 @@ function setGreeting() {
 }
 
 // ── Days remaining in month ───────────────────────────────────
-function setDaysLeft() {
-    const now     = new Date();
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const remaining = lastDay - now.getDate();
-    if (daysLeftEl) daysLeftEl.textContent = `${remaining} days left`;
+function setDaysLeft(analytics) {
+    let remaining;
+    if (analytics && typeof analytics.days_left === 'number') {
+        remaining = analytics.days_left;
+    } else {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        remaining = lastDay - now.getDate() + 1;
+    }
+
+    const text = remaining === 1 ? '1 day left' : `${remaining} days left`;
+    if (daysLeftEl) daysLeftEl.textContent = text;
 }
 
 // ── Health card ───────────────────────────────────────────────
@@ -190,11 +200,11 @@ function renderCategories(categoryBreakdown, monthlyBudget) {
 
         card.innerHTML = `
             <div class="w-12 h-12 rounded-xl ${scheme.iconBg} flex items-center justify-center ${scheme.iconText}">
-                <span class="material-symbols-outlined">${config.icon}</span>
+                <span class="material-symbols-outlined">${escapeHtml(config.icon)}</span>
             </div>
             <div class="flex-1">
                 <div class="flex justify-between mb-1.5">
-                    <span class="text-body-md font-bold text-on-surface">${category}</span>
+                    <span class="text-body-md font-bold text-on-surface">${escapeHtml(category)}</span>
                     <span class="text-body-md font-bold text-on-surface">${formatCurrency(amount)}</span>
                 </div>
                 <div class="h-1.5 bg-surface-container-high rounded-full overflow-hidden">
@@ -236,10 +246,10 @@ function renderTransactions(expenses) {
         item.innerHTML = `
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-                    <span class="material-symbols-outlined text-primary text-[20px]">${config.icon}</span>
+                    <span class="material-symbols-outlined text-primary text-[20px]">${escapeHtml(config.icon)}</span>
                 </div>
                 <div>
-                    <p class="text-body-md font-bold text-on-background">${expense.note || expense.category}</p>
+                    <p class="text-body-md font-bold text-on-background">${escapeHtml(expense.note || expense.category)}</p>
                     <p class="text-[12px] text-outline">${formatDate(expense.expense_date || expense.created_at)}</p>
                 </div>
             </div>
@@ -253,7 +263,7 @@ function renderTransactions(expenses) {
 // ── Coach Insight ─────────────────────────────────────────────
 function renderInsight(aiInsight) {
     if (!coachInsightEl) return;
-    
+
     // Remove loading animation
     coachInsightEl.classList.remove('animate-pulse');
 
@@ -262,29 +272,48 @@ function renderInsight(aiInsight) {
         if (coachReminderEl) {
             coachReminderEl.textContent = 'Your financial insights will return shortly.';
         }
+        if (coachTipEl) {
+            coachTipEl.textContent = '';
+            coachTipEl.classList.add('hidden');
+        }
         return;
     }
 
     // Set Insight
     coachInsightEl.textContent = aiInsight.insight;
-    
+
     // Set Reminder
     if (coachReminderEl) {
         coachReminderEl.textContent = aiInsight.reminder;
     }
-    
-    // Set Last Updated Time
-    if (insightTimeEl && aiInsight.last_updated) {
-        const updatedTime = new Date(aiInsight.last_updated);
-        const now = new Date();
-        const diffMs = now - updatedTime;
-        const diffMins = Math.floor(diffMs / 60000);
-        
-        if (diffMins < 60) {
-            insightTimeEl.textContent = diffMins <= 1 ? '(Just now)' : `(${diffMins}m ago)`;
+
+    // Set AI Tip (optional)
+    if (coachTipEl) {
+        if (aiInsight.ai_tip && typeof aiInsight.ai_tip === 'string' && aiInsight.ai_tip.trim()) {
+            coachTipEl.textContent = aiInsight.ai_tip;
+            coachTipEl.classList.remove('hidden');
         } else {
-            const diffHours = Math.floor(diffMins / 60);
-            insightTimeEl.textContent = diffHours === 1 ? '(1h ago)' : `(${diffHours}h ago)`;
+            coachTipEl.textContent = '';
+            coachTipEl.classList.add('hidden');
+        }
+    }
+
+    // Set Last Updated Time
+    if (insightTimeEl) {
+        if (aiInsight.last_updated) {
+            const updatedTime = new Date(aiInsight.last_updated);
+            const now = new Date();
+            const diffMs = now - updatedTime;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 60) {
+                insightTimeEl.textContent = diffMins <= 1 ? '(Just now)' : `(${diffMins}m ago)`;
+            } else {
+                const diffHours = Math.floor(diffMins / 60);
+                insightTimeEl.textContent = diffHours === 1 ? '(1h ago)' : `(${diffHours}h ago)`;
+            }
+        } else {
+            insightTimeEl.textContent = '';
         }
     }
 }

@@ -1,20 +1,11 @@
 """End-to-end smoke test of the core flow: auth, budget, expense CRUD, ownership.
 
 Run from the Backend folder:  python3 -m pytest tests -q
+(tests/conftest.py points every test at a throwaway database.)
 """
-import os
-import sys
-import tempfile
-from pathlib import Path
+from fastapi.testclient import TestClient
 
-# Point the app at a throwaway database before anything imports `database`.
-_db_file = Path(tempfile.mkdtemp()) / "test.db"
-os.environ["DATABASE_URL"] = f"sqlite:///{_db_file}"
-os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production")
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
-from fastapi.testclient import TestClient  # noqa: E402
-from main import app  # noqa: E402
+from main import app
 
 client = TestClient(app)
 

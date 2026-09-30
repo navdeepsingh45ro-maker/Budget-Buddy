@@ -180,8 +180,7 @@ class NotificationService:
         
         # Don't send multiple of the exact same reminder on the same day if they haven't expired
         if NotificationService.has_duplicate(db, user_id, "reminder", meta):
-            # To be more exact, we might want to only deduplicate active ones, but for simplicity here:
-            pass # Or implement date-based duplicate checking
+            return None
 
         expires_at = datetime.datetime.utcnow() + datetime.timedelta(hours=expires_in_hours)
         return NotificationService.create_notification(

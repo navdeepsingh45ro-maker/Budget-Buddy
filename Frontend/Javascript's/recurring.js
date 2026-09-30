@@ -140,36 +140,36 @@ function renderRecurring(items) {
             statusHtml = `<span class="px-2 py-0.5 bg-primary-container/20 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>`;
         }
         
-        let endHtml = rt.end_date ? `<br><span class="text-[11px] opacity-70">Until: ${formatRtDate(rt.end_date)}</span>` : '';
+        let endHtml = rt.end_date ? `<br><span class="text-[11px] opacity-70">Until: ${escapeHtml(formatRtDate(rt.end_date))}</span>` : '';
 
         itemEl.innerHTML = `
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-                        <span class="material-symbols-outlined text-primary text-[20px]">${getIcon(rt.category)}</span>
+                        <span class="material-symbols-outlined text-primary text-[20px]">${escapeHtml(getIcon(rt.category))}</span>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <p class="text-body-md font-bold text-on-background leading-tight">${rt.title}</p>
+                            <p class="text-body-md font-bold text-on-background leading-tight">${escapeHtml(rt.title)}</p>
                             ${statusHtml}
                         </div>
-                        <p class="text-[12px] text-outline capitalize">${rt.frequency} · ${rt.category}</p>
+                        <p class="text-[12px] text-outline capitalize">${escapeHtml(rt.frequency)} · ${escapeHtml(rt.category)}</p>
                     </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-body-md font-bold text-error">-${formatCurrency(rt.amount)}</p>
-                    <p class="text-[11px] text-outline font-medium mt-0.5">Next: <span class="text-on-surface-variant">${formatRtDate(rt.next_run)}</span>${endHtml}</p>
+                    <p class="text-body-md font-bold text-error">-${escapeHtml(formatCurrency(rt.amount))}</p>
+                    <p class="text-[11px] text-outline font-medium mt-0.5">Next: <span class="text-on-surface-variant">${escapeHtml(formatRtDate(rt.next_run))}</span>${endHtml}</p>
                 </div>
             </div>
             
             <div class="flex justify-end gap-2 border-t border-surface-variant/30 pt-3 mt-1">
-                <button onclick="toggleRtStatus(${rt.id}, ${rt.is_active})" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+                <button onclick="toggleRtStatus(${Number(rt.id)}, ${rt.is_active})" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
                     ${rt.is_active ? 'Pause' : 'Resume'}
                 </button>
-                <button onclick='editRt(${JSON.stringify(rt).replace(/'/g, "&#39;")})' class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+                <button onclick="editRt(${escapeHtml(JSON.stringify(rt))})" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
                     Edit
                 </button>
-                <button onclick="deleteRt(${rt.id})" class="px-3 py-1.5 border border-error/30 text-error rounded-lg text-[12px] font-semibold hover:bg-error-container/20 transition-all">
+                <button onclick="deleteRt(${Number(rt.id)})" class="px-3 py-1.5 border border-error/30 text-error rounded-lg text-[12px] font-semibold hover:bg-error-container/20 transition-all">
                     Delete
                 </button>
             </div>

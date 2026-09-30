@@ -129,19 +129,19 @@ function renderExpenses(expenses) {
         item.innerHTML = `
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
-                    <span class="material-symbols-outlined text-primary text-[20px]">${config.icon}</span>
+                    <span class="material-symbols-outlined text-primary text-[20px]">${escapeHtml(config.icon)}</span>
                 </div>
                 <div>
-                    <p class="text-body-md font-bold text-on-background">${expense.note || expense.category}</p>
-                    <p class="text-[12px] text-outline">${formatDate(expense.expense_date || expense.created_at)} · ${expense.category}</p>
+                    <p class="text-body-md font-bold text-on-background">${escapeHtml(expense.note || expense.category)}</p>
+                    <p class="text-[12px] text-outline">${formatDate(expense.expense_date || expense.created_at)} · ${escapeHtml(expense.category)}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <p class="text-body-md font-bold text-error mr-2">-${formatCurrency(expense.amount)}</p>
-                <button onclick="openEditExpenseModal(${expense.id})" class="text-outline hover:text-primary hover:bg-primary-container/20 p-2 rounded-full transition-all duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" aria-label="Edit expense">
+                <button onclick="openEditExpenseModal(${Number(expense.id)})" class="text-outline hover:text-primary hover:bg-primary-container/20 p-2 rounded-full transition-all duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" aria-label="Edit expense">
                     <span class="material-symbols-outlined text-[20px]">edit</span>
                 </button>
-                <button onclick="deleteExpense(${expense.id})" class="text-outline hover:text-error hover:bg-error-container/20 p-2 rounded-full transition-all duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" aria-label="Delete expense">
+                <button onclick="deleteExpense(${Number(expense.id)})" class="text-outline hover:text-error hover:bg-error-container/20 p-2 rounded-full transition-all duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" aria-label="Delete expense">
                     <span class="material-symbols-outlined text-[20px]">delete</span>
                 </button>
             </div>

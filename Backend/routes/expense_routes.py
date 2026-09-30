@@ -11,6 +11,7 @@ from auth.auth2 import get_current_user
 from database import get_db
 from services.insight_updater import refresh_user_insight
 from services.trigger_service import evaluate_budget_triggers
+from services.summary_service import FinancialSummaryGenerator
 from services.expense_service import ExpenseService
 
 router = APIRouter()
@@ -67,42 +68,22 @@ def update_expense(expense_id: int, expense_data: ExpenseCreate, background_task
 
 @router.get("/analytics")
 def get_analytics(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from datetime import datetime
-    current_month = datetime.now().month
-    current_year = datetime.now().year
-    
-    all_expenses = db.query(Expense).filter(Expense.user_id == current_user.id).all()
-    expenses = []
-    for e in all_expenses:
-        effective_date = e.expense_date if e.expense_date else e.created_at
-        if effective_date.month == current_month and effective_date.year == current_year:
-            expenses.append(e)
-    
-    budget = db.query(Budget).filter(Budget.user_id == current_user.id, Budget.month == current_month, Budget.year == current_year).first()
-    monthly_budget = budget.monthly_budget if budget else 0.0
-    
-    total_spent = sum(expense.amount for expense in expenses)
-    remaining_budget = (monthly_budget - total_spent) if budget else 0.0
-    
-    expenses_by_category = {}
-    for expense in expenses:
-        if expense.category in expenses_by_category:
-            expenses_by_category[expense.category] += expense.amount
-        else:
-            expenses_by_category[expense.category] = expense.amount
-
-    top_category = (max(expenses_by_category, key=expenses_by_category.get)
-        if expenses_by_category else None)
-    expense_count = len(expenses)
-    percentage_spent = ((total_spent / monthly_budget) * 100
-    if monthly_budget > 0 else 0)        
+    s = FinancialSummaryGenerator.generate_summary(current_user.id, db)
+    has_budget = s["monthly_budget"] > 0
     return {
-        "total_spent": total_spent,
-        "remaining_budget": remaining_budget,
-        "category_breakdown": expenses_by_category,
-        "top_category": top_category,
-        "expense_count": expense_count,
-        "percentage_spent": round(percentage_spent, 2)
+        "total_spent": s["total_spent"],
+        "remaining_budget": s["remaining_budget"] if has_budget else 0.0,
+        "category_breakdown": s["category_totals"],
+        "top_category": s["top_category"],
+        "expense_count": s["expense_count"],
+        "percentage_spent": s["percentage_spent"],
+        # Same calendar/pace numbers the Coach Insight uses, so screens always agree.
+        "monthly_budget": s["monthly_budget"],
+        "days_left": s["days_left"],
+        "days_in_month": s["days_in_month"],
+        "safe_daily_limit": s["safe_daily_limit"],
+        "average_daily_spending": s["average_daily_spending"],
+        "projected_month_total": s["projected_month_total"],
     }
 
 @router.get("/expenses/query")
