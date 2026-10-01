@@ -160,7 +160,7 @@ function renderHealthCard(analytics, monthlyBudget) {
     if (totalSpentEl)       totalSpentEl.textContent       = formatCurrency(total_spent);
     if (remainingBudgetEl)  remainingBudgetEl.textContent   = formatCurrency(remaining_budget);
     if (progressBarEl)      progressBarEl.style.width       = `${Math.min(percentage_spent, 100)}%`;
-    if (progressTextEl)     progressTextEl.textContent      = `${percentage_spent}% of budget used`;
+    if (progressTextEl)     progressTextEl.textContent      = `${formatPercent(percentage_spent)} of budget used`;
 
     // Health status label
     const { title, badge, styleClass } = computeHealthStatus(percentage_spent);
@@ -234,7 +234,7 @@ function renderTransactions(expenses) {
 
     // Sort by expense_date (fallback to created_at) descending, take latest 5
     const recent = [...expenses]
-        .sort((a, b) => new Date(b.expense_date || b.created_at) - new Date(a.expense_date || a.created_at))
+        .sort((a, b) => parseApiDate(b.expense_date || b.created_at) - parseApiDate(a.expense_date || a.created_at))
         .slice(0, 5);
 
     recent.forEach(expense => {
@@ -304,7 +304,7 @@ function renderInsight(aiInsight) {
     // Set Last Updated Time
     if (insightTimeEl) {
         if (aiInsight.last_updated) {
-            const updatedTime = new Date(aiInsight.last_updated);
+            const updatedTime = parseApiDate(aiInsight.last_updated);
             const now = new Date();
             const diffMs = now - updatedTime;
             const diffMins = Math.floor(diffMs / 60000);
@@ -327,16 +327,5 @@ function formatCurrency(amount) {
 }
 
 function formatDate(dateStr) {
-    const date   = new Date(dateStr);
-    const now    = new Date();
-    const diffMs = now - date;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-        return `Today, ${date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-    } else if (diffDays === 1) {
-        return 'Yesterday';
-    } else {
-        return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-    }
+    return formatExpenseDate(dateStr);
 }

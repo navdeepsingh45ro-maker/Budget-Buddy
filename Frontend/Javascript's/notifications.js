@@ -320,7 +320,7 @@ function renderGroupedNotifications(notifs) {
     last7Days.setDate(last7Days.getDate() - 7);
 
     notifs.forEach(n => {
-        const d = new Date(n.created_at + 'Z'); // parse UTC
+        const d = parseApiDate(n.created_at);
         if (d >= today) groups['Today'].push(n);
         else if (d >= yesterday) groups['Yesterday'].push(n);
         else if (d >= last7Days) groups['Last 7 Days'].push(n);
@@ -367,7 +367,7 @@ function createNotificationCard(n) {
     };
     
     const iconColorClass = colors[n.priority] || colors.info;
-    const timeAgo = formatTimeAgo(new Date(n.created_at + 'Z'));
+    const timeAgo = formatTimeAgo(parseApiDate(n.created_at));
 
     card.innerHTML = `
         <div class="flex gap-3 relative z-10">

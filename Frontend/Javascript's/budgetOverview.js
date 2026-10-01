@@ -155,17 +155,13 @@ function renderCategoryCards(categoryBreakdown, monthlyBudget) {
     // Sort by amount spent, highest first
     entries.sort((a, b) => b[1] - a[1]);
 
-    // Calculate per-category budget share (equal distribution)
-    const categoryCount = entries.length;
-    const perCategoryBudget = monthlyBudget > 0
-        ? monthlyBudget / categoryCount
-        : 0;
+    const totalSpending = entries.reduce((total, [, amount]) => total + Number(amount), 0);
 
     entries.forEach(([category, spent]) => {
         const config = CATEGORY_CONFIG[category] || CATEGORY_CONFIG['Other'];
-        const limit  = perCategoryBudget;
-        const pct    = limit > 0 ? Math.min(Math.round((spent / limit) * 100), 100) : 0;
-        const remaining = limit - spent;
+        const pct = monthlyBudget > 0 ? Math.min((spent / monthlyBudget) * 100, 100) : 0;
+        const remaining = monthlyBudget - totalSpending; // whole budget left, not just this category
+        const spendingShare = totalSpending > 0 ? Math.round((spent / totalSpending) * 100) : 0;
 
         // Status determination
         const status = getStatus(pct);
@@ -187,7 +183,7 @@ function renderCategoryCards(categoryBreakdown, monthlyBudget) {
                 </div>
                 <div class="text-right">
                     <p class="font-headline-sm text-headline-sm text-on-surface">${formatCurrency(spent)}</p>
-                    <p class="font-body-sm text-on-surface-variant">Limit: ${formatCurrency(limit)}</p>
+                    <p class="font-body-sm text-on-surface-variant">of ${formatCurrency(monthlyBudget)} budget</p>
                 </div>
             </div>
             <div class="space-y-2">
@@ -196,7 +192,7 @@ function renderCategoryCards(categoryBreakdown, monthlyBudget) {
                 </div>
                 <div class="flex justify-between text-body-sm">
                     <span class="${getMessageColorClass(status)} font-medium">${escapeHtml(getStatusMessage(category, remaining, status))}</span>
-                    ${remaining > 0 ? `<span class="text-on-surface-variant">${formatCurrency(remaining)} left</span>` : ''}
+                    <span class="text-on-surface-variant">${spendingShare}% of spending</span>
                 </div>
             </div>
         `;
@@ -280,7 +276,7 @@ function applyMicroInteractions() {
 
 // ── Utilities ─────────────────────────────────────────────────
 function formatCurrency(amount) {
-    return `₹${Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `₹${Number(amount).toLocaleString('en-IN')}`;
 }
 
 // ── Modal Logic ───────────────────────────────────────────────

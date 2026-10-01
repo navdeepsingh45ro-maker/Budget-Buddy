@@ -127,17 +127,17 @@ function renderExpenses(expenses) {
         item.id = `expense-${expense.id}`;
 
         item.innerHTML = `
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-surface-container flex items-center justify-center rounded-full">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="w-10 h-10 shrink-0 bg-surface-container flex items-center justify-center rounded-full">
                     <span class="material-symbols-outlined text-primary text-[20px]">${escapeHtml(config.icon)}</span>
                 </div>
-                <div>
-                    <p class="text-body-md font-bold text-on-background">${escapeHtml(expense.note || expense.category)}</p>
+                <div class="min-w-0">
+                    <p class="text-body-md font-bold text-on-background truncate">${escapeHtml(expense.note || expense.category)}</p>
                     <p class="text-[12px] text-outline">${formatDate(expense.expense_date || expense.created_at)} · ${escapeHtml(expense.category)}</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <p class="text-body-md font-bold text-error mr-2">-${formatCurrency(expense.amount)}</p>
+            <div class="flex items-center gap-2 shrink-0">
+                <p class="text-body-md font-bold text-error mr-2 whitespace-nowrap">-${formatCurrency(expense.amount)}</p>
                 <button onclick="openEditExpenseModal(${Number(expense.id)})" class="text-outline hover:text-primary hover:bg-primary-container/20 p-2 rounded-full transition-all duration-150 md:opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center" aria-label="Edit expense">
                     <span class="material-symbols-outlined text-[20px]">edit</span>
                 </button>
@@ -246,18 +246,7 @@ function formatCurrency(amount) {
 }
 
 function formatDate(dateStr) {
-    const date   = new Date(dateStr);
-    const now    = new Date();
-    const diffMs = now - date;
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-        return `Today, ${date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-    } else if (diffDays === 1) {
-        return 'Yesterday';
-    } else {
-        return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
+    return formatExpenseDate(dateStr, { withYear: true });
 }
 
 // ── Export Modal Logic ───────────────────────────────────────

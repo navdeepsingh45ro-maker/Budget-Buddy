@@ -325,7 +325,7 @@ function createMonthCard(item) {
             </div>
             <div class="text-right">
                 <span class="text-outline">Used</span>
-                <p class="font-bold text-on-surface">${item.percentage_spent}%</p>
+                <p class="font-bold text-on-surface">${formatPercent(item.percentage_spent)}</p>
             </div>
         </div>
     `;
@@ -500,7 +500,7 @@ function buildDetailView(report) {
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl p-3 border border-surface-variant/20">
                     <p class="text-[11px] text-outline uppercase tracking-wider mb-1">Budget Used</p>
-                    <p class="text-body-md font-bold text-on-surface">${report.percentage_spent}%</p>
+                    <p class="text-body-md font-bold text-on-surface">${formatPercent(report.percentage_spent)}</p>
                 </div>
             </div>
 
@@ -586,5 +586,4 @@ function renderCategoryPieChart(report, year, month) {
 function formatCurrency(amount) {
     return `₹${Number(amount).toLocaleString('en-IN')}`;
 }
-
 

@@ -90,9 +90,9 @@ class SearchFilterToolbar {
 
         this.container.innerHTML = `
             <!-- Row 1: Search + Filter + Sort -->
-            <div class="flex gap-2 items-center">
+            <div class="flex flex-wrap gap-2 items-center">
                 ${this.features.search ? `
-                <div class="relative flex-1">
+                <div class="relative w-full basis-full sm:w-auto sm:basis-auto sm:flex-1">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
                     <input id="sf-search" type="text" placeholder="Search expenses..."
                         class="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />

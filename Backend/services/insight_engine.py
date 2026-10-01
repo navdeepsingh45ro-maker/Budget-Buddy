@@ -15,6 +15,8 @@ def money(value: float) -> str:
 def percent(value: float) -> str:
     if 0 < value < 1:
         return "under 1%"
+    if 1 <= value < 10:
+        return f"{value:.1f}%"
     return f"{value:.0f}%"
 
 

@@ -22,6 +22,45 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+// ── Date and percentage formatting ───────────────────────────
+function parseApiDate(value) {
+    if (typeof value !== 'string') return new Date(value);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const [, year, month, day] = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value);
+    return new Date(hasTimezone ? value : `${value}Z`);
+}
+
+function formatExpenseDate(value, { withYear = false } = {}) {
+    const dateOnly = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
+    const date = parseApiDate(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const calendarDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayDiff = Math.round((calendarDay(now) - calendarDay(date)) / 86400000);
+    if (dayDiff === 0) {
+        if (!dateOnly) {
+            return `Today, ${date.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+        }
+        return 'Today';
+    }
+    if (dayDiff === 1) return 'Yesterday';
+
+    return date.toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}),
+    });
+}
+
+function formatPercent(value) {
+    const percentage = Number(value);
+    if (percentage > 0 && percentage < 1) return 'under 1%';
+    if (percentage >= 1 && percentage < 10) return `${percentage.toFixed(1)}%`;
+    return `${Math.round(percentage)}%`;
+}
+
 // ── Token helpers ─────────────────────────────────────────────
 function getToken()        { return localStorage.getItem('bb_token'); }
 function setToken(token)   { localStorage.setItem('bb_token', token); }

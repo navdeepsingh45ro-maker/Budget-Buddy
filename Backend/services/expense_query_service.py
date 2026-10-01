@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session, Query
-from sqlalchemy import or_, asc, desc
+from sqlalchemy import or_, asc, desc, func
 from models.expense_model import Expense
 from datetime import date
 from typing import Optional
@@ -88,14 +88,15 @@ class ExpenseQueryService:
             q = q.filter(Expense.amount <= max_amount)
 
         # --- Sorting ---
+        effective_date = func.coalesce(Expense.expense_date, func.date(Expense.created_at))
         sort_map = {
-            "newest": desc(Expense.created_at),
-            "oldest": asc(Expense.created_at),
+            "newest": (desc(effective_date), desc(Expense.created_at)),
+            "oldest": (asc(effective_date), asc(Expense.created_at)),
             "highest": desc(Expense.amount),
             "lowest": asc(Expense.amount)
         }
-        order = sort_map.get(sort, desc(Expense.created_at))
-        q = q.order_by(order)
+        order = sort_map.get(sort, sort_map["newest"])
+        q = q.order_by(*order) if isinstance(order, tuple) else q.order_by(order)
 
         # --- Pagination ---
         total = q.count()
