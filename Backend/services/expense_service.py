@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.orm import Session
 from datetime import date
 from models.expense_model import Expense
-from services.ai_categorizer import AICategorizer
+from services.subcategory_rules import detect_subcategory
 from services.insight_updater import refresh_user_insight
 from services.trigger_service import evaluate_budget_triggers
 from services.notification_service import NotificationService
@@ -26,17 +26,11 @@ class ExpenseService:
     ) -> Expense:
         """
         Single source of truth for creating a new expense.
-        Handles AI categorization, DB insertion, and triggers the post-creation pipeline.
+        Handles subcategory detection, DB insertion, and triggers the post-creation pipeline.
         """
-        # 1. AI Categorization (if subcategory is missing but note exists)
+        # 1. Subcategory (merchant/app/person) from the note, by rules: instant, no API call
         if not subcategory and note:
-            try:
-                ai = AICategorizer()
-                ai_result = ai.categorize_expense(note)
-                subcategory = ai_result.get("subcategory", "Other")
-            except Exception as e:
-                logger.error(f"AI categorization failed: {e}")
-                subcategory = "Other"
+            subcategory = detect_subcategory(note)
 
         # 2. Database Insertion
         expense = Expense(

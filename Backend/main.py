@@ -20,6 +20,7 @@ from routes.recurring_routes import router as recurring_router
 from routes.export_routes import router as export_router
 from routes.auth_routes import router as auth_router
 from models.password_reset_model import PasswordReset
+from models.ai_report_model import AIReport
 from fastapi.middleware.cors import CORSMiddleware
 
 

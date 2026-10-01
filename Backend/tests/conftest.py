@@ -17,9 +17,29 @@ import database  # noqa: E402
 assert "test.db" in str(database.engine.url), "Tests must not run against the real database"
 
 import services.insight_updater as insight_updater  # noqa: E402
+import services.monthly_report as monthly_report  # noqa: E402
+from services.gemini_client import GeminiUnavailable  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
 def no_real_ai_tips(monkeypatch):
     """Background insight refreshes must never call the real Gemini API in tests."""
     monkeypatch.setattr(insight_updater, "generate_coach_tip", lambda insight, summary: "Stub tip")
+
+
+@pytest.fixture(autouse=True)
+def no_real_ai_reports(monkeypatch):
+    """Report commentary must never call the real Gemini API in tests (tests override this)."""
+    def offline(prompt, temperature=0):
+        raise GeminiUnavailable("AI disabled in tests")
+    monkeypatch.setattr(monthly_report, "generate_json", offline)
+
+
+@pytest.fixture(autouse=True)
+def no_real_gemini_connection(monkeypatch):
+    """Safety net: any Gemini call a test forgot to stub fails offline instead of using the real API."""
+    import services.gemini_client as gemini_client
+
+    def blocked():
+        raise GeminiUnavailable("Real Gemini API is blocked in tests")
+    monkeypatch.setattr(gemini_client, "_get_client", blocked)

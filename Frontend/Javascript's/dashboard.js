@@ -290,7 +290,10 @@ function renderInsight(aiInsight) {
     // Set AI Tip (optional)
     if (coachTipEl) {
         if (aiInsight.ai_tip && typeof aiInsight.ai_tip === 'string' && aiInsight.ai_tip.trim()) {
-            coachTipEl.textContent = aiInsight.ai_tip;
+            const tipSource = aiInsight.ai_tip_source;
+            coachTipEl.textContent = (typeof tipSource === 'string' && tipSource.trim())
+                ? `From your ${tipSource}: ${aiInsight.ai_tip}`
+                : aiInsight.ai_tip;
             coachTipEl.classList.remove('hidden');
         } else {
             coachTipEl.textContent = '';

@@ -1,6 +1,5 @@
 
 
-from services.ai_categorizer import AICategorizer
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from schemas.expense_schema import ExpenseCreate

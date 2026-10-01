@@ -448,11 +448,15 @@ async function handleNotificationClick(n, cardEl) {
 }
 
 // Single source of truth for notification tap destinations.
-// budget_history.js reads no URL params, so monthly_report just opens the page.
+// monthly_report opens the Budget page with ?report=YYYY-M, which opens that month's report.
 function getNotificationTarget(actionType, payload) {
     switch (actionType) {
-        case 'budget_history':
         case 'monthly_report':
+            if (payload && payload.month && payload.year) {
+                return `budget_overview.html?report=${payload.year}-${payload.month}`;
+            }
+            return 'budget_overview.html';
+        case 'budget_history':
             return 'budget_history.html';
         case 'ai_insight':
             return 'dashboard.html';

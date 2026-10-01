@@ -9,6 +9,7 @@ amount changes, and at most MAX_TIPS_PER_DAY times per user per day.
 import hashlib
 import logging
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
@@ -16,6 +17,7 @@ from models.ai_insight_model import AIInsight
 from models.notification_preferences_model import NotificationPreferences
 from services.ai_insight_generator import generate_coach_tip
 from services.insight_engine import build_insight
+from services.locks import keyed_lock
 from services.notification_service import NotificationService
 from services.summary_service import FinancialSummaryGenerator, local_today
 
@@ -39,6 +41,13 @@ def key_hash(key: str) -> str:
 
 
 def refresh_user_insight(user_id: int):
+    # One refresh per user at a time: concurrent triggers wait, then see the
+    # situation is already handled and skip (no duplicate AI call, no crash).
+    with keyed_lock(("insight", user_id)):
+        _refresh(user_id)
+
+
+def _refresh(user_id: int):
     db: Session = SessionLocal()
     try:
         summary = FinancialSummaryGenerator.generate_summary(user_id, db)
@@ -63,16 +72,24 @@ def refresh_user_insight(user_id: int):
 
         # Storage: summary_hash = hash of the situation the tip was written for,
         # insight = the AI tip ("" if the AI was unavailable), reminder unused.
-        snapshot = {"situation_key": key, "tip_date": today, "tips_today": tips_today + 1}
+        values = {
+            "summary_hash": key_hash(key),
+            "summary_snapshot": {"situation_key": key, "tip_date": today, "tips_today": tips_today + 1},
+            "insight": tip or "",
+            "reminder": "",
+        }
         if record:
-            record.summary_hash = key_hash(key)
-            record.summary_snapshot = snapshot
-            record.insight = tip or ""
-            record.reminder = ""
+            for field, value in values.items():
+                setattr(record, field, value)
+            db.commit()
         else:
-            db.add(AIInsight(user_id=user_id, summary_hash=key_hash(key), summary_snapshot=snapshot,
-                             insight=tip or "", reminder=""))
-        db.commit()
+            try:
+                db.add(AIInsight(user_id=user_id, **values))
+                db.commit()
+            except IntegrityError:  # another server process inserted first
+                db.rollback()
+                db.query(AIInsight).filter(AIInsight.user_id == user_id).update(values)
+                db.commit()
         logger.info("User %s: AI tip refreshed for %s.", user_id, key)
     except Exception:
         logger.exception("Failed to refresh insight for user %s", user_id)

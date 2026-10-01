@@ -9,7 +9,7 @@ scheduler can run as often as it likes without sending anything twice.
 | daily_log       | after 20:00, nothing logged today | notify_reminders  |
 | bill_due        | from 09:00, the day before a recurring expense | notify_reminders |
 | weekly_summary  | Mondays from 09:00, for last Mon-Sun | notify_weekly  |
-| monthly_report  | the 1st from 09:00, for last month | notify_monthly    |
+| monthly_report  | from the 1st, 09:00, once per month: generates last month's report | notify_monthly |
 | budget_missing  | days 1-3 from 09:00, no budget set but one existed last month | notify_budget |
 """
 import logging
@@ -23,6 +23,7 @@ from models.notification_preferences_model import NotificationPreferences
 from models.recurring_transaction_model import RecurringTransaction
 from models.user_model import User
 from services.insight_engine import money, percent
+from services.monthly_report import build_monthly_report
 from services.notification_service import NotificationService
 from services.summary_service import APP_TIMEZONE, FinancialSummaryGenerator, fetch_expense_rows
 
@@ -52,7 +53,9 @@ def run_reminders(now: datetime | None = None) -> dict:
                     sent["bill_due"] += _bills_due(db, user_id, now.date())
                 if enabled("notify_weekly") and now.weekday() == 0 and now.hour >= MORNING_HOUR:
                     sent["weekly_summary"] += _weekly_summary(db, user_id, now.date())
-                if enabled("notify_monthly") and now.day == 1 and now.hour >= MORNING_HOUR:
+                # Any day of the month (not just the 1st), so a server that was off on the 1st
+                # still produces last month's report; de-duplication keeps it to once a month.
+                if enabled("notify_monthly") and now.hour >= MORNING_HOUR:
                     sent["monthly_report"] += _monthly_report(db, user_id, now.date())
                 if enabled("notify_budget") and now.day <= 3 and now.hour >= MORNING_HOUR:
                     sent["budget_missing"] += _budget_missing(db, user_id, now.date())
@@ -159,6 +162,11 @@ def _monthly_report(db: Session, user_id: int, today: date) -> int:
     s = FinancialSummaryGenerator.generate_summary(user_id, db, month=month, year=year)
     if s["expense_count"] == 0:
         return 0
+
+    # Generate and cache the full report now, so it opens instantly and its
+    # ideas can coach the user through this month (one AI call per month).
+    build_monthly_report(db, user_id, month, year)
+
     if s["monthly_budget"] > 0:
         verdict = ("within budget" if s["remaining_budget"] >= 0
                    else f"{money(-s['remaining_budget'])} over budget")

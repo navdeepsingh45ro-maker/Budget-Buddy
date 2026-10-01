@@ -43,16 +43,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         const msg = chatInput.value.trim();
         if (!msg) return;
 
+        // Check message length before sending
+        if (msg.length > 500) {
+            responseCard.classList.remove('hidden');
+            responseText.textContent = 'Please keep your question under 500 characters.';
+            return;
+        }
+
         chatInput.value = '';
         responseCard.classList.remove('hidden');
         responseText.innerHTML = '<span class="animate-pulse">Thinking...</span>';
+
+        // Disable buttons during request
+        chatSubmit.disabled = true;
+        chatInput.disabled = true;
 
         try {
             const data = await apiPost('/ai/chat', { message: msg });
             responseText.textContent = data.reply;
         } catch (err) {
-            responseText.textContent = "Sorry, I couldn't process that right now.";
+            // Handle different error types
+            if (err instanceof TypeError) {
+                responseText.textContent = "Can't reach Buddy right now. Check your connection and try again.";
+            } else if (err.message && typeof err.message === 'string' && err.message.length > 0 && !err.message.startsWith('[object') && err.message !== 'Something went wrong') {
+                responseText.textContent = err.message;
+            } else {
+                responseText.textContent = "Sorry, I couldn't process that right now.";
+            }
             console.error(err);
+        } finally {
+            // Re-enable buttons
+            chatSubmit.disabled = false;
+            chatInput.disabled = false;
         }
     }
 

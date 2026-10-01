@@ -22,9 +22,7 @@ passlib[bcrypt]>=1.7.4             # Password hashing (bcrypt scheme)
 bcrypt==4.0.1                      # Pinned: passlib 1.7.4 breaks with bcrypt>=4.1
 
 # ── AI / LLM Integrations ──────────────────────────────────
-groq>=0.9.0                 # Groq API client (AI expense categorization)
-google-genai>=2.25.0       # Gemini (voice parsing, receipt scan) via services/gemini_client.py
-google-generativeai>=0.8.0  # Old Gemini SDK, still used by insights/chat until migrated
+google-genai>=2.25.0       # Gemini (voice, receipts, insights, chat, reports) via services/gemini_client.py
 
 # ── Environment & Config ───────────────────────────────────
 python-dotenv>=1.0.0        # Load .env variables (API keys, secrets)

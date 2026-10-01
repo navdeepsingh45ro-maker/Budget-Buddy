@@ -144,7 +144,7 @@
 </div>
 <!-- Add Category Placeholder -->
 <button id="update-budget-btn" class="w-full mt-lg py-md border border-primary/20 rounded-xl flex items-center justify-center gap-xs text-primary bg-primary/5 hover:bg-primary/10 transition-all active:scale-95"><span class="material-symbols-outlined">add_circle</span><span class="font-label-md text-label-md">Update Budget</span></button>
-<button id="generate-report-btn" class="w-full mt-sm py-md border border-primary/20 rounded-xl flex items-center justify-center gap-xs text-primary bg-primary-container/20 hover:bg-primary-container/30 transition-all active:scale-95"><span class="material-symbols-outlined text-[20px]">auto_awesome</span><span class="font-label-md text-label-md">Generate AI Monthly Report</span></button>
+<button id="generate-report-btn" class="w-full mt-sm py-md border border-primary/20 rounded-xl flex items-center justify-center gap-xs text-primary bg-primary-container/20 hover:bg-primary-container/30 transition-all active:scale-95"><span class="material-symbols-outlined text-[20px]">auto_awesome</span><span class="font-label-md text-label-md">Monthly Report</span></button>
 <a href="budget_history.html" class="w-full mt-sm py-md border border-outline-variant/20 rounded-xl flex items-center justify-center gap-xs text-on-surface-variant bg-surface-container-low hover:bg-surface-container transition-all active:scale-95"><span class="material-symbols-outlined text-[20px]">timeline</span><span class="font-label-md text-label-md">View History</span></a>
 <!-- Budget Modal -->
 <div id="budget-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
@@ -181,6 +181,10 @@
             <button id="close-report-modal" class="text-outline hover:text-on-surface-variant transition-colors p-2 rounded-full hover:bg-surface-container active:scale-95">
                 <span class="material-symbols-outlined">close</span>
             </button>
+        </div>
+        <div id="report-month-wrap" class="mb-4">
+            <label for="report-month-select" class="block font-label-md text-label-md text-on-surface-variant px-base mb-2">Month</label>
+            <select id="report-month-select" class="w-full h-12 px-4 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl font-body-md text-on-background soft-shadow focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-60"></select>
         </div>
         <div id="report-modal-body" class="text-body-md text-on-surface whitespace-pre-line"></div>
     </div>

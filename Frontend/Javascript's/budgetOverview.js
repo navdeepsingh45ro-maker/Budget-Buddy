@@ -57,6 +57,7 @@ const budgetModalTitle = document.getElementById('budget-modal-title');
 const budgetModalDesc = document.getElementById('budget-modal-desc');
 const budgetSubmitText = document.getElementById('budget-submit-text');
 let hasExistingBudget = false;
+let reportDeepLinkHandled = false;
 
 // ── Load data on page ready ──────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -74,7 +75,14 @@ async function loadBudgetOverview() {
         hasExistingBudget = !!budget;
         const monthlyBudget = budget ? budget.monthly_budget : 0;
 
-        if (!hasExistingBudget) {
+        const requestedReport = getRequestedReportFromUrl();
+        if (requestedReport) {
+            // Report deep link (from a notification) takes priority over the budget prompt
+            if (!reportDeepLinkHandled) {
+                reportDeepLinkHandled = true;
+                openMonthlyReport(requestedReport);
+            }
+        } else if (!hasExistingBudget) {
             showBudgetModal(true); // Automatically ask for budget if none exists
         }
 
@@ -347,30 +355,98 @@ const reportModalContent = document.getElementById('report-modal-content');
 const reportModalBody = document.getElementById('report-modal-body');
 const closeReportModalBtn = document.getElementById('close-report-modal');
 
-if (generateReportBtn) {
-    generateReportBtn.addEventListener('click', async () => {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const year = now.getFullYear();
-        
+const reportMonthSelect = document.getElementById('report-month-select');
+const reportMonthWrap = document.getElementById('report-month-wrap');
+const REPORT_BTN_HTML = '<span class="material-symbols-outlined text-[20px]">auto_awesome</span><span class="font-label-md text-label-md">Monthly Report</span>';
+const REPORT_LOADING_TEXT = 'Preparing your report…';
+const REPORT_EMPTY_TEXT = 'Log a few expenses and your first monthly report will appear here.';
+let reportRequestId = 0;
+
+// Parses ?report=YYYY-M from the URL. Returns "YYYY-M" or null.
+function getRequestedReportFromUrl() {
+    const value = new URLSearchParams(window.location.search).get('report');
+    if (value && /^\d{4}-\d{1,2}$/.test(value)) {
+        const [y, m] = value.split('-').map(Number);
+        if (m >= 1 && m <= 12) return `${y}-${m}`;
+    }
+    return null;
+}
+
+function showReportModal() {
+    reportModal.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+        reportModalContent.classList.remove('scale-95');
+        reportModalContent.classList.add('scale-100');
+    }, 10);
+}
+
+async function loadReportForMonth(value) {
+    const [year, month] = value.split('-').map(Number);
+    const requestId = ++reportRequestId;
+    reportModalBody.textContent = REPORT_LOADING_TEXT;
+    try {
+        const data = await apiGet(`/ai/monthly-report?month=${month}&year=${year}`);
+        if (requestId !== reportRequestId) return; // a newer request superseded this one
+        reportModalBody.textContent = data.report;
+    } catch (e) {
+        if (requestId !== reportRequestId) return;
+        console.error(e);
+        reportModalBody.textContent = 'Could not load this report: ' + (e.message || 'Something went wrong.');
+    }
+}
+
+// Opens the report modal; preferredValue ("YYYY-M") is used if that month is listed,
+// otherwise the backend default month is shown.
+async function openMonthlyReport(preferredValue = null) {
+    const requestId = ++reportRequestId;
+    if (generateReportBtn) {
         generateReportBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span class="font-label-md text-label-md">Generating...</span>';
-        
-        try {
-            const data = await apiGet(`/ai/monthly-report?month=${month}&year=${year}`);
-            reportModalBody.textContent = data.report;
-            
-            reportModal.classList.remove('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                reportModalContent.classList.remove('scale-95');
-                reportModalContent.classList.add('scale-100');
-            }, 10);
-        } catch(e) {
-            console.error(e);
-            alert('Failed to generate report: ' + e.message);
-        } finally {
-            generateReportBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">auto_awesome</span><span class="font-label-md text-label-md">Generate AI Monthly Report</span>';
+    }
+    reportModalBody.textContent = REPORT_LOADING_TEXT;
+    showReportModal();
+
+    try {
+        const data = await apiGet('/ai/report-months');
+        if (requestId !== reportRequestId) return;
+
+        reportMonthSelect.textContent = '';
+        const months = Array.isArray(data.months) ? data.months : [];
+        months.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = `${m.year}-${m.month}`;
+            opt.textContent = m.label;
+            reportMonthSelect.appendChild(opt);
+        });
+
+        if (!data.default || months.length === 0) {
+            reportMonthSelect.disabled = true;
+            if (reportMonthWrap) reportMonthWrap.classList.add('hidden');
+            reportModalBody.textContent = REPORT_EMPTY_TEXT;
+            return;
         }
-    });
+
+        reportMonthSelect.disabled = false;
+        if (reportMonthWrap) reportMonthWrap.classList.remove('hidden');
+
+        const defaultValue = `${data.default.year}-${data.default.month}`;
+        const values = months.map(m => `${m.year}-${m.month}`);
+        const chosen = preferredValue && values.includes(preferredValue) ? preferredValue : defaultValue;
+        reportMonthSelect.value = chosen;
+        await loadReportForMonth(chosen);
+    } catch (e) {
+        if (requestId !== reportRequestId) return;
+        console.error(e);
+        reportModalBody.textContent = 'Could not load your report: ' + (e.message || 'Something went wrong.');
+    } finally {
+        if (generateReportBtn) generateReportBtn.innerHTML = REPORT_BTN_HTML;
+    }
+}
+
+if (generateReportBtn) {
+    generateReportBtn.addEventListener('click', () => openMonthlyReport());
+}
+if (reportMonthSelect) {
+    reportMonthSelect.addEventListener('change', () => loadReportForMonth(reportMonthSelect.value));
 }
 
 function closeReportModal() {

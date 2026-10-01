@@ -7,6 +7,7 @@ from tests.test_smoke import client, register_and_login
 
 import services.ai_insight_generator as ai_insight_generator
 import services.insight_updater as insight_updater
+import services.monthly_report as monthly_report
 import services.summary_service as summary_service
 from database import SessionLocal
 from models.budget_model import Budget
@@ -19,6 +20,7 @@ from services.summary_service import FinancialSummaryGenerator
 def freeze_today(monkeypatch, day: date):
     monkeypatch.setattr(summary_service, "local_today", lambda: day)
     monkeypatch.setattr(insight_updater, "local_today", lambda: day)
+    monkeypatch.setattr(monthly_report, "local_today", lambda: day)
 
 
 def seed(email, budget, month, year, expenses):

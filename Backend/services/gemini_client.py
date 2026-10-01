@@ -47,10 +47,13 @@ def model_chain():
     ]
 
 
-def generate_json(contents) -> dict:
-    """Send `contents` (a prompt string, or a list of Parts and strings) and return parsed JSON."""
+def generate_json(contents, temperature: float = 0) -> dict:
+    """Send `contents` (a prompt string, or a list of Parts and strings) and return parsed JSON.
+
+    temperature 0 for extraction (parsing, receipts); a little higher for conversational text.
+    """
     client = _get_client()
-    config = types.GenerateContentConfig(temperature=0, response_mime_type="application/json")
+    config = types.GenerateContentConfig(temperature=temperature, response_mime_type="application/json")
     last_error = None
 
     for model in model_chain():
