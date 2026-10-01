@@ -6,6 +6,7 @@ from services.subcategory_rules import detect_subcategory
 from services.insight_updater import refresh_user_insight
 from services.trigger_service import evaluate_budget_triggers
 from services.notification_service import NotificationService
+from services.push_service import USER_SETUP
 
 logger = logging.getLogger("expense_service")
 
@@ -70,15 +71,19 @@ class ExpenseService:
                     category="system",
                     source="scheduler",
                     icon="event_repeat",
-                    priority="info"
+                    priority="info",
+                    push_origin=USER_SETUP,
                 )
             except Exception as e:
                 logger.error(f"Failed to create recurring notification for user {user_id}: {e}")
 
         # B. AI Insights & Budget Evaluation
+        # Budget alerts caused by a recurring bill reach the user's devices;
+        # ones caused by an expense they just added in the app stay in the drawer.
+        budget_push = USER_SETUP if is_recurring else None
         if background_tasks:
             background_tasks.add_task(refresh_user_insight, user_id)
-            background_tasks.add_task(evaluate_budget_triggers, user_id)
+            background_tasks.add_task(evaluate_budget_triggers, user_id, budget_push)
         else:
             try:
                 refresh_user_insight(user_id)
@@ -86,6 +91,6 @@ class ExpenseService:
                 logger.error(f"Insight refresh failed for user {user_id}: {e}")
 
             try:
-                evaluate_budget_triggers(user_id)
+                evaluate_budget_triggers(user_id, budget_push)
             except Exception as e:
                 logger.error(f"Budget trigger failed for user {user_id}: {e}")

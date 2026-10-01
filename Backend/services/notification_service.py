@@ -1,3 +1,4 @@
+import logging
 import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import cast
@@ -19,8 +20,11 @@ class NotificationService:
         action_payload: dict = None,
         priority: str = "info",
         expires_at: datetime.datetime = None,
-        metadata_json: dict = None
+        metadata_json: dict = None,
+        push_origin: str = None,
     ) -> Notification:
+        """Save an in-app notification; also push it to devices per push_origin
+        ("user_setup", "app" or None; see services/push_service.py)."""
         notification = Notification(
             user_id=user_id,
             title=title,
@@ -38,6 +42,12 @@ class NotificationService:
         db.add(notification)
         db.commit()
         db.refresh(notification)
+
+        try:
+            from services import push_service
+            push_service.dispatch(notification.id, push_origin)
+        except Exception as e:  # pushing must never break saving
+            logging.getLogger("notification_service").error(f"Push dispatch failed: {e}")
         return notification
 
     @staticmethod
@@ -81,6 +91,8 @@ class NotificationService:
         year: int,
         threshold: int,
         icon: str = "warning"
+    ,
+        push_origin: str = None
     ):
         """
         Creates a budget notification only if one doesn't exist for this budget/month/threshold.
@@ -112,7 +124,8 @@ class NotificationService:
             action_type="budget_history",
             action_payload={"year": year, "month": month},
             priority=priority,
-            metadata_json=meta
+            metadata_json=meta,
+            push_origin=push_origin
         )
 
     @staticmethod
@@ -124,6 +137,8 @@ class NotificationService:
         insight_type: str,
         month: int = None,
         year: int = None
+    ,
+        push_origin: str = None
     ):
         meta = {"insight_type": insight_type}
         if month and year:
@@ -145,7 +160,8 @@ class NotificationService:
             action_type="ai_insight",
             action_payload={"insight_type": insight_type, "year": year, "month": month},
             priority="success",
-            metadata_json=meta
+            metadata_json=meta,
+            push_origin=push_origin
         )
 
     @staticmethod
@@ -155,6 +171,8 @@ class NotificationService:
         title: str,
         message: str,
         icon: str = "info"
+    ,
+        push_origin: str = None
     ):
         return NotificationService.create_notification(
             db=db,
@@ -164,7 +182,8 @@ class NotificationService:
             category="system",
             source="system",
             icon=icon,
-            priority="info"
+            priority="info",
+            push_origin=push_origin
         )
 
     @staticmethod
@@ -175,6 +194,8 @@ class NotificationService:
         message: str,
         reminder_type: str,
         expires_in_hours: int = 24
+    ,
+        push_origin: str = None
     ):
         meta = {"reminder_type": reminder_type}
         
@@ -193,7 +214,8 @@ class NotificationService:
             icon="notifications_active",
             priority="info",
             expires_at=expires_at,
-            metadata_json=meta
+            metadata_json=meta,
+            push_origin=push_origin
         )
 
     # --- Query and Update Methods ---

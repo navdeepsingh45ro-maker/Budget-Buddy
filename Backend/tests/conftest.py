@@ -43,3 +43,21 @@ def no_real_gemini_connection(monkeypatch):
     def blocked():
         raise GeminiUnavailable("Real Gemini API is blocked in tests")
     monkeypatch.setattr(gemini_client, "_get_client", blocked)
+
+
+@pytest.fixture(autouse=True)
+def push_calls(monkeypatch):
+    """Never contact real push services in tests. Records what would be sent; runs deliveries synchronously."""
+    import services.push_service as push_service
+    calls = []
+
+    def fake_webpush(subscription_info, data, **kwargs):
+        import json
+        calls.append({"endpoint": subscription_info["endpoint"], **json.loads(data)})
+
+    monkeypatch.setattr(push_service, "webpush", fake_webpush)
+    monkeypatch.setattr(push_service, "_run_in_background", lambda fn, *args: fn(*args))
+    monkeypatch.setenv("VAPID_PUBLIC_KEY", "test-public-key")
+    monkeypatch.setenv("VAPID_PRIVATE_KEY", "test-private-key")
+    monkeypatch.setattr(push_service, "is_quiet_hours", lambda now=None: False)  # daytime unless a test says otherwise
+    return calls

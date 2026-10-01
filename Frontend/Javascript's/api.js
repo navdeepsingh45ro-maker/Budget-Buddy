@@ -186,7 +186,23 @@ async function apiLogin(email, password) {
 }
 
 // ── Logout ────────────────────────────────────────────────────
-function logout() {
+// Turns off push on this device first (while the token is still valid), so the
+// next person to log in here doesn't receive the previous user's notifications.
+// Bounded to ~2s and every failure is swallowed so logout can never hang or fail.
+async function logout() {
+    try {
+        await Promise.race([
+            (async () => {
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+                const reg = await navigator.serviceWorker.getRegistration();
+                const sub = reg && reg.pushManager ? await reg.pushManager.getSubscription() : null;
+                if (!sub) return;
+                try { await apiPost('/push/unsubscribe', { endpoint: sub.endpoint }); } catch (e) { /* ignore */ }
+                try { await sub.unsubscribe(); } catch (e) { /* ignore */ }
+            })(),
+            new Promise(resolve => setTimeout(resolve, 2000))
+        ]);
+    } catch (e) { /* never block logout */ }
     clearToken();
     goToLogin();
 }

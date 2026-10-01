@@ -28,6 +28,9 @@ google-genai>=2.25.0       # Gemini (voice, receipts, insights, chat, reports) v
 python-dotenv>=1.0.0        # Load .env variables (API keys, secrets)
 python-dateutil>=2.8.0      # Month arithmetic for recurring expenses
 
+# ── Push Notifications ─────────────────────────────────────
+pywebpush>=2.5.0           # Web Push (VAPID) to browsers and installed web apps
+
 # ── Export Providers ────────────────────────────────────────
 fpdf2>=2.8.0                # PDF report generation
 openpyxl>=3.1.0             # Excel (.xlsx) export

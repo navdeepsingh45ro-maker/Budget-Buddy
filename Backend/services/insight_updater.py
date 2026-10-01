@@ -19,6 +19,7 @@ from services.ai_insight_generator import generate_coach_tip
 from services.insight_engine import build_insight
 from services.locks import keyed_lock
 from services.notification_service import NotificationService
+from services.push_service import APP
 from services.summary_service import FinancialSummaryGenerator, local_today
 
 logger = logging.getLogger("insight_updater")
@@ -110,5 +111,6 @@ def _maybe_alert(db: Session, user_id: int, summary: dict, insight: dict):
     NotificationService.create_ai_notification(
         db=db, user_id=user_id, title=ALERT_SITUATIONS[situation], message=insight["insight"],
         insight_type=situation, month=summary["month"], year=summary["year"],
+        push_origin=APP,
     )
     db.commit()

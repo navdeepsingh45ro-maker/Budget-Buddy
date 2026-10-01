@@ -54,46 +54,184 @@ function initNotifications() {
     pollUnreadCount();
     setInterval(pollUnreadCount, 60000); // every 60s
     
-    // 6. Local Push Integration
+    // 6. Push (silent setup only: never asks for permission) + deep links from pushes
     initPushNotifications();
     checkSyncParams();
 }
 
+// ── Push notifications (real Web Push, opt-in from a user tap) ──────
+
+const PUSH_CARD_DISMISSED_KEY = 'bb_push_card_dismissed';
+
 async function initPushNotifications() {
-    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
-    
+    if (!('serviceWorker' in navigator)) return;
+
     try {
-        await navigator.serviceWorker.register('../Javascript\'s/service-worker.js');
-        
-        // Request permission only if not denied
-        if (Notification.permission === 'default') {
-            await Notification.requestPermission();
-        }
+        // Registering is silent: it never shows a permission prompt.
+        await navigator.serviceWorker.register('service-worker.js');
     } catch (err) {
         console.error('Service Worker registration failed:', err);
     }
+
+    // Remove the stale worker that used to live under /Javascript's/
+    try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) {
+            let scope = reg.scope || '';
+            try { scope = decodeURIComponent(scope); } catch (e) { /* keep raw */ }
+            if (scope.endsWith("/Javascript's/")) {
+                await reg.unregister();
+            }
+        }
+    } catch (err) {
+        console.error('Old service worker cleanup failed:', err);
+    }
+
+    // Warm the push state (e.g. so the card can render without delay)
+    try { await getPushState(); } catch (e) { /* ignore */ }
+}
+
+function isIOSDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function isInstalledApp() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        navigator.standalone === true;
+}
+
+// Resolves with the active service worker registration, or rejects after a timeout
+// (navigator.serviceWorker.ready never settles if no worker is registered).
+function getSwRegistration(timeoutMs = 4000) {
+    return Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Service worker not ready')), timeoutMs))
+    ]);
+}
+
+// Returns: 'unsupported' | 'ios-needs-install' | 'denied' | 'on' | 'off'
+async function getPushState() {
+    // iOS Safari only exposes push to installed Home Screen apps, so in a plain
+    // Safari tab PushManager is missing. Check this before the support test.
+    if (isIOSDevice() && !isInstalledApp()) return 'ios-needs-install';
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+        return 'unsupported';
+    }
+    if (Notification.permission === 'denied') return 'denied';
+
+    if (Notification.permission === 'granted') {
+        try {
+            const reg = await getSwRegistration();
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) return 'on';
+        } catch (e) { /* fall through to 'off' */ }
+    }
+    return 'off';
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    const out = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+}
+
+// Must be called from a click/tap handler. Returns the new push state.
+async function enablePush() {
+    const state = await getPushState();
+    if (state === 'unsupported') throw new Error("Notifications aren't supported in this browser.");
+    if (state === 'ios-needs-install') throw new Error('On iPhone, add Budget Buddy to your Home Screen first.');
+    if (state === 'denied') return 'denied';
+
+    // Keep this first so the permission prompt stays tied to the user's tap.
+    const permission = await Notification.requestPermission();
+    if (permission === 'denied') return 'denied';
+    if (permission !== 'granted') {
+        throw new Error("Notifications weren't turned on. Please try again and choose Allow.");
+    }
+
+    let reg;
+    try {
+        reg = await getSwRegistration();
+    } catch (e) {
+        throw new Error('Notifications are still getting ready. Please reload the page and try again.');
+    }
+
+    let publicKey;
+    try {
+        const data = await apiGet('/push/public-key');
+        publicKey = data && data.public_key;
+    } catch (e) {
+        throw new Error("Notifications aren't available right now. Please try again later.");
+    }
+    if (!publicKey) throw new Error("Notifications aren't available right now. Please try again later.");
+
+    let sub;
+    try {
+        sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+            sub = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+        }
+    } catch (e) {
+        console.error('Push subscribe failed:', e);
+        throw new Error("Couldn't turn on notifications on this device. Please try again.");
+    }
+
+    try {
+        await apiPost('/push/subscribe', sub.toJSON());
+    } catch (e) {
+        // Don't leave a browser subscription the server doesn't know about.
+        try { await sub.unsubscribe(); } catch (e2) { /* ignore */ }
+        throw new Error(e && e.message ? e.message : "Couldn't save your notification settings. Please try again.");
+    }
+
+    return 'on';
+}
+
+async function disablePush() {
+    let reg;
+    try { reg = await getSwRegistration(); } catch (e) { return; }
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    try {
+        await apiPost('/push/unsubscribe', { endpoint: sub.endpoint });
+    } catch (e) { /* the browser-side unsubscribe below still matters most */ }
+    await sub.unsubscribe();
 }
 
 async function checkSyncParams() {
-    // 5. Synchronization - deep linking from service worker
+    // Deep linking from a tapped push (see service-worker.js)
     const params = new URLSearchParams(window.location.search);
     const syncId = params.get('sync_notif');
     const actionType = params.get('action_type');
-    
+    let payload = null;
+    const rawPayload = params.get('action_payload');
+    if (rawPayload) {
+        try { payload = JSON.parse(rawPayload); } catch (e) { payload = null; }
+        if (payload === null || typeof payload !== 'object') payload = null;
+    }
+
     if (syncId) {
-        // Clean URL to prevent repeated marking on refresh
+        // Clean URL (drops sync_notif, action_type, action_payload) to prevent repeated marking on refresh
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-        
+
         // Mark as read in DB
         try {
-            await apiPatch(`/notifications/${syncId}/read`);
+            await apiPatch(`/notifications/${encodeURIComponent(syncId)}/read`);
         } catch (e) {
             console.error('Failed to sync notification read state', e);
         }
-        
+
         // Navigate
-        const target = getNotificationTarget(actionType, null);
+        const target = getNotificationTarget(actionType, payload);
         if (target && !window.location.pathname.includes(target)) {
             window.location.href = target;
         }
@@ -130,6 +268,7 @@ function injectDrawerHTML() {
             <!-- Settings Area -->
             <div id="nc-settings" class="flex-1 overflow-y-auto p-4 space-y-3 hidden">
                 <p id="nc-settings-error" role="alert" class="hidden text-body-sm text-error bg-error-container/30 rounded-xl px-3 py-2"></p>
+                <div id="nc-push-section" class="space-y-2 pb-3"></div>
                 <div id="nc-settings-rows" class="space-y-2"></div>
             </div>
         </div>
@@ -148,85 +287,9 @@ async function pollUnreadCount() {
     try {
         const data = await apiGet('/notifications/unread-count');
         
-        if (data.unread_count > unreadCount && unreadCount !== 0) {
-            // Unread count increased while app is open -> fetch and show local push
-            fetchAndShowLocalPushes();
-        } else if (data.unread_count > 0 && unreadCount === 0) {
-            // First load or transition from 0 -> fetch silently just to log shown state
-            fetchAndShowLocalPushes(true);
-        }
-        
         updateBadge(data.unread_count);
     } catch (err) {
         console.error('Failed to poll notifications', err);
-    }
-}
-
-async function fetchAndShowLocalPushes(silentInit = false) {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    
-    try {
-        const data = await apiGet('/notifications?limit=10'); 
-        const notifs = data.notifications || [];
-        
-        let shownIds = [];
-        try {
-            shownIds = JSON.parse(localStorage.getItem('bb_shown_pushes') || '[]');
-        } catch (e) { shownIds = []; }
-        
-        notifs.forEach(n => {
-            if (!n.is_read && !shownIds.includes(n.id)) {
-                if (!silentInit) {
-                    showLocalNotification(n);
-                }
-                shownIds.push(n.id);
-            }
-        });
-        
-        if (shownIds.length > 100) shownIds = shownIds.slice(-100);
-        localStorage.setItem('bb_shown_pushes', JSON.stringify(shownIds));
-        
-    } catch (err) {
-        console.error('Failed to fetch for local pushes', err);
-    }
-}
-
-function showLocalNotification(notif) {
-    const requireInteraction = notif.priority === 'critical';
-    const silent = notif.priority === 'info';
-    
-    // Attempt to pass to service worker if active (for better background click handling)
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        // We let the SW handle it if we want, but since we are in the active page,
-        // we can just show it directly. We'll use the SW registration to show it 
-        // to ensure mobile compatibility.
-        navigator.serviceWorker.ready.then(reg => {
-            reg.showNotification(notif.title, {
-                body: notif.message,
-                icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png', // Generic fallback
-                requireInteraction: requireInteraction,
-                silent: silent,
-                data: {
-                    notification_id: notif.id,
-                    action_type: notif.action_type
-                }
-            });
-        });
-    } else {
-        // Fallback for desktop browsers without SW active
-        const n = new Notification(notif.title, {
-            body: notif.message,
-            requireInteraction: requireInteraction,
-            silent: silent
-        });
-        
-        n.onclick = function(e) {
-            e.preventDefault();
-            n.close();
-            window.focus();
-            apiPatch(`/notifications/${notif.id}/read`).catch(console.error);
-            navigateForNotification(notif.action_type, notif.action_payload);
-        };
     }
 }
 
@@ -284,6 +347,7 @@ function closeDrawer() {
 
 async function fetchNotifications() {
     listEl.innerHTML = buildSkeleton();
+    renderPushCard();
     
     try {
         const data = await apiGet('/notifications');
@@ -291,15 +355,119 @@ async function fetchNotifications() {
         
         if (notifs.length === 0) {
             listEl.innerHTML = buildEmptyState();
+            renderPushCard();
             return;
         }
 
         renderGroupedNotifications(notifs);
+        renderPushCard();
 
     } catch (err) {
         console.error(err);
         listEl.innerHTML = buildErrorState();
+        renderPushCard();
     }
+}
+
+// ── Push opt-in card (top of the list) ──────────────────────────────
+
+function ncEl(tag, className, text) {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+}
+
+function isPushCardDismissed() {
+    try { return localStorage.getItem(PUSH_CARD_DISMISSED_KEY) === '1'; } catch (e) { return false; }
+}
+
+function dismissPushCard() {
+    try { localStorage.setItem(PUSH_CARD_DISMISSED_KEY, '1'); } catch (e) { /* ignore */ }
+    const card = document.getElementById('nc-push-card');
+    if (card) card.remove();
+}
+
+async function renderPushCard() {
+    if (!listEl) return;
+    const existing = document.getElementById('nc-push-card');
+    if (existing) existing.remove();
+    if (isPushCardDismissed()) return;
+
+    let state;
+    try { state = await getPushState(); } catch (e) { return; }
+    if (state !== 'off' && state !== 'ios-needs-install') return;
+
+    // A newer render may have added a card while we awaited
+    const dup = document.getElementById('nc-push-card');
+    if (dup) dup.remove();
+
+    const card = ncEl('div', 'p-4 rounded-2xl border border-primary/20 bg-surface-container');
+    card.id = 'nc-push-card';
+    const row = ncEl('div', 'flex gap-3');
+
+    const iconWrap = ncEl('div', 'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-primary bg-primary-fixed/30');
+    const icon = ncEl('span', 'material-symbols-outlined text-[20px]', state === 'off' ? 'notifications_active' : 'ios_share');
+    iconWrap.appendChild(icon);
+
+    const body = ncEl('div', 'flex-1 min-w-0');
+    const title = ncEl('p', 'text-label-lg font-bold text-on-surface',
+        state === 'off' ? 'Get reminders on this device?' : 'Notifications on iPhone');
+    const text = ncEl('p', 'text-body-sm text-on-surface-variant mt-1',
+        state === 'off'
+            ? 'Bills due, your weekly summary and monthly report \u2014 even when the app is closed.'
+            : 'Tap the Share button, then \u201cAdd to Home Screen\u201d. Open Budget Buddy from your Home Screen to turn on notifications.');
+    const msg = ncEl('p', 'hidden text-body-sm text-error mt-2');
+    msg.setAttribute('role', 'alert');
+    const actions = ncEl('div', 'flex items-center gap-3 mt-3');
+
+    if (state === 'off') {
+        const turnOn = ncEl('button', 'bg-primary text-on-primary px-4 py-2 rounded-xl text-label-md font-bold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed', 'Turn on');
+        turnOn.type = 'button';
+        const later = ncEl('button', 'text-label-md font-bold text-on-surface-variant hover:text-on-surface transition-colors', 'Not now');
+        later.type = 'button';
+        later.addEventListener('click', dismissPushCard);
+
+        turnOn.addEventListener('click', async () => {
+            msg.classList.add('hidden');
+            turnOn.disabled = true;
+            later.disabled = true;
+            turnOn.textContent = 'Turning on\u2026';
+            try {
+                const result = await enablePush();
+                if (result === 'on') {
+                    body.replaceChildren(ncEl('p', 'text-label-lg font-bold text-on-surface', 'Notifications are on for this device.'));
+                    icon.textContent = 'check_circle';
+                    setTimeout(() => card.remove(), 2000);
+                    return;
+                }
+                msg.textContent = 'Notifications are blocked in your browser settings. Allow them for this site, then try again.';
+                msg.classList.remove('hidden');
+            } catch (err) {
+                msg.textContent = (err && err.message) || "Couldn't turn on notifications. Please try again.";
+                msg.classList.remove('hidden');
+            }
+            turnOn.disabled = false;
+            later.disabled = false;
+            turnOn.textContent = 'Turn on';
+        });
+        actions.appendChild(turnOn);
+        actions.appendChild(later);
+    } else {
+        const gotIt = ncEl('button', 'text-label-md font-bold text-primary hover:text-primary-fixed transition-colors', 'Got it');
+        gotIt.type = 'button';
+        gotIt.addEventListener('click', dismissPushCard);
+        actions.appendChild(gotIt);
+    }
+
+    body.appendChild(title);
+    body.appendChild(text);
+    body.appendChild(msg);
+    body.appendChild(actions);
+    row.appendChild(iconWrap);
+    row.appendChild(body);
+    card.appendChild(row);
+    listEl.insertBefore(card, listEl.firstChild);
 }
 
 function renderGroupedNotifications(notifs) {
@@ -531,6 +699,8 @@ async function openSettings() {
     document.getElementById('nc-settings').classList.remove('hidden');
     showSettingsError('');
 
+    renderPushSettings();
+
     const rowsEl = document.getElementById('nc-settings-rows');
     rowsEl.innerHTML = buildSettingsSkeleton();
 
@@ -548,6 +718,116 @@ function showSettingsError(msg) {
     const el = document.getElementById('nc-settings-error');
     el.textContent = msg;
     el.classList.toggle('hidden', !msg);
+}
+
+// ── Settings: push notifications on this device ─────────────────────
+
+const PUSH_STATUS_TEXT = {
+    'unsupported': 'Not supported in this browser.',
+    'ios-needs-install': 'On iPhone, add Budget Buddy to your Home Screen first.',
+    'denied': 'Blocked in browser settings.',
+    'on': 'On for this device.',
+    'off': 'Off for this device.'
+};
+
+async function renderPushSettings() {
+    const section = document.getElementById('nc-push-section');
+    if (!section) return;
+    section.innerHTML = '';
+
+    const row = ncEl('div', 'flex items-center gap-3 p-4 rounded-2xl border border-surface-variant/30 bg-surface-container-lowest');
+
+    const iconWrap = ncEl('div', 'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-primary bg-primary-fixed/30');
+    iconWrap.appendChild(ncEl('span', 'material-symbols-outlined text-[20px]', 'phonelink_ring'));
+
+    const text = ncEl('div', 'flex-1 min-w-0');
+    text.appendChild(ncEl('p', 'text-label-lg font-bold text-on-surface', 'Push notifications on this device'));
+    text.appendChild(ncEl('p', 'text-body-sm text-on-surface-variant', 'Get reminders even when the app is closed'));
+    const status = ncEl('p', 'text-[11px] text-outline mt-1', 'Checking…');
+    status.id = 'nc-push-status';
+    status.setAttribute('aria-live', 'polite');
+    text.appendChild(status);
+
+    const sw = document.createElement('button');
+    sw.type = 'button';
+    sw.id = 'nc-push-switch';
+    sw.setAttribute('role', 'switch');
+    sw.setAttribute('aria-label', 'Push notifications on this device');
+    sw.className = 'relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50';
+    sw.appendChild(ncEl('span', 'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-surface-container-lowest transition-transform'));
+    setSwitchState(sw, false);
+    sw.disabled = true; // until the state is known
+
+    row.appendChild(iconWrap);
+    row.appendChild(text);
+    row.appendChild(sw);
+    section.appendChild(row);
+
+    const testBtn = ncEl('button', 'hidden text-label-md font-bold text-primary hover:text-primary-fixed transition-colors px-1 disabled:opacity-50', 'Send test notification');
+    testBtn.type = 'button';
+    testBtn.id = 'nc-push-test-btn';
+    section.appendChild(testBtn);
+
+    section.appendChild(ncEl('p', 'text-[11px] text-outline px-1',
+        "Your settings below decide what you get. The app's own messages are never sent between 10 PM and 8 AM."));
+
+    sw.addEventListener('click', () => togglePush(sw));
+    testBtn.addEventListener('click', () => sendTestPush(testBtn));
+
+    let state;
+    try { state = await getPushState(); } catch (e) { state = 'off'; }
+    applyPushSettingsState(state);
+}
+
+function applyPushSettingsState(state) {
+    const sw = document.getElementById('nc-push-switch');
+    const status = document.getElementById('nc-push-status');
+    const testBtn = document.getElementById('nc-push-test-btn');
+    if (!sw || !status || !testBtn) return;
+
+    const unavailable = state === 'unsupported' || state === 'ios-needs-install' || state === 'denied';
+    setSwitchState(sw, state === 'on');
+    sw.disabled = unavailable;
+    status.textContent = PUSH_STATUS_TEXT[state] || '';
+    testBtn.classList.toggle('hidden', state !== 'on');
+}
+
+async function togglePush(sw) {
+    const previous = sw.getAttribute('aria-checked') === 'true';
+    const next = !previous;
+
+    showSettingsError('');
+    setSwitchState(sw, next); // optimistic
+    sw.disabled = true;
+
+    try {
+        if (next) {
+            const state = await enablePush();
+            applyPushSettingsState(state);
+        } else {
+            await disablePush();
+            applyPushSettingsState(await getPushState());
+        }
+    } catch (err) {
+        console.error('Failed to change push setting', err);
+        setSwitchState(sw, previous); // revert
+        sw.disabled = false;
+        showSettingsError((err && err.message) || "Couldn't change that. Please try again.");
+    }
+}
+
+async function sendTestPush(btn) {
+    const status = document.getElementById('nc-push-status');
+    btn.disabled = true;
+    if (status) status.textContent = 'Sending…';
+    try {
+        const res = await apiPost('/push/test', {});
+        if (status) status.textContent = (res && res.message) || 'Test notification sent.';
+    } catch (err) {
+        if (status) status.textContent = (err && err.message) || "Couldn't send a test notification.";
+    } finally {
+        btn.disabled = false;
+    }
 }
 
 function renderSettingsRows(prefs) {

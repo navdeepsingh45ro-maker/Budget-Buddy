@@ -1,0 +1,36 @@
+{
+  "name": "Budget Buddy",
+  "short_name": "BudgetBuddy",
+  "description": "Track expenses, budgets and get coaching from Buddy.",
+  "start_url": "dashboard.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fef8fb",
+  "theme_color": "#66547b",
+  "icons": [
+    {
+      "src": "../Assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../Assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../Assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../Assets/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

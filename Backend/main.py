@@ -21,6 +21,8 @@ from routes.export_routes import router as export_router
 from routes.auth_routes import router as auth_router
 from models.password_reset_model import PasswordReset
 from models.ai_report_model import AIReport
+from models.push_subscription_model import PushSubscription
+from routes.push_routes import router as push_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -34,6 +36,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 app.include_router(auth_router)
+app.include_router(push_router)
 app.include_router(expense_router)
 app.include_router(budget_router)
 app.include_router(ai_router)

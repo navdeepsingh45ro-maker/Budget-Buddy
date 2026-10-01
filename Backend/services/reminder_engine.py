@@ -25,6 +25,7 @@ from models.user_model import User
 from services.insight_engine import money, percent
 from services.monthly_report import build_monthly_report
 from services.notification_service import NotificationService
+from services.push_service import APP, USER_SETUP
 from services.summary_service import APP_TIMEZONE, FinancialSummaryGenerator, fetch_expense_rows
 
 logger = logging.getLogger("reminder_engine")
@@ -84,7 +85,7 @@ def _daily_log(db: Session, user_id: int, today: date) -> int:
         title="Anything to log today?",
         message="You haven't logged any expenses today. It takes seconds with voice or a receipt photo.",
         category="reminder", source="scheduler", icon="edit_note",
-        action_type="add_expense", priority="info", metadata_json=meta,
+        action_type="add_expense", push_origin=APP, priority="info", metadata_json=meta,
         expires_at=datetime.utcnow() + timedelta(hours=16),
     )
     return 1
@@ -109,7 +110,7 @@ def _bills_due(db: Session, user_id: int, today: date) -> int:
             title=f"{bill.title} is due tomorrow",
             message=f"{money(bill.amount)} for {bill.title} will be added to your expenses tomorrow.",
             category="reminder", source="scheduler", icon="event_upcoming",
-            action_type="recurring", priority="info", metadata_json=meta,
+            action_type="recurring", push_origin=USER_SETUP, priority="info", metadata_json=meta,
             expires_at=datetime.utcnow() + timedelta(days=2),
         )
         count += 1
@@ -147,7 +148,7 @@ def _weekly_summary(db: Session, user_id: int, today: date) -> int:
         title="Your week in review",
         message=message,
         category="weekly", source="scheduler", icon="date_range",
-        action_type="history", priority="info", metadata_json=meta,
+        action_type="history", push_origin=APP, priority="info", metadata_json=meta,
     )
     return 1
 
@@ -181,7 +182,7 @@ def _monthly_report(db: Session, user_id: int, today: date) -> int:
         title=f"Your {s['current_month']} report is ready",
         message=message,
         category="monthly", source="scheduler", icon="assessment",
-        action_type="monthly_report", action_payload={"month": month, "year": year},
+        action_type="monthly_report", push_origin=APP, action_payload={"month": month, "year": year},
         priority="info", metadata_json=meta,
     )
     return 1
@@ -209,6 +210,6 @@ def _budget_missing(db: Session, user_id: int, today: date) -> int:
         title=f"Set your {month_name} budget",
         message=f"Your budget last month was {money(previous.monthly_budget)}. Set one for {month_name} to keep tracking your pace.",
         category="reminder", source="scheduler", icon="account_balance_wallet",
-        action_type="set_budget", priority="warning", metadata_json=meta,
+        action_type="set_budget", push_origin=APP, priority="warning", metadata_json=meta,
     )
     return 1
