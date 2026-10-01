@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#66547b">
+<link rel="apple-touch-icon" href="../Assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BudgetBuddy">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/png" sizes="192x192" href="../Assets/icons/icon-192.png">
+<title>BudgetBuddy - Welcome</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#69577f",
+                    "on-primary-fixed": "#231437",
+                    "error": "#ba1a1a",
+                    "on-background": "#1d1b1e",
+                    "secondary-container": "#e8d1ff",
+                    "surface-container-low": "#f8f2f6",
+                    "tertiary-fixed": "#eae5a3",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#44410f",
+                    "on-tertiary-fixed": "#1e1c00",
+                    "tertiary-container": "#b2ae71",
+                    "secondary-fixed-dim": "#d4beeb",
+                    "primary-fixed-dim": "#d3beeb",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f5eff3",
+                    "on-primary-fixed-variant": "#503f65",
+                    "tertiary": "#63602c",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#ded8dc",
+                    "outline-variant": "#cbc4ce",
+                    "background": "#fef8fb",
+                    "on-surface-variant": "#4a454d",
+                    "tertiary-fixed-dim": "#cec98a",
+                    "primary-fixed": "#eddcff",
+                    "outline": "#7b757e",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#eedbff",
+                    "on-primary-container": "#fffbff",
+                    "surface-tint": "#68577e",
+                    "surface-container": "#f2ecf0",
+                    "surface-container-highest": "#e6e1e5",
+                    "on-error-container": "#93000a",
+                    "secondary": "#69577e",
+                    "surface-container-high": "#ece7ea",
+                    "primary-container": "#7f6d95",
+                    "primary": "#66547b",
+                    "on-surface": "#1d1b1e",
+                    "on-secondary-fixed-variant": "#503f65",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fef8fb",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#fef8fb",
+                    "inverse-primary": "#d3beeb",
+                    "surface-variant": "#e6e1e5",
+                    "inverse-surface": "#323033",
+                    "on-secondary-fixed": "#231437",
+                    "on-tertiary-fixed-variant": "#4b4816"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "xl": "48px",
+                    "base": "4px",
+                    "margin-desktop": "40px",
+                    "lg": "32px",
+                    "sm": "16px",
+                    "gutter": "24px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-xl-mobile": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fef8fb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-shadow {
+            box-shadow: 0px 4px 20px rgba(151, 132, 174, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+
+<style>
+    .carousel-track { transition: transform 0.35s ease; }
+    .step-enter { animation: stepIn 0.35s ease both; }
+    @keyframes stepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .form-input-focus:focus { outline: none; }
+    #budget-input::-webkit-outer-spin-button, #budget-input::-webkit-inner-spin-button,
+    #expense-amount::-webkit-outer-spin-button, #expense-amount::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    #budget-input, #expense-amount { -moz-appearance: textfield; }
+</style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md overflow-x-hidden">
+<!-- Atmospheric Background Decoration -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/10 rounded-full blur-[80px]"></div>
+</div>
+
+<main class="relative z-10 flex-grow flex flex-col items-center justify-center px-margin-mobile md:px-gutter py-md">
+<div class="w-full max-w-[440px]">
+
+<!-- Top bar: progress + skip -->
+<div class="flex items-center justify-between mb-sm min-h-[32px]">
+<span id="progress-label" class="font-label-md text-label-md text-outline">Step 1 of 4</span>
+<button id="skip-btn" type="button" class="text-sm font-semibold text-primary hover:underline underline-offset-4 px-xs py-base">Skip</button>
+</div>
+
+<div class="w-full bg-white p-lg md:p-xl rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+
+<!-- STEP 1: Welcome carousel -->
+<section id="step-1" data-step="1" class="step-enter">
+<div id="carousel-viewport" class="overflow-hidden touch-pan-y">
+<div id="carousel-track" class="carousel-track flex">
+
+<div class="w-full shrink-0 flex flex-col items-center text-center px-base">
+<div class="w-28 h-28 mb-md"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h1 id="slide-1-title" class="font-headline-md text-headline-md text-on-background mb-xs">Hi, I'm Buddy!</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[320px]">I'll help you track spending and stay on budget, without the stress.</p>
+</div>
+
+<div class="w-full shrink-0 flex flex-col items-center text-center px-base">
+<div class="w-28 h-28 mb-md"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">Log expenses in seconds</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[320px] mb-sm">Type it, say it with the mic, or snap a photo of your receipt. I'll fill in the details.</p>
+<div class="flex gap-sm">
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">edit</span></span>
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">mic</span></span>
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">photo_camera</span></span>
+</div>
+</div>
+
+<div class="w-full shrink-0 flex flex-col items-center text-center px-base">
+<div class="w-28 h-28 mb-md"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">I keep an eye on things</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[320px] mb-sm">Daily coaching, reminders before bills are due, and a report every month.</p>
+<div class="flex gap-sm">
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">auto_awesome</span></span>
+<!-- Bell icon written as a codepoint (not the ligature name) so notifications.js doesn't mistake it for a bell button -->
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">notifications_active</span></span>
+<span class="w-12 h-12 rounded-full bg-primary-fixed text-primary flex items-center justify-center"><span class="material-symbols-outlined">assessment</span></span>
+</div>
+</div>
+
+</div>
+</div>
+
+<div id="carousel-dots" class="flex justify-center gap-xs my-md">
+<span class="dot w-2 h-2 rounded-full bg-primary transition-all"></span>
+<span class="dot w-2 h-2 rounded-full bg-outline-variant transition-all"></span>
+<span class="dot w-2 h-2 rounded-full bg-outline-variant transition-all"></span>
+</div>
+
+<button id="carousel-next-btn" type="button" class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20">
+<span id="carousel-next-label">Next</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center mt-md text-body-sm">
+<button id="skip-setup-btn" type="button" class="font-semibold text-outline hover:text-on-surface hover:underline underline-offset-4">Skip setup</button>
+</p>
+</section>
+
+<!-- STEP 2: Monthly budget -->
+<section id="step-2" data-step="2" class="hidden">
+<div class="flex flex-col items-center text-center mb-md">
+<div class="w-16 h-16 mb-sm"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">Set your monthly budget</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">How much do you plan to spend this month?</p>
+</div>
+<form id="budget-form" class="flex flex-col gap-sm" novalidate>
+<div class="flex flex-col items-center py-sm space-y-2">
+<div class="relative flex items-center justify-center w-full">
+<span class="text-headline-lg font-headline-xl text-primary/40 absolute left-[12%]">₹</span>
+<input aria-label="Monthly budget" class="bg-transparent border-none text-center font-headline-xl text-[48px] text-on-surface w-full focus:ring-0 placeholder:text-surface-dim font-bold" id="budget-input" placeholder="0" min="1" step="1" inputmode="decimal" type="number"/>
+</div>
+<label for="budget-input" class="text-label-md text-primary font-semibold tracking-wider uppercase">Monthly budget</label>
+</div>
+<div id="budget-chips" class="flex flex-wrap justify-center gap-xs">
+<button type="button" data-amount="10000" class="chip px-sm py-xs rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-semibold text-sm hover:border-primary hover:text-primary transition-colors">₹10,000</button>
+<button type="button" data-amount="20000" class="chip px-sm py-xs rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-semibold text-sm hover:border-primary hover:text-primary transition-colors">₹20,000</button>
+<button type="button" data-amount="30000" class="chip px-sm py-xs rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-semibold text-sm hover:border-primary hover:text-primary transition-colors">₹30,000</button>
+<button type="button" data-amount="50000" class="chip px-sm py-xs rounded-full border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-semibold text-sm hover:border-primary hover:text-primary transition-colors">₹50,000</button>
+</div>
+<p class="text-center text-body-sm text-outline">You can change this anytime.</p>
+<div id="budget-error" class="hidden text-red-600 text-sm"></div>
+<button id="budget-btn" type="submit" class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-60">
+<span id="budget-btn-label">Continue</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</form>
+</section>
+
+<!-- STEP 3: First expense -->
+<section id="step-3" data-step="3" class="hidden">
+<div class="flex flex-col items-center text-center mb-md">
+<div class="w-16 h-16 mb-sm"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">Add your first expense</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Try logging something you spent on today.</p>
+</div>
+<form id="expense-form" class="flex flex-col gap-sm" novalidate>
+<div class="flex flex-col items-center py-sm space-y-2">
+<div class="relative flex items-center justify-center w-full">
+<span class="text-headline-lg font-headline-xl text-primary/40 absolute left-[12%]">₹</span>
+<input aria-label="Expense amount" class="bg-transparent border-none text-center font-headline-xl text-[48px] text-on-surface w-full focus:ring-0 placeholder:text-surface-dim font-bold" id="expense-amount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal" type="number"/>
+</div>
+<label for="expense-amount" class="text-label-md text-primary font-semibold tracking-wider uppercase">Amount</label>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1" for="expense-note">Description</label>
+<input class="w-full px-4 py-4 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-outline/40" id="expense-note" maxlength="200" placeholder="e.g. Lunch at Swiggy" type="text"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1" for="expense-category">Category</label>
+<select id="expense-category" class="w-full px-4 py-4 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all cursor-pointer">
+<option value="" disabled selected>Select category...</option>
+<option value="Food">Food</option>
+<option value="Transport">Transport</option>
+<option value="Entertainment">Entertainment</option>
+<option value="Shopping">Shopping</option>
+<option value="Bills">Bills</option>
+<option value="Health">Health</option>
+<option value="Education">Education</option>
+<option value="Subscriptions">Subscriptions</option>
+<option value="EMI Loans">EMI Loans</option>
+<option value="Rent">Rent</option>
+<option value="Investments">Investments</option>
+<option value="Savings">Savings</option>
+<option value="Travel">Travel</option>
+<option value="Family">Family</option>
+<option value="Personal Care">Personal Care</option>
+<option value="Gifts">Gifts</option>
+<option value="Donations">Donations</option>
+<option value="Insurance">Insurance</option>
+<option value="Taxes">Taxes</option>
+<option value="Other">Other</option>
+</select>
+</div>
+<div id="expense-error" class="hidden text-red-600 text-sm"></div>
+<button id="expense-btn" type="submit" class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-60">
+<span id="expense-btn-label">Save expense</span>
+<span class="material-symbols-outlined">check</span>
+</button>
+<p class="text-center text-body-sm text-outline">Prefer voice or a receipt photo? Try them on the <a class="font-bold text-primary hover:underline underline-offset-4" href="add_expense.html" target="_blank" rel="noopener">Add Expense</a> screen anytime.</p>
+</form>
+</section>
+
+<!-- STEP 4: Notifications -->
+<section id="step-4" data-step="4" class="hidden">
+<div class="flex flex-col items-center text-center mb-md">
+<div class="w-16 h-16 mb-sm"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">Stay in the loop</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[340px]">Get a reminder before bills are due, your weekly summary and your monthly report — even when the app is closed. Nothing from us between 10 PM and 8 AM.</p>
+</div>
+<div class="flex flex-col gap-sm">
+<div id="push-message" class="hidden text-sm text-on-surface-variant bg-surface-container-low rounded-lg p-sm text-center"></div>
+<div id="push-error" class="hidden text-red-600 text-sm text-center"></div>
+<button id="push-btn" type="button" class="hidden w-full bg-primary text-on-primary py-4 rounded-lg font-bold items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-60">
+<span id="push-btn-label">Turn on notifications</span>
+</button>
+<button id="push-continue-btn" type="button" class="w-full bg-surface-container-high text-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:bg-surface-container-highest active:scale-[0.99] transition-all duration-200">
+<span id="push-continue-label">Continue</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+
+<!-- STEP 5: Done -->
+<section id="step-5" data-step="5" class="hidden">
+<div class="flex flex-col items-center text-center">
+<div class="w-28 h-28 mb-md"><img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/></div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-xs">You're all set!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Here's what we did together.</p>
+<ul class="w-full flex flex-col gap-xs mb-md text-left">
+<li class="flex items-center gap-xs bg-surface-container-low rounded-lg p-sm"><span id="summary-budget-icon" class="material-symbols-outlined text-outline">radio_button_unchecked</span><span id="summary-budget" class="font-body-sm text-body-sm text-on-surface">Budget skipped</span></li>
+<li class="flex items-center gap-xs bg-surface-container-low rounded-lg p-sm"><span id="summary-expense-icon" class="material-symbols-outlined text-outline">radio_button_unchecked</span><span id="summary-expense" class="font-body-sm text-body-sm text-on-surface">First expense skipped</span></li>
+<li class="flex items-center gap-xs bg-surface-container-low rounded-lg p-sm"><span id="summary-push-icon" class="material-symbols-outlined text-outline">radio_button_unchecked</span><span id="summary-push" class="font-body-sm text-body-sm text-on-surface">Notifications skipped</span></li>
+</ul>
+<button id="done-btn" type="button" class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20 disabled:opacity-60">
+<span id="done-btn-label">Go to my dashboard</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+
+</div>
+</div>
+</main>
+
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/notifications.js"></script>
+<script src="../Javascript's/welcome.js"></script>
+</body></html>

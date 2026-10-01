@@ -17,7 +17,8 @@ function initNotifications() {
     if (!navBtn) {
         // Fallback robust search
         const buttons = Array.from(document.querySelectorAll('button, span'));
-        navBtn = buttons.find(b => b.textContent.includes('notifications') && b.classList.contains('material-symbols-outlined'));
+        // Exact match: other icons like 'notifications_active' must not be mistaken for the bell.
+        navBtn = buttons.find(b => b.textContent.trim() === 'notifications' && b.classList.contains('material-symbols-outlined'));
     }
 
     if (!navBtn) return; // No notification button on this page
@@ -267,9 +268,9 @@ function injectDrawerHTML() {
 
             <!-- Settings Area -->
             <div id="nc-settings" class="flex-1 overflow-y-auto p-4 space-y-3 hidden">
-                <p id="nc-settings-error" role="alert" class="hidden text-body-sm text-error bg-error-container/30 rounded-xl px-3 py-2"></p>
-                <div id="nc-push-section" class="space-y-2 pb-3"></div>
-                <div id="nc-settings-rows" class="space-y-2"></div>
+                <p id="nc-settings-error" data-nc="error" role="alert" class="hidden text-body-sm text-error bg-error-container/30 rounded-xl px-3 py-2"></p>
+                <div id="nc-push-section" data-nc="push-section" class="space-y-2 pb-3"></div>
+                <div id="nc-settings-rows" data-nc="rows" class="space-y-2"></div>
             </div>
         </div>
     `;
@@ -697,25 +698,54 @@ async function openSettings() {
     document.getElementById('nc-back-btn').classList.remove('hidden');
     document.getElementById('nc-title').textContent = 'Notification settings';
     document.getElementById('nc-settings').classList.remove('hidden');
-    showSettingsError('');
+    loadNotificationSettings(document.getElementById('nc-settings'));
+}
 
-    renderPushSettings();
+// The settings UI (push section + preference toggles) is shared between the
+// drawer and the Settings page. Every function below works on a "root" element
+// that contains three children marked data-nc="error" | "push-section" | "rows",
+// and looks elements up inside that root (never by global id), so several
+// instances can live on one page.
+function ncQuery(root, name) {
+    return root.querySelector('[data-nc="' + name + '"]');
+}
 
-    const rowsEl = document.getElementById('nc-settings-rows');
+async function loadNotificationSettings(root) {
+    showSettingsError(root, '');
+
+    renderPushSettings(root);
+
+    const rowsEl = ncQuery(root, 'rows');
     rowsEl.innerHTML = buildSettingsSkeleton();
 
     try {
         const prefs = await apiGet('/notification-preferences/');
-        renderSettingsRows(prefs || {});
+        renderSettingsRows(root, prefs || {});
     } catch (err) {
         console.error('Failed to load notification preferences', err);
         rowsEl.innerHTML = '';
-        showSettingsError("Couldn't load your settings. Please try again.");
+        showSettingsError(root, "Couldn't load your settings. Please try again.");
     }
 }
 
-function showSettingsError(msg) {
-    const el = document.getElementById('nc-settings-error');
+// Public: render the push-device section + the preference toggles into any container.
+function mountNotificationSettings(containerEl) {
+    if (!containerEl) return Promise.resolve();
+    const err = ncEl('p', 'hidden text-body-sm text-error bg-error-container/30 rounded-xl px-3 py-2');
+    err.setAttribute('data-nc', 'error');
+    err.setAttribute('role', 'alert');
+    const push = ncEl('div', 'space-y-2 pb-3');
+    push.setAttribute('data-nc', 'push-section');
+    const rows = ncEl('div', 'space-y-2');
+    rows.setAttribute('data-nc', 'rows');
+    containerEl.replaceChildren(err, push, rows);
+    return loadNotificationSettings(containerEl);
+}
+window.mountNotificationSettings = mountNotificationSettings;
+
+function showSettingsError(root, msg) {
+    const el = ncQuery(root, 'error');
+    if (!el) return;
     el.textContent = msg;
     el.classList.toggle('hidden', !msg);
 }
@@ -730,8 +760,8 @@ const PUSH_STATUS_TEXT = {
     'off': 'Off for this device.'
 };
 
-async function renderPushSettings() {
-    const section = document.getElementById('nc-push-section');
+async function renderPushSettings(root) {
+    const section = ncQuery(root, 'push-section');
     if (!section) return;
     section.innerHTML = '';
 
@@ -744,13 +774,13 @@ async function renderPushSettings() {
     text.appendChild(ncEl('p', 'text-label-lg font-bold text-on-surface', 'Push notifications on this device'));
     text.appendChild(ncEl('p', 'text-body-sm text-on-surface-variant', 'Get reminders even when the app is closed'));
     const status = ncEl('p', 'text-[11px] text-outline mt-1', 'Checking…');
-    status.id = 'nc-push-status';
+    status.setAttribute('data-nc', 'push-status');
     status.setAttribute('aria-live', 'polite');
     text.appendChild(status);
 
     const sw = document.createElement('button');
     sw.type = 'button';
-    sw.id = 'nc-push-switch';
+    sw.setAttribute('data-nc', 'push-switch');
     sw.setAttribute('role', 'switch');
     sw.setAttribute('aria-label', 'Push notifications on this device');
     sw.className = 'relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50';
@@ -765,24 +795,24 @@ async function renderPushSettings() {
 
     const testBtn = ncEl('button', 'hidden text-label-md font-bold text-primary hover:text-primary-fixed transition-colors px-1 disabled:opacity-50', 'Send test notification');
     testBtn.type = 'button';
-    testBtn.id = 'nc-push-test-btn';
+    testBtn.setAttribute('data-nc', 'push-test-btn');
     section.appendChild(testBtn);
 
     section.appendChild(ncEl('p', 'text-[11px] text-outline px-1',
         "Your settings below decide what you get. The app's own messages are never sent between 10 PM and 8 AM."));
 
-    sw.addEventListener('click', () => togglePush(sw));
-    testBtn.addEventListener('click', () => sendTestPush(testBtn));
+    sw.addEventListener('click', () => togglePush(root, sw));
+    testBtn.addEventListener('click', () => sendTestPush(root, testBtn));
 
     let state;
     try { state = await getPushState(); } catch (e) { state = 'off'; }
-    applyPushSettingsState(state);
+    applyPushSettingsState(root, state);
 }
 
-function applyPushSettingsState(state) {
-    const sw = document.getElementById('nc-push-switch');
-    const status = document.getElementById('nc-push-status');
-    const testBtn = document.getElementById('nc-push-test-btn');
+function applyPushSettingsState(root, state) {
+    const sw = ncQuery(root, 'push-switch');
+    const status = ncQuery(root, 'push-status');
+    const testBtn = ncQuery(root, 'push-test-btn');
     if (!sw || !status || !testBtn) return;
 
     const unavailable = state === 'unsupported' || state === 'ios-needs-install' || state === 'denied';
@@ -792,32 +822,32 @@ function applyPushSettingsState(state) {
     testBtn.classList.toggle('hidden', state !== 'on');
 }
 
-async function togglePush(sw) {
+async function togglePush(root, sw) {
     const previous = sw.getAttribute('aria-checked') === 'true';
     const next = !previous;
 
-    showSettingsError('');
+    showSettingsError(root, '');
     setSwitchState(sw, next); // optimistic
     sw.disabled = true;
 
     try {
         if (next) {
             const state = await enablePush();
-            applyPushSettingsState(state);
+            applyPushSettingsState(root, state);
         } else {
             await disablePush();
-            applyPushSettingsState(await getPushState());
+            applyPushSettingsState(root, await getPushState());
         }
     } catch (err) {
         console.error('Failed to change push setting', err);
         setSwitchState(sw, previous); // revert
         sw.disabled = false;
-        showSettingsError((err && err.message) || "Couldn't change that. Please try again.");
+        showSettingsError(root, (err && err.message) || "Couldn't change that. Please try again.");
     }
 }
 
-async function sendTestPush(btn) {
-    const status = document.getElementById('nc-push-status');
+async function sendTestPush(root, btn) {
+    const status = ncQuery(root, 'push-status');
     btn.disabled = true;
     if (status) status.textContent = 'Sending…';
     try {
@@ -830,8 +860,8 @@ async function sendTestPush(btn) {
     }
 }
 
-function renderSettingsRows(prefs) {
-    const rowsEl = document.getElementById('nc-settings-rows');
+function renderSettingsRows(root, prefs) {
+    const rowsEl = ncQuery(root, 'rows');
     rowsEl.innerHTML = '';
     NC_SETTINGS.forEach(def => {
         const row = document.createElement('div');
@@ -866,7 +896,7 @@ function renderSettingsRows(prefs) {
         sw.appendChild(knob);
         setSwitchState(sw, !!prefs[def.key]);
 
-        sw.addEventListener('click', () => toggleSetting(sw));
+        sw.addEventListener('click', () => toggleSetting(root, sw));
 
         row.appendChild(iconWrap);
         row.appendChild(text);
@@ -885,12 +915,12 @@ function setSwitchState(sw, on) {
     }
 }
 
-async function toggleSetting(sw) {
+async function toggleSetting(root, sw) {
     const key = sw.dataset.key;
     const previous = sw.getAttribute('aria-checked') === 'true';
     const next = !previous;
 
-    showSettingsError('');
+    showSettingsError(root, '');
     setSwitchState(sw, next); // optimistic
     sw.disabled = true;
 
@@ -899,7 +929,7 @@ async function toggleSetting(sw) {
     } catch (err) {
         console.error('Failed to save notification preference', err);
         setSwitchState(sw, previous); // revert
-        showSettingsError("Couldn't save that change. Please try again.");
+        showSettingsError(root, "Couldn't save that change. Please try again.");
     } finally {
         sw.disabled = false;
     }

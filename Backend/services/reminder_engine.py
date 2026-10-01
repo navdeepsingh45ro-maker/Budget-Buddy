@@ -23,6 +23,7 @@ from models.notification_preferences_model import NotificationPreferences
 from models.recurring_transaction_model import RecurringTransaction
 from models.user_model import User
 from services.insight_engine import money, percent
+from services.budget_carryover import ensure_budget_carried_over
 from services.monthly_report import build_monthly_report
 from services.notification_service import NotificationService
 from services.push_service import APP, USER_SETUP
@@ -58,6 +59,7 @@ def run_reminders(now: datetime | None = None) -> dict:
                 # still produces last month's report; de-duplication keeps it to once a month.
                 if enabled("notify_monthly") and now.hour >= MORNING_HOUR:
                     sent["monthly_report"] += _monthly_report(db, user_id, now.date())
+                ensure_budget_carried_over(db, user_id)   # silent no-op if not applicable
                 if enabled("notify_budget") and now.day <= 3 and now.hour >= MORNING_HOUR:
                     sent["budget_missing"] += _budget_missing(db, user_id, now.date())
             except Exception:

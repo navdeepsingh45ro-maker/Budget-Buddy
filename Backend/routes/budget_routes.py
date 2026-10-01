@@ -9,12 +9,13 @@ from auth.auth2 import get_current_user
 from database import get_db
 from datetime import datetime
 from services.insight_updater import refresh_user_insight
-from services.summary_service import FinancialSummaryGenerator
+from services.summary_service import FinancialSummaryGenerator, local_today
+from services.budget_carryover import ensure_budget_carried_over
 
 router = APIRouter()
 @router.post("/budget/")
 def create_budget(budget: BudgetCreate, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    today = datetime.now()
+    today = local_today()
     current_month = today.month
     current_year = today.year
     existing_budget = db.query(Budget).filter(
@@ -47,8 +48,8 @@ def create_budget(budget: BudgetCreate, background_tasks: BackgroundTasks, curre
 
 @router.put("/budget/")
 def update_budget(budget: BudgetCreate, background_tasks: BackgroundTasks, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    current_month = datetime.now().month
-    current_year = datetime.now().year
+    current_month = local_today().month
+    current_year = local_today().year
     existing_budget = db.query(Budget).filter(Budget.user_id == current_user.id, Budget.month == current_month, Budget.year == current_year).first()
     if existing_budget:
         existing_budget.monthly_budget = budget.monthly_budget
@@ -61,8 +62,9 @@ def update_budget(budget: BudgetCreate, background_tasks: BackgroundTasks, curre
 
 @router.get("/budget/", response_model=BudgetDetailResponse)
 def get_budget(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    current_month = datetime.now().month
-    current_year = datetime.now().year
+    ensure_budget_carried_over(db, current_user.id)
+    current_month = local_today().month
+    current_year = local_today().year
     budget = db.query(Budget).filter(Budget.user_id == current_user.id, Budget.month == current_month, Budget.year == current_year).first()
     if not budget:
         raise HTTPException(status_code=404, detail="Budget for this month not found")

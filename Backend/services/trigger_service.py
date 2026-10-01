@@ -2,7 +2,7 @@ import logging
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from datetime import datetime
-from services.summary_service import FinancialSummaryGenerator
+from services.summary_service import FinancialSummaryGenerator, local_today
 from services.notification_service import NotificationService
 from models.budget_model import Budget
 from models.notification_preferences_model import NotificationPreferences
@@ -20,7 +20,7 @@ def evaluate_budget_triggers(user_id: int, push_origin: str = None):
     """
     db: Session = SessionLocal()
     try:
-        now = datetime.now()
+        now = local_today()
         
         # EXTENSION POINT: Notification Preferences
         prefs = db.query(NotificationPreferences).filter(NotificationPreferences.user_id == user_id).first()

@@ -18,6 +18,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        # Account deleted (e.g. from another device): treat like an expired login
+        # so the app clears the token and returns to the login screen.
+        raise HTTPException(status_code=401, detail="Your session has ended. Please log in again.")
     
     return user

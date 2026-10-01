@@ -11,6 +11,7 @@ from database import get_db
 from services.insight_updater import refresh_user_insight
 from services.trigger_service import evaluate_budget_triggers
 from services.summary_service import FinancialSummaryGenerator
+from services.budget_carryover import ensure_budget_carried_over
 from services.expense_service import ExpenseService
 
 router = APIRouter()
@@ -67,6 +68,7 @@ def update_expense(expense_id: int, expense_data: ExpenseCreate, background_task
 
 @router.get("/analytics")
 def get_analytics(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    ensure_budget_carried_over(db, current_user.id)
     s = FinancialSummaryGenerator.generate_summary(current_user.id, db)
     has_budget = s["monthly_budget"] > 0
     return {

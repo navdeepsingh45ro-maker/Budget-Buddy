@@ -79,6 +79,16 @@ const transactionsListEl = document.getElementById('transactions-list');
 document.addEventListener('DOMContentLoaded', loadDashboard);
 
 async function loadDashboard() {
+    // First-run: send brand-new accounts to the welcome tutorial.
+    // Never block the dashboard if this check fails.
+    try {
+        const settings = await apiGet('/users/me/settings');
+        if (settings && settings.onboarding_completed === false) {
+            window.location.replace('welcome.html');
+            return;
+        }
+    } catch (e) { /* continue loading the dashboard */ }
+
     try {
         // Set time-based greeting immediately
         setGreeting();

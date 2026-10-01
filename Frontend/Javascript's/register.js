@@ -75,12 +75,13 @@ form.addEventListener('submit', async (e) => {
         // ⚠️ Change '/register' to match your actual route in user_routes.py
         await apiPost('/users/', { name, email, password });
 
-        // Step 2: immediately log them in so they land on dashboard
+        // Step 2: immediately log them in
         // This hits POST /login with form encoding (handled by apiLogin)
         // ⚠️ Your login endpoint takes 'username' — check if it's email or username
         await apiLogin(email, password);
 
-        goToDashboard();
+        // New accounts see the welcome tutorial first
+        window.location.href = 'welcome.html';
 
     } catch (err) {
         // Common backend error: "Email already registered"

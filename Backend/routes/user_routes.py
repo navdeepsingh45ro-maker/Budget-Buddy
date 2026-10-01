@@ -1,5 +1,8 @@
 from auth.auth2 import get_current_user
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel, Field
 from schemas.user_schema import UserCreate, UserResponse
 from models.user_model import User
 from database import SessionLocal
@@ -11,10 +14,15 @@ from sqlalchemy.orm import Session
 from database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Request
+from models.user_settings_model import UserSettings
 
 router = APIRouter()
 @router.post("/users/")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    if not user.name.strip():
+        raise HTTPException(status_code=400, detail="Please enter your name")
+    if len(user.password) < MIN_PASSWORD_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already exists")
@@ -25,6 +33,9 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
+    # New accounts see the welcome tutorial once (existing accounts have no settings row).
+    db.add(UserSettings(user_id=new_user.id, carry_over_budget=True, onboarding_completed_at=None))
+
     # Create default notification preferences
     from models.notification_preferences_model import NotificationPreferences
     default_prefs = NotificationPreferences(user_id=new_user.id)
@@ -65,3 +76,109 @@ def login(request: LoginSchema, db: Session = Depends(get_db)):
 @router.get("/users/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user 
+
+
+# ── Account & settings ─────────────────────────────────────────
+
+MIN_PASSWORD_LENGTH = 8
+
+
+class UpdateProfile(BaseModel):
+    name: str = Field(..., max_length=100)
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class DeleteAccount(BaseModel):
+    password: str
+
+
+class UpdateSettings(BaseModel):
+    carry_over_budget: bool | None = None
+    onboarding_completed: bool | None = None
+
+
+def _settings_row(db: Session, user_id: int) -> UserSettings | None:
+    return db.query(UserSettings).filter(UserSettings.user_id == user_id).first()
+
+
+@router.put("/users/me", response_model=UserResponse)
+def update_profile(body: UpdateProfile, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Please enter your name")
+    current_user.name = name
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/users/me/password")
+def change_password(body: ChangePassword, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not verify_password(body.current_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Your current password is incorrect")
+    if len(body.new_password) < MIN_PASSWORD_LENGTH:
+        raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
+    if verify_password(body.new_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Your new password must be different from the current one")
+    current_user.password = hash_password(body.new_password)
+    db.commit()
+    return {"message": "Password changed"}
+
+
+@router.get("/users/me/settings")
+def get_settings(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    row = _settings_row(db, current_user.id)
+    return {
+        "carry_over_budget": True if row is None else bool(row.carry_over_budget),
+        # No row = account created before the tutorial existed: don't force it on them.
+        "onboarding_completed": row is None or row.onboarding_completed_at is not None,
+    }
+
+
+@router.put("/users/me/settings")
+def update_settings(body: UpdateSettings, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    row = _settings_row(db, current_user.id)
+    if row is None:
+        row = UserSettings(user_id=current_user.id, carry_over_budget=True, onboarding_completed_at=datetime.utcnow())
+        db.add(row)
+    if body.carry_over_budget is not None:
+        row.carry_over_budget = body.carry_over_budget
+    if body.onboarding_completed is not None:
+        row.onboarding_completed_at = datetime.utcnow() if body.onboarding_completed else None
+    db.commit()
+    return get_settings(current_user, db)
+
+
+@router.post("/users/me/delete")
+def delete_account(body: DeleteAccount, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Permanently delete the account and every row that belongs to it."""
+    if not verify_password(body.password, current_user.password):
+        raise HTTPException(status_code=400, detail="Password is incorrect")
+    user_id = current_user.id
+    for model in USER_OWNED_MODELS:
+        db.query(model).filter(model.user_id == user_id).delete(synchronize_session=False)
+    db.query(User).filter(User.id == user_id).delete(synchronize_session=False)
+    db.commit()
+    return {"message": "Your account and all your data have been deleted"}
+
+
+def _user_owned_models():
+    from models.ai_insight_model import AIInsight
+    from models.ai_report_model import AIReport
+    from models.budget_model import Budget
+    from models.device_model import Device
+    from models.expense_model import Expense
+    from models.notification_model import Notification
+    from models.notification_preferences_model import NotificationPreferences
+    from models.password_reset_model import PasswordReset
+    from models.push_subscription_model import PushSubscription
+    from models.recurring_transaction_model import RecurringTransaction
+    return [Expense, Budget, RecurringTransaction, Notification, NotificationPreferences, Device,
+            PushSubscription, AIInsight, AIReport, PasswordReset, UserSettings]
+
+
+USER_OWNED_MODELS = _user_owned_models()
