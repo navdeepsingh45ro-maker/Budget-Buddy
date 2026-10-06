@@ -12,109 +12,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" type="image/png" sizes="192x192" href="../Assets/icons/icon-192.png">
 <title>Help & FAQ - BudgetBuddy</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-secondary-container": "#69577f",
-                    "on-primary-fixed": "#231437",
-                    "error": "#ba1a1a",
-                    "on-background": "#1d1b1e",
-                    "secondary-container": "#e8d1ff",
-                    "surface-container-low": "#f8f2f6",
-                    "tertiary-fixed": "#eae5a3",
-                    "on-primary": "#ffffff",
-                    "on-tertiary-container": "#44410f",
-                    "on-tertiary-fixed": "#1e1c00",
-                    "tertiary-container": "#b2ae71",
-                    "secondary-fixed-dim": "#d4beeb",
-                    "primary-fixed-dim": "#d3beeb",
-                    "error-container": "#ffdad6",
-                    "inverse-on-surface": "#f5eff3",
-                    "on-primary-fixed-variant": "#503f65",
-                    "tertiary": "#63602c",
-                    "on-secondary": "#ffffff",
-                    "surface-dim": "#ded8dc",
-                    "outline-variant": "#cbc4ce",
-                    "background": "#fef8fb",
-                    "on-surface-variant": "#4a454d",
-                    "tertiary-fixed-dim": "#cec98a",
-                    "primary-fixed": "#eddcff",
-                    "outline": "#7b757e",
-                    "on-error": "#ffffff",
-                    "secondary-fixed": "#eedbff",
-                    "on-primary-container": "#fffbff",
-                    "surface-tint": "#68577e",
-                    "surface-container": "#f2ecf0",
-                    "surface-container-highest": "#e6e1e5",
-                    "on-error-container": "#93000a",
-                    "secondary": "#69577e",
-                    "surface-container-high": "#ece7ea",
-                    "primary-container": "#7f6d95",
-                    "primary": "#66547b",
-                    "on-surface": "#1d1b1e",
-                    "on-secondary-fixed-variant": "#503f65",
-                    "surface-container-lowest": "#ffffff",
-                    "surface": "#fef8fb",
-                    "on-tertiary": "#ffffff",
-                    "surface-bright": "#fef8fb",
-                    "inverse-primary": "#d3beeb",
-                    "surface-variant": "#e6e1e5",
-                    "inverse-surface": "#323033",
-                    "on-secondary-fixed": "#231437",
-                    "on-tertiary-fixed-variant": "#4b4816"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "md": "24px",
-                    "margin-mobile": "16px",
-                    "xl": "48px",
-                    "base": "4px",
-                    "margin-desktop": "40px",
-                    "lg": "32px",
-                    "sm": "16px",
-                    "gutter": "24px",
-                    "xs": "8px"
-            },
-            "fontFamily": {
-                    "headline-xl": ["Plus Jakarta Sans"],
-                    "body-lg": ["Inter"],
-                    "label-md": ["Inter"],
-                    "body-md": ["Inter"],
-                    "headline-xl-mobile": ["Plus Jakarta Sans"],
-                    "headline-sm": ["Plus Jakarta Sans"],
-                    "headline-lg-mobile": ["Plus Jakarta Sans"],
-                    "headline-md": ["Plus Jakarta Sans"],
-                    "body-sm": ["Inter"],
-                    "headline-lg": ["Plus Jakarta Sans"]
-            },
-            "fontSize": {
-                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
-                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
-            }
-          },
-        },
-      }
-    </script>
+<link rel="stylesheet" href="../Assets/fonts/fonts.css">
+<link rel="stylesheet" href="../Assets/fonts/fonts-inter-500.css">
 <style>
         body {
             background-color: #fef8fb;
@@ -130,6 +29,7 @@
             vertical-align: middle;
         }
     </style>
+<link rel="stylesheet" href="../css/app.css">
 </head>
 <body class="bg-background text-on-background font-body-md text-body-md overflow-x-hidden">
 <!-- Atmospheric Background Decoration -->
@@ -207,6 +107,10 @@
 </div>
 
 <h2 class="text-xl font-bold text-primary mt-lg mb-sm">Account and data</h2>
+<div class="mb-lg">
+<p class="font-bold text-on-surface mb-2">Who can use Budget Buddy?</p>
+<p class="text-on-surface-variant mb-4 leading-relaxed">Anyone aged 13 or over. If you're 13–17, a parent or guardian needs to agree when you sign up.</p>
+</div>
 <div class="mb-lg">
 <p class="font-bold text-on-surface mb-2">I forgot my password.</p>
 <p class="text-on-surface-variant mb-4 leading-relaxed">On the login screen tap <strong>Forgot Password?</strong>. We'll email you a 6-digit code.</p>

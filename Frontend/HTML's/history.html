@@ -12,111 +12,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" type="image/png" sizes="192x192" href="../Assets/icons/icon-192.png">
     <title>BudgetBuddy - History</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../Assets/fonts/fonts.css">
+<link rel="stylesheet" href="../Assets/fonts/fonts-inter-500.css">
+<link rel="stylesheet" href="../Assets/fonts/fonts-jakarta-500.css">
     
-    <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "surface-container-high": "#ece7ea",
-                    "surface-container": "#f2ecf0",
-                    "inverse-primary": "#d3beeb",
-                    "on-surface-variant": "#4a454d",
-                    "primary-container": "#7f6d95",
-                    "on-secondary-fixed-variant": "#503f65",
-                    "surface-container-low": "#f8f2f6",
-                    "on-secondary-container": "#69577f",
-                    "tertiary-fixed": "#eae5a3",
-                    "inverse-on-surface": "#f5eff3",
-                    "primary-fixed": "#eddcff",
-                    "on-secondary-fixed": "#231437",
-                    "primary": "#66547b",
-                    "tertiary-container": "#b2ae71",
-                    "surface-bright": "#fef8fb",
-                    "on-error-container": "#93000a",
-                    "error-container": "#ffdad6",
-                    "background": "#fef8fb",
-                    "surface": "#fef8fb",
-                    "surface-container-lowest": "#ffffff",
-                    "tertiary": "#63602c",
-                    "surface-variant": "#e6e1e5",
-                    "on-tertiary-container": "#44410f",
-                    "on-primary-fixed-variant": "#503f65",
-                    "inverse-surface": "#323033",
-                    "secondary-container": "#e8d1ff",
-                    "secondary-fixed": "#eedbff",
-                    "on-primary-fixed": "#231437",
-                    "error": "#ba1a1a",
-                    "on-primary": "#ffffff",
-                    "on-background": "#1d1b1e",
-                    "outline": "#7b757e",
-                    "on-tertiary-fixed": "#1e1c00",
-                    "surface-container-highest": "#e6e1e5",
-                    "outline-variant": "#cbc4ce",
-                    "on-surface": "#1d1b1e",
-                    "surface-dim": "#ded8dc",
-                    "secondary": "#69577e",
-                    "on-tertiary-fixed-variant": "#4b4816",
-                    "on-tertiary": "#ffffff",
-                    "secondary-fixed-dim": "#d4beeb",
-                    "surface-tint": "#68577e",
-                    "on-secondary": "#ffffff",
-                    "tertiary-fixed-dim": "#cec98a",
-                    "on-error": "#ffffff",
-                    "primary-fixed-dim": "#d3beeb",
-                    "on-primary-container": "#fffbff"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "2xl": "1.25rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "base": "4px",
-                    "md": "24px",
-                    "gutter": "24px",
-                    "xl": "48px",
-                    "lg": "32px",
-                    "margin-mobile": "16px",
-                    "xs": "8px",
-                    "sm": "16px",
-                    "margin-desktop": "40px"
-            },
-            "fontFamily": {
-                    "label-md": ["Inter"],
-                    "headline-sm": ["Plus Jakarta Sans"],
-                    "headline-xl-mobile": ["Plus Jakarta Sans"],
-                    "headline-lg-mobile": ["Plus Jakarta Sans"],
-                    "headline-lg": ["Plus Jakarta Sans"],
-                    "body-lg": ["Inter"],
-                    "headline-md": ["Plus Jakarta Sans"],
-                    "body-md": ["Inter"],
-                    "headline-xl": ["Plus Jakarta Sans"],
-                    "body-sm": ["Inter"]
-            },
-            "fontSize": {
-                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
-                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
-            }
-          },
-        },
-      }
-    </script>
     <style>
         body {
             background-color: #fef8fb;
@@ -145,6 +44,13 @@
             border-radius: 8px;
         }
     </style>
+<link rel="stylesheet" href="../css/app.css">
+<style>
+/* dashboard / history / budget_history have always used a 1.25rem "2xl" radius; other pages use Tailwind's 1rem */
+.rounded-2xl{border-radius:1.25rem}
+.rounded-b-2xl{border-bottom-right-radius:1.25rem;border-bottom-left-radius:1.25rem}
+.rounded-l-2xl{border-top-left-radius:1.25rem;border-bottom-left-radius:1.25rem}
+</style>
 </head>
 <body class="bg-background min-h-screen pb-32">
 

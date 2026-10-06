@@ -23,7 +23,7 @@ class WebAdapter(BaseAdapter):
         Will format the payload and send it via Web Push (e.g. using pywebpush).
         device_token here would be the serialized PushSubscription JSON object.
         """
-        logger.info(f"[WebAdapter Placeholder] Would send Web Push to subscription {device_token} with payload {notification_data}")
+        logger.info("[WebAdapter Placeholder] Would send a notification (not implemented)")
         return False # Graceful "Not Implemented" response
 
     def update_status(self, notification_id: int, status: str) -> bool:

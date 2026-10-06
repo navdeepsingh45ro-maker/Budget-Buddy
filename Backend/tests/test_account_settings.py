@@ -11,12 +11,52 @@ from models.notification_model import Notification
 from models.user_model import User
 from routes.user_routes import USER_OWNED_MODELS
 
+ADULT = {"age_group": "18_plus", "accept_terms": True}
+
 
 def test_signup_requires_8_char_password_and_a_name():
-    r = client.post("/users/", json={"name": "Short", "email": "short@example.com", "password": "abc123"})
+    r = client.post("/users/", json={"name": "Short", "email": "short@example.com", "password": "abc123", **ADULT})
     assert r.status_code == 400 and "8 characters" in r.json()["detail"]
-    r = client.post("/users/", json={"name": "   ", "email": "noname@example.com", "password": "Longenough1"})
+    r = client.post("/users/", json={"name": "   ", "email": "noname@example.com", "password": "Longenough1", **ADULT})
     assert r.status_code == 400
+
+
+def test_signup_age_gate_and_consent():
+    from models.user_consent_model import UserConsent
+
+    def signup(email, **consent):
+        return client.post("/users/", json={"name": "Kid", "email": email, "password": "Longenough1", **consent})
+
+    def stored(email):
+        db = SessionLocal()
+        try:
+            return db.query(User).filter(User.email == email).first()
+        finally:
+            db.close()
+
+    # Under 13: refused, and nothing from the attempt is stored.
+    r = signup("child@example.com", age_group="under_13", accept_terms=True)
+    assert r.status_code == 403 and "13 or older" in r.json()["detail"]
+    assert stored("child@example.com") is None
+
+    # Missing age group, missing terms, or a 13-17 without parent consent: refused.
+    assert signup("noage@example.com", accept_terms=True).status_code == 400
+    assert signup("noterms@example.com", age_group="18_plus").status_code == 400
+    r = signup("teen@example.com", age_group="13_17", accept_terms=True)
+    assert r.status_code == 400 and "parent or guardian" in r.json()["detail"]
+    assert not any(stored(e) for e in ("noage@example.com", "noterms@example.com", "teen@example.com"))
+
+    # 13-17 with parent consent, and adults: accepted, and the consent is recorded.
+    assert signup("teen@example.com", age_group="13_17", accept_terms=True, guardian_consent=True).status_code == 200
+    assert signup("adult@example.com", **ADULT).status_code == 200
+    db = SessionLocal()
+    try:
+        teen = db.query(UserConsent).join(User, User.id == UserConsent.user_id).filter(User.email == "teen@example.com").one()
+        adult = db.query(UserConsent).join(User, User.id == UserConsent.user_id).filter(User.email == "adult@example.com").one()
+        assert teen.age_group == "13_17" and teen.guardian_consent_at and teen.terms_version
+        assert adult.age_group == "18_plus" and adult.guardian_consent_at is None
+    finally:
+        db.close()
 
 
 def test_new_user_sees_tutorial_once_existing_users_dont():

@@ -11,7 +11,8 @@ client = TestClient(app)
 
 
 def register_and_login(email, password="Str0ng!pass"):
-    r = client.post("/users/", json={"name": "Test", "email": email, "password": password})
+    r = client.post("/users/", json={"name": "Test", "email": email, "password": password,
+                                       "age_group": "18_plus", "accept_terms": True})
     assert r.status_code == 200, r.text
     r = client.post("/login", json={"email": email, "password": password})
     assert r.status_code == 200, r.text

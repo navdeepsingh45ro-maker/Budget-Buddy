@@ -1,4 +1,4 @@
-"""Outgoing email over SMTP (Gmail by default).
+"""Outgoing transactional email over SMTP (Gmail by default).
 
 Configure in Backend/.env:
     SMTP_HOST=smtp.gmail.com
@@ -28,7 +28,8 @@ def is_configured() -> bool:
 
 def send_email(to: str, subject: str, text: str, html: str | None = None) -> bool:
     if not is_configured():
-        logger.warning("SMTP not configured; email to %s not sent.\nSubject: %s\n%s", to, subject, text)
+        # Never log the recipient, subject or body: reset codes appear in both.
+        logger.warning("SMTP not configured; email not sent.")
         return False
 
     msg = EmailMessage()
@@ -47,10 +48,15 @@ def send_email(to: str, subject: str, text: str, html: str | None = None) -> boo
             smtp.send_message(msg)
         return True
     except Exception:
-        logger.exception("Failed to send email to %s", to)
+        logger.exception("Failed to send email.")
         return False
 
 
+# TRANSACTIONAL EMAIL
+# This function sends a transactional (non-marketing) email and is exempt from CAN-SPAM
+# and other marketing-email rules. Do NOT add promotions, newsletters, or other marketing
+# content to this function. Any future marketing email must be a separate function with
+# an unsubscribe link, a postal address, List-Unsubscribe headers, and suppression list checks.
 def send_password_reset_code(to: str, name: str, code: str, minutes_valid: int) -> bool:
     subject = f"Your Budget Buddy reset code: {code}"
     text = (

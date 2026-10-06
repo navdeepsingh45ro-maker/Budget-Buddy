@@ -15,10 +15,20 @@ from database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Request
 from models.user_settings_model import UserSettings
+from models.user_consent_model import UserConsent
 
 router = APIRouter()
 @router.post("/users/")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Age and consent come first: an under-13 attempt is refused before anything is read or stored.
+    if user.age_group not in AGE_GROUPS:
+        raise HTTPException(status_code=400, detail="Please tell us your age group")
+    if user.age_group == "under_13":
+        raise HTTPException(status_code=403, detail="Sorry, you need to be 13 or older to use Budget Buddy.")
+    if user.age_group == "13_17" and not user.guardian_consent:
+        raise HTTPException(status_code=400, detail="If you're under 18, a parent or guardian needs to agree before you sign up")
+    if not user.accept_terms:
+        raise HTTPException(status_code=400, detail="Please agree to the Terms of Service and Privacy Policy")
     if not user.name.strip():
         raise HTTPException(status_code=400, detail="Please enter your name")
     if len(user.password) < MIN_PASSWORD_LENGTH:
@@ -35,6 +45,9 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     
     # New accounts see the welcome tutorial once (existing accounts have no settings row).
     db.add(UserSettings(user_id=new_user.id, carry_over_budget=True, onboarding_completed_at=None))
+    now = datetime.utcnow()
+    db.add(UserConsent(user_id=new_user.id, age_group=user.age_group, terms_version=TERMS_VERSION,
+                       terms_accepted_at=now, guardian_consent_at=now if user.age_group == "13_17" else None))
 
     # Create default notification preferences
     from models.notification_preferences_model import NotificationPreferences
@@ -81,6 +94,8 @@ def read_users_me(current_user: User = Depends(get_current_user)):
 # ── Account & settings ─────────────────────────────────────────
 
 MIN_PASSWORD_LENGTH = 8
+AGE_GROUPS = ("under_13", "13_17", "18_plus")
+TERMS_VERSION = "2026-10-01"  # bump with the "Last updated" date on terms.html / privacy.html
 
 
 class UpdateProfile(BaseModel):
@@ -178,7 +193,7 @@ def _user_owned_models():
     from models.push_subscription_model import PushSubscription
     from models.recurring_transaction_model import RecurringTransaction
     return [Expense, Budget, RecurringTransaction, Notification, NotificationPreferences, Device,
-            PushSubscription, AIInsight, AIReport, PasswordReset, UserSettings]
+            PushSubscription, AIInsight, AIReport, PasswordReset, UserSettings, UserConsent]
 
 
 USER_OWNED_MODELS = _user_owned_models()

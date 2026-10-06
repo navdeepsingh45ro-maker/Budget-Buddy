@@ -20,10 +20,10 @@ class IOSAdapter(BaseAdapter):
     def send(self, notification_data: Dict[str, Any], device_token: str) -> bool:
         """
         [NOT IMPLEMENTED]
-        Will format the notification payload into APNs JSON structure 
+        Will format the notification payload into APNs JSON structure
         and send it to Apple's push servers.
         """
-        logger.info(f"[IOSAdapter Placeholder] Would send to APNs token {device_token} with payload {notification_data}")
+        logger.info("[IOSAdapter Placeholder] Would send a notification (not implemented)")
         return False # Graceful "Not Implemented" response
 
     def update_status(self, notification_id: int, status: str) -> bool:

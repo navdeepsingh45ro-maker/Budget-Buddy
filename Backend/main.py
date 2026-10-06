@@ -22,6 +22,7 @@ from routes.auth_routes import router as auth_router
 from models.password_reset_model import PasswordReset
 from models.ai_report_model import AIReport
 from models.push_subscription_model import PushSubscription
+from models.user_consent_model import UserConsent
 from routes.push_routes import router as push_router
 from fastapi.middleware.cors import CORSMiddleware
 

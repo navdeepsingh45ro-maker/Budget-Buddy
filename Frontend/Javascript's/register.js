@@ -2,13 +2,12 @@
 //  register.js — BudgetBuddy register page
 //  Depends on: api.js (must be loaded first in register.html)
 //
-//  Backend endpoint expected:
-//    POST /register
-//    Body: { name, email, password }
-//    Returns: { id, name, email } or similar
-//
-//  ⚠️  Verify your actual route path in user_routes.py.
-//  Common alternatives: /users  /auth/register  /signup
+//  Backend endpoint:
+//    POST /users/
+//    Body: { name, email, password, age_group, accept_terms, guardian_consent }
+//    age_group is "under_13" | "13_17" | "18_plus". The server refuses
+//    under-13s and 13-17s without a parent's OK, so these checks are
+//    repeated there; the ones here just give faster feedback.
 // ─────────────────────────────────────────────────────────────
 
 // If already logged in, skip registration
@@ -35,6 +34,27 @@ function setLoading(loading) {
 }
 
 // ── Client-side validation ────────────────────────────────────
+function selectedAgeGroup() {
+    const checked = document.querySelector('input[name="age_group"]:checked');
+    return checked ? checked.value : null;
+}
+
+// Show the parent/guardian checkbox only for 13-17, and the refusal note for under 13.
+const guardianRow = document.getElementById('guardian-row');
+const under13Note = document.getElementById('under13-note');
+document.querySelectorAll('input[name="age_group"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        const age = selectedAgeGroup();
+        guardianRow.classList.toggle('hidden', age !== '13_17');
+        under13Note.classList.toggle('hidden', age !== 'under_13');
+        btn.disabled = age === 'under_13';
+        clearError();
+    });
+});
+
+['guardian-consent', 'accept-terms'].forEach(id =>
+    document.getElementById(id).addEventListener('change', clearError));
+
 function validate(name, email, password, confirm) {
     if (!name.trim())
         return 'Please enter your full name.';
@@ -47,6 +67,19 @@ function validate(name, email, password, confirm) {
 
     if (password !== confirm)
         return 'Passwords do not match.';
+
+    const age = selectedAgeGroup();
+    if (!age)
+        return 'Please tell us your age group.';
+
+    if (age === 'under_13')
+        return 'Sorry, you need to be 13 or older to use Budget Buddy.';
+
+    if (age === '13_17' && !document.getElementById('guardian-consent').checked)
+        return 'If you\'re under 18, a parent or guardian needs to agree before you sign up.';
+
+    if (!document.getElementById('accept-terms').checked)
+        return 'Please agree to the Terms of Service and Privacy Policy.';
 
     return null; // null = valid
 }
@@ -72,12 +105,14 @@ form.addEventListener('submit', async (e) => {
 
     try {
         // Step 1: create the account
-        // ⚠️ Change '/register' to match your actual route in user_routes.py
-        await apiPost('/users/', { name, email, password });
+        const age_group = selectedAgeGroup();
+        await apiPost('/users/', {
+            name, email, password, age_group,
+            accept_terms: document.getElementById('accept-terms').checked,
+            guardian_consent: age_group === '13_17' && document.getElementById('guardian-consent').checked,
+        });
 
         // Step 2: immediately log them in
-        // This hits POST /login with form encoding (handled by apiLogin)
-        // ⚠️ Your login endpoint takes 'username' — check if it's email or username
         await apiLogin(email, password);
 
         // New accounts see the welcome tutorial first

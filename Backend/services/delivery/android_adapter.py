@@ -25,7 +25,7 @@ class AndroidAdapter(BaseAdapter):
         [NOT IMPLEMENTED]
         Will format the notification payload and send it via firebase_admin.messaging.
         """
-        logger.info(f"[AndroidAdapter Placeholder] Would send to FCM token {device_token} with payload {notification_data}")
+        logger.info("[AndroidAdapter Placeholder] Would send a notification (not implemented)")
         return False # Graceful "Not Implemented" response
 
     def update_status(self, notification_id: int, status: str) -> bool:
