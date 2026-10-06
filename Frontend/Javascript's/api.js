@@ -77,6 +77,22 @@ function requireAuth() {
     if (!isLoggedIn()) goToLogin();
 }
 
+// ── Error text ────────────────────────────────────────────────
+// FastAPI sends `detail` as a string for our own errors, and as a list of
+// problems when the input fails validation (too long, wrong type, ...).
+function apiErrorMessage(data, fallback = 'Something went wrong') {
+    const detail = data && data.detail;
+    if (typeof detail === 'string' && detail) return detail;
+    if (Array.isArray(detail) && detail.length) {
+        const first = detail[0] || {};
+        const field = Array.isArray(first.loc) ? String(first.loc[first.loc.length - 1]).replace(/_/g, ' ') : '';
+        if (first.type === 'string_too_long') return `That ${field || 'text'} is too long. Please shorten it.`;
+        if (first.type === 'less_than_equal') return `That ${field || 'number'} is too large.`;
+        return field ? `Please check the ${field}.` : fallback;
+    }
+    return fallback;
+}
+
 // ── Core request function ─────────────────────────────────────
 // All GET / POST / PUT / DELETE calls go through here.
 // Automatically attaches the JWT and handles 401s globally.
@@ -105,7 +121,7 @@ async function apiRequest(endpoint, options = {}) {
 
     if (!res.ok) {
         // data.detail is FastAPI's default error key
-        throw new Error(data.detail || 'Something went wrong');
+        throw new Error(apiErrorMessage(data));
     }
 
     return data;
@@ -160,7 +176,7 @@ async function apiUpload(endpoint, formData) {
 
     const data = await res.json();
     if (!res.ok) {
-        throw new Error(typeof data.detail === 'string' ? data.detail : 'Something went wrong');
+        throw new Error(apiErrorMessage(data));
     }
     return data;
 }
@@ -179,7 +195,9 @@ async function apiLogin(email, password) {
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || 'Invalid email or password');
+        const err = new Error(apiErrorMessage(data, 'Invalid email or password'));
+        err.status = res.status;
+        throw err;
     }
      setToken(data.access_token);
      return data;

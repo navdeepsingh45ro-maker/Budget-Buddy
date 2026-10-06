@@ -9,10 +9,19 @@ from main import app
 
 client = TestClient(app)
 
+# Sign-up emails a confirmation code; tests capture it instead of sending mail.
+import services.email_verification as email_verification  # noqa: E402
+
+verification_codes = {}
+email_verification.verification_enabled = lambda: True
+email_verification.send_verification_code = lambda to, name, code, minutes_valid: verification_codes.__setitem__(to, code)
+
 
 def register_and_login(email, password="Str0ng!pass"):
     r = client.post("/users/", json={"name": "Test", "email": email, "password": password,
                                        "age_group": "18_plus", "accept_terms": True})
+    assert r.status_code == 200, r.text
+    r = client.post("/auth/verify-email", json={"email": email, "code": verification_codes[email.lower()]})
     assert r.status_code == 200, r.text
     r = client.post("/login", json={"email": email, "password": password})
     assert r.status_code == 200, r.text

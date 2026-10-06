@@ -6,7 +6,9 @@ from pathlib import Path
 # Must run before anything imports `database`: point every test at a throwaway
 # SQLite file so tests can never touch the real Backend/database.db.
 _db_file = Path(tempfile.mkdtemp()) / "test.db"
-os.environ["DATABASE_URL"] = f"sqlite:///{_db_file}"
+# TEST_DATABASE_URL lets the same suite run against a throwaway Postgres
+# (never the live one: the tests create and delete accounts freely).
+os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL") or f"sqlite:///{_db_file}"
 os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-0123456789")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -14,7 +16,8 @@ import pytest  # noqa: E402
 
 import database  # noqa: E402
 
-assert "test.db" in str(database.engine.url), "Tests must not run against the real database"
+assert "test.db" in str(database.engine.url) or os.environ.get("TEST_DATABASE_URL"), \
+    "Tests must not run against the real database"
 
 import services.insight_updater as insight_updater  # noqa: E402
 import services.monthly_report as monthly_report  # noqa: E402

@@ -9,12 +9,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from auth.hashing import hash_password
-from auth.jwt_handler import SECRET_KEY
+from auth.jwt_handler import SECRET_KEY, token_for_user
 from database import get_db
 from models.password_reset_model import PasswordReset
 from models.user_model import User
 from services.email_service import send_password_reset_code
 from services.rate_limit import Limit, client_ip
+from services import email_verification
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -30,11 +31,11 @@ GENERIC_MESSAGE = "If an account exists for that email, a reset code has been se
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: str = Field(..., max_length=254)
+    email: str = Field(..., max_length=100)
 
 
 class ResetPasswordRequest(BaseModel):
-    email: str = Field(..., max_length=254)
+    email: str = Field(..., max_length=100)
     code: str = Field(..., max_length=12)
     new_password: str = Field(..., max_length=128)
 
@@ -114,4 +115,43 @@ def reset_password(request: ResetPasswordRequest, http_request: Request, db: Ses
     user.password = hash_password(request.new_password)
     reset.used = True
     db.commit()
+    # The emailed reset code proves they own the address, so it also confirms the email.
+    email_verification.mark_verified(db, user)
     return {"message": "Password updated"}
+
+
+# ── Email verification (sign-up) ───────────────────────────────
+
+VERIFY_PER_IP = Limit("verify-ip", max_events=30, window_seconds=60 * 60)
+RESEND_PER_IP = Limit("resend-ip", max_events=10, window_seconds=60 * 60)
+RESEND_MESSAGE = "If that account is waiting to be verified, we've sent a new code."
+
+
+class VerifyEmailRequest(BaseModel):
+    email: str = Field(..., max_length=100)
+    code: str = Field(..., max_length=12)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: str = Field(..., max_length=100)
+
+
+@router.post("/verify-email")
+def verify_email(request: VerifyEmailRequest, http_request: Request, db: Session = Depends(get_db)):
+    """Confirm the emailed code and log the new user in."""
+    VERIFY_PER_IP.use(client_ip(http_request))
+    user = _find_user(db, request.email)
+    if not user or not email_verification.check_code(db, user, request.code):
+        raise HTTPException(status_code=400, detail="Invalid or expired code")
+    return {"access_token": token_for_user(user), "token_type": "bearer"}
+
+
+@router.post("/resend-verification")
+def resend_verification(request: ResendVerificationRequest, background_tasks: BackgroundTasks, http_request: Request,
+                        db: Session = Depends(get_db)):
+    RESEND_PER_IP.use(client_ip(http_request))
+    user = _find_user(db, request.email)
+    if user:
+        email_verification.send_code(db, user, background_tasks)
+    return {"message": RESEND_MESSAGE}
+

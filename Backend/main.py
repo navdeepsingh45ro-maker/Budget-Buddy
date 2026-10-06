@@ -1,7 +1,8 @@
 import os
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from database import engine, Base
+from database import engine, Base  # noqa: F401
+from migrations_runner import run_migrations
 from models.user_model import User
 from routes.user_routes import router
 from models.expense_model import Expense
@@ -23,6 +24,7 @@ from models.password_reset_model import PasswordReset
 from models.ai_report_model import AIReport
 from models.push_subscription_model import PushSubscription
 from models.user_consent_model import UserConsent
+from models.email_verification_model import EmailVerification
 from routes.push_routes import router as push_router
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -64,7 +66,7 @@ app.include_router(preferences_router)
 app.include_router(recurring_router)
 app.include_router(export_router, prefix="/export")
 
-Base.metadata.create_all(bind=engine)
+run_migrations()  # create/upgrade tables (see migrations_runner.py) before the scheduler starts
 
 # start_scheduler() handled in lifespan
 

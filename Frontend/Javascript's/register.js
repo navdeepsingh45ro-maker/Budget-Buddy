@@ -106,13 +106,20 @@ form.addEventListener('submit', async (e) => {
     try {
         // Step 1: create the account
         const age_group = selectedAgeGroup();
-        await apiPost('/users/', {
+        const res = await apiPost('/users/', {
             name, email, password, age_group,
             accept_terms: document.getElementById('accept-terms').checked,
             guardian_consent: age_group === '13_17' && document.getElementById('guardian-consent').checked,
         });
 
-        // Step 2: immediately log them in
+        if (res && res.verification_required) {
+            // Step 2: confirm the email with the code we just sent
+            try { sessionStorage.setItem('bb_verify_email', res.email || email.trim().toLowerCase()); } catch (e2) { /* ignore */ }
+            window.location.href = 'verify_email.html';
+            return;
+        }
+
+        // Fallback (no verification needed): log them in straight away
         await apiLogin(email, password);
 
         // New accounts see the welcome tutorial first

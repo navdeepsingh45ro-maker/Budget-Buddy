@@ -7,3 +7,4 @@ venv/
 *.db
 
 Frontend/node_modules/
+Frontend/dist/

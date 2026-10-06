@@ -32,7 +32,7 @@ class ExpenseCategory(str, Enum):
 class ExpenseCreate(BaseModel):
     amount: float = Field(..., gt=0, le=MAX_AMOUNT, allow_inf_nan=False, description="The amount of the expense")
     category: ExpenseCategory = Field(..., description="The category of the expense")
-    subcategory: str | None = Field(None, max_length=60, description="The subcategory of the expense")
-    note: str | None = Field(None, max_length=500, description="A note about the expense")
+    subcategory: str | None = Field(None, max_length=50, description="The subcategory of the expense")
+    note: str | None = Field(None, max_length=200, description="A note about the expense")
     payment_method: str | None = Field(None, max_length=40, description="Cash, Card, UPI, Bank Transfer, etc.")
     expense_date: date | None = Field(None, ge=date(2000, 1, 1), le=date(2100, 12, 31), description="Date when the expense actually happened")

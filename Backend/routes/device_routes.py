@@ -11,17 +11,17 @@ router = APIRouter(prefix="/devices", tags=["Devices"])
 
 class DeviceRegister(BaseModel):
     platform: str = Field(..., max_length=20)
-    device_token: Optional[str] = Field(None, max_length=1000)
+    device_token: Optional[str] = Field(None, max_length=255)
     device_name: Optional[str] = Field(None, max_length=100)
     manufacturer: Optional[str] = Field(None, max_length=100)
     model: Optional[str] = Field(None, max_length=100)
     os_version: Optional[str] = Field(None, max_length=50)
     app_version: Optional[str] = Field(None, max_length=50)
     language: Optional[str] = Field(None, max_length=20)
-    timezone: Optional[str] = Field(None, max_length=64)
+    timezone: Optional[str] = Field(None, max_length=50)
 
 class DeviceUpdate(BaseModel):
-    device_token: Optional[str] = Field(None, max_length=1000)
+    device_token: Optional[str] = Field(None, max_length=255)
     is_active: Optional[bool] = None
 
 @router.post("/register")

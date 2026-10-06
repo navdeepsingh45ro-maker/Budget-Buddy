@@ -56,6 +56,12 @@ form.addEventListener('submit', async (e) => {
             goToDashboard();
         }, 1200); // Let the user see the premium toast before redirecting
     } catch (err) {
+        // 403 = right password but email not verified yet; the server just sent a new code
+        if (err.status === 403) {
+            try { sessionStorage.setItem('bb_verify_email', email); } catch (e2) { /* ignore */ }
+            window.location.href = 'verify_email.html';
+            return;
+        }
         // Show the error from the backend (generic "Invalid email or password")
         showError(err.message);
     } finally {

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#66547b">
+<link rel="apple-touch-icon" href="../Assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BudgetBuddy">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/png" sizes="192x192" href="../Assets/icons/icon-192.png">
+<title>BudgetBuddy - Verify Email</title>
+<link rel="stylesheet" href="../Assets/fonts/fonts.css">
+<link rel="stylesheet" href="../Assets/fonts/fonts-inter-500.css">
+<style>
+        body {
+            background-color: #fef8fb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-shadow {
+            box-shadow: 0px 4px 20px rgba(151, 132, 174, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+<link rel="stylesheet" href="../css/app.css">
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md overflow-x-hidden">
+<!-- Atmospheric Background Decoration -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute top-[60%] -right-[5%] w-[30%] h-[30%] bg-secondary-container/10 rounded-full blur-[80px]"></div>
+</div>
+<main class="relative z-10 flex-grow flex flex-col items-center justify-center px-margin-mobile md:px-gutter py-xl">
+<header class="mb-lg text-center animate-in fade-in slide-in-from-bottom-4 duration-700"><div class="flex flex-col items-center gap-sm mb-lg">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 flex items-center justify-center">
+<img alt="BudgetBuddy Mascot" class="w-full h-full object-contain" src="../Assets/budgetbuddy-logo.png"/>
+</div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-background tracking-tight">BudgetBuddy</h1>
+</div>
+<p class="text-outline font-body-sm mt-xs max-w-[320px] mx-auto">
+    One last step before you start budgeting.
+  </p>
+</div></header>
+<div class="w-full max-w-[440px] bg-white p-xl rounded-xl border border-outline-variant/30 shadow-sm animate-in fade-in zoom-in-95 duration-1000">
+
+<form id="verify-form" class="flex flex-col gap-sm" novalidate>
+<h2 class="font-headline-sm text-headline-sm text-on-background">Check your email</h2>
+<p id="sent-to-text" class="text-body-sm text-outline mb-xs">We sent a 6-digit code to <span id="sent-to-email" class="font-semibold text-on-surface-variant"></span>.</p>
+<div id="email-field" class="hidden flex-col gap-xs mb-xs">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1" for="ve-email">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">mail</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-outline/40" id="ve-email" name="email" placeholder="name@company.com" type="email" autocomplete="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs mb-md">
+<label class="font-label-md text-label-md text-on-surface-variant ml-1" for="ve-code">Verification Code</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">pin</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-outline/40" id="ve-code" name="code" placeholder="123456" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code"/>
+</div>
+</div>
+<div id="ve-error" class="hidden text-red-600 text-sm mb-4"></div>
+<button id="verify-btn" class="w-full bg-primary text-on-primary py-4 rounded-lg font-bold flex items-center justify-center gap-xs hover:opacity-90 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-primary/20" type="submit">
+<span>Verify email</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="flex flex-wrap justify-between items-center gap-x-md gap-y-xs mt-md text-body-sm">
+<button id="resend-btn" type="button" class="whitespace-nowrap font-bold text-primary hover:underline underline-offset-4 disabled:opacity-60 disabled:no-underline disabled:cursor-not-allowed">Resend code</button>
+<a href="register.html" class="whitespace-nowrap font-bold text-primary hover:underline underline-offset-4">Wrong email? Sign up again</a>
+</div>
+</form>
+
+</div>
+<footer class="mt-lg flex flex-col items-center gap-sm animate-in fade-in slide-in-from-top-4 duration-1000 delay-300"><div class="flex gap-lg">
+<a class="text-[12px] font-medium text-outline hover:text-on-surface transition-colors" href="privacy.html">Privacy Policy</a>
+<a class="text-[12px] font-medium text-outline hover:text-on-surface transition-colors" href="terms.html">Terms of Service</a>
+<a class="text-[12px] font-medium text-outline hover:text-on-surface transition-colors" href="help.html">Help Center</a>
+</div></footer>
+</main>
+<!-- Feedback toast (same pattern as login-feedback) -->
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 bg-secondary-container text-on-secondary-container px-md py-sm rounded-full flex items-center gap-xs shadow-lg transition-all duration-500 z-50" id="ve-feedback">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-md" id="ve-feedback-text">New code sent</span>
+</div>
+<script src="../Javascript's/api.js"></script>
+<script src="../Javascript's/verify-email.js"></script>
+</body></html>

@@ -1,7 +1,7 @@
 from auth.auth2 import get_current_user
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from pydantic import BaseModel, Field
 from schemas.user_schema import UserCreate, UserResponse
 from models.user_model import User
@@ -14,9 +14,11 @@ from sqlalchemy.orm import Session
 from database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Request
+from fastapi.responses import JSONResponse
 from models.user_settings_model import UserSettings
 from models.user_consent_model import UserConsent
 from services.rate_limit import Limit, client_ip
+from services import email_verification
 from sqlalchemy import func
 
 # Brute-force protection. Failed logins are counted per account and per IP address.
@@ -37,7 +39,7 @@ def find_user_by_email(db: Session, email: str) -> User | None:
 
 router = APIRouter()
 @router.post("/users/")
-def create_user(user: UserCreate, request: Request, db: Session = Depends(get_db)):
+def create_user(user: UserCreate, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     # Age and consent come first: an under-13 attempt is refused before anything is read or stored.
     if user.age_group not in AGE_GROUPS:
         raise HTTPException(status_code=400, detail="Please tell us your age group")
@@ -53,8 +55,11 @@ def create_user(user: UserCreate, request: Request, db: Session = Depends(get_db
         raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
     SIGNUP_PER_IP.use(client_ip(request))
     email = user.email.strip().lower()
+    _purge_stale_unverified(db)
     if find_user_by_email(db, email):
-        raise HTTPException(status_code=400, detail="Email already exists")
+        # Same answer whether that account is verified or still waiting: an unverified
+        # sign-up is never overwritten, so nobody can slip their password onto it.
+        raise HTTPException(status_code=400, detail="An account with this email already exists. Try logging in.")
 
     hashed_password = hash_password(user.password)
     new_user = User(name=user.name.strip(), email=email, password=hashed_password)
@@ -85,10 +90,14 @@ def create_user(user: UserCreate, request: Request, db: Session = Depends(get_db
             icon="waving_hand"
         )
     
-    return {"message": "User created successfully"}
+    email_verification.start(db, new_user)
+    needs_code = not email_verification.is_verified(db, new_user)
+    if needs_code:
+        email_verification.send_code(db, new_user, background_tasks)
+    return {"message": "User created successfully", "verification_required": needs_code, "email": email}
 
 @router.post("/login")
-def login(request: LoginSchema, http_request: Request, db: Session = Depends(get_db)):
+def login(request: LoginSchema, http_request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     email, ip = request.email.strip().lower(), client_ip(http_request)
     LOGIN_PER_EMAIL.check(email)
     LOGIN_PER_IP.check(ip)
@@ -104,6 +113,12 @@ def login(request: LoginSchema, http_request: Request, db: Session = Depends(get
         status_code=401,
         detail="Invalid email or password")
     LOGIN_PER_EMAIL.reset(email)
+    if not email_verification.is_verified(db, user):
+        # Right password, but the email was never confirmed: send a fresh code and ask for it.
+        # (Returned, not raised: background tasks, i.e. the email, only run on a returned response.)
+        email_verification.send_code(db, user, background_tasks)
+        return JSONResponse(status_code=403, background=background_tasks,
+                            content={"detail": "Please verify your email first. We've sent you a new code."})
     access_token = token_for_user(user)
 
     return {
@@ -206,12 +221,21 @@ def update_settings(body: UpdateSettings, current_user: User = Depends(get_curre
 def delete_account(body: DeleteAccount, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Permanently delete the account and every row that belongs to it."""
     _check_password(current_user, body.password, "Password is incorrect")
-    user_id = current_user.id
+    _delete_user(db, current_user.id)
+    return {"message": "Your account and all your data have been deleted"}
+
+
+def _delete_user(db: Session, user_id: int) -> None:
     for model in USER_OWNED_MODELS:
         db.query(model).filter(model.user_id == user_id).delete(synchronize_session=False)
     db.query(User).filter(User.id == user_id).delete(synchronize_session=False)
     db.commit()
-    return {"message": "Your account and all your data have been deleted"}
+
+
+def _purge_stale_unverified(db: Session) -> None:
+    """Remove sign-ups whose email was never confirmed, so the address is free again."""
+    for user_id in email_verification.stale_unverified_user_ids(db):
+        _delete_user(db, user_id)
 
 
 def _user_owned_models():
@@ -219,6 +243,7 @@ def _user_owned_models():
     from models.ai_report_model import AIReport
     from models.budget_model import Budget
     from models.device_model import Device
+    from models.email_verification_model import EmailVerification
     from models.expense_model import Expense
     from models.notification_model import Notification
     from models.notification_preferences_model import NotificationPreferences
@@ -226,7 +251,7 @@ def _user_owned_models():
     from models.push_subscription_model import PushSubscription
     from models.recurring_transaction_model import RecurringTransaction
     return [Expense, Budget, RecurringTransaction, Notification, NotificationPreferences, Device,
-            PushSubscription, AIInsight, AIReport, PasswordReset, UserSettings, UserConsent]
+            PushSubscription, AIInsight, AIReport, PasswordReset, UserSettings, UserConsent, EmailVerification]
 
 
 USER_OWNED_MODELS = _user_owned_models()

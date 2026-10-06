@@ -2,9 +2,10 @@
   "name": "budget-buddy-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "Budget Buddy static frontend. Run `npm run build:css` after changing Tailwind classes; css/app.css is committed.",
+  "description": "Budget Buddy static frontend. `npm run build:css` after changing Tailwind classes (css/app.css is committed); `API_BASE=https://... npm run build` makes the deployable dist/ folder.",
   "scripts": {
-    "build:css": "tailwindcss -i ./css/input.css -o ./css/app.css --minify"
+    "build:css": "tailwindcss -i ./css/input.css -o ./css/app.css --minify",
+    "build": "npm run build:css && node build.js"
   },
   "devDependencies": {
     "@tailwindcss/container-queries": "^0.1.1",

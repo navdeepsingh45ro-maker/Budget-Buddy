@@ -1,0 +1,84 @@
+# Render Blueprint: creates both parts of Budget Buddy in one go.
+#   Render dashboard > New > Blueprint > pick this repository.
+# Render asks for every value marked "sync: false" while creating it.
+# The database is NOT created here: use a free Neon Postgres (neon.tech) and paste
+# its connection string as DATABASE_URL (Render's own free database expires after 30 days).
+
+services:
+  # ── The API (Python / FastAPI) ───────────────────────────────
+  - type: web
+    name: budget-buddy-api
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: Backend
+    buildCommand: pip install -r requirements.txt
+    # --proxy-headers: Render sits in front of the app; this makes rate limits see each visitor's real IP.
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: APP_ENV
+        value: production
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: JWT_SECRET            # Render generates a long random secret
+        generateValue: true
+      - key: DATABASE_URL          # Neon connection string (postgresql://...?sslmode=require)
+        sync: false
+      - key: FRONTEND_ORIGINS      # the site's address, e.g. https://budget-buddy.onrender.com
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: BREVO_API_KEY         # email over HTTPS (free Render servers block SMTP)
+        sync: false
+      - key: EMAIL_FROM            # e.g. Budget Buddy <you@gmail.com>, verified as a sender in Brevo
+        sync: false
+      - key: VAPID_PUBLIC_KEY      # new production keys: python3 scripts/generate_vapid_keys.py
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT         # mailto: address push services can contact, e.g. mailto:you@gmail.com
+        sync: false
+
+  # ── The site (static pages) ──────────────────────────────────
+  - type: web
+    name: budget-buddy
+    runtime: static
+    rootDir: Frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: API_BASE              # the API's address, e.g. https://budget-buddy-api.onrender.com
+        sync: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(self), microphone=(self), geolocation=()
+      # Pages and the service worker must always be fresh; fonts and images can be cached.
+      - path: /*.html
+        name: Cache-Control
+        value: no-cache
+      - path: /service-worker.js
+        name: Cache-Control
+        value: no-cache
+      - path: /Javascript's/*
+        name: Cache-Control
+        value: no-cache
+      - path: /css/*
+        name: Cache-Control
+        value: no-cache
