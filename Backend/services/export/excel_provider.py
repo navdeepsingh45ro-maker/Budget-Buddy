@@ -4,6 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from models.expense_model import Expense
 from services.export.provider_interface import BaseExportProvider
+from services.export.provider_interface import safe_cell
 
 class ExcelExportProvider(BaseExportProvider):
     def generate(self, expenses: List[Expense]) -> Tuple[bytes, str]:
@@ -39,11 +40,11 @@ class ExcelExportProvider(BaseExportProvider):
             
             ws.append([
                 date_str,
-                exp.category or "",
-                exp.subcategory or "",
+                safe_cell(exp.category),
+                safe_cell(exp.subcategory),
                 exp.amount if exp.amount is not None else 0.0,
-                exp.payment_method or "",
-                exp.note or "",
+                safe_cell(exp.payment_method),
+                safe_cell(exp.note),
                 created_str
             ])
             

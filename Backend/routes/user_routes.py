@@ -9,17 +9,35 @@ from database import SessionLocal
 from auth.hashing import hash_password
 from schemas.login_schema import LoginSchema
 from auth.hashing import verify_password
-from auth.jwt_handler import create_access_token
+from auth.jwt_handler import token_for_user
 from sqlalchemy.orm import Session
 from database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Request
 from models.user_settings_model import UserSettings
 from models.user_consent_model import UserConsent
+from services.rate_limit import Limit, client_ip
+from sqlalchemy import func
+
+# Brute-force protection. Failed logins are counted per account and per IP address.
+LOGIN_PER_EMAIL = Limit("login-email", max_events=10, window_seconds=15 * 60,
+                        message="Too many failed logins. Please try again in {wait}, or reset your password.")
+LOGIN_PER_IP = Limit("login-ip", max_events=50, window_seconds=15 * 60)
+SIGNUP_PER_IP = Limit("signup-ip", max_events=10, window_seconds=60 * 60,
+                      message="Too many accounts created from this network. Please try again in {wait}.")
+PASSWORD_CHECK_PER_USER = Limit("password-check", max_events=10, window_seconds=15 * 60)
+
+# Verified when the email doesn't exist, so a wrong email takes as long as a wrong password.
+_DUMMY_HASH = hash_password("not-a-real-password")
+
+
+def find_user_by_email(db: Session, email: str) -> User | None:
+    """Emails are matched ignoring case and surrounding spaces."""
+    return db.query(User).filter(func.lower(User.email) == email.strip().lower()).first()
 
 router = APIRouter()
 @router.post("/users/")
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
+def create_user(user: UserCreate, request: Request, db: Session = Depends(get_db)):
     # Age and consent come first: an under-13 attempt is refused before anything is read or stored.
     if user.age_group not in AGE_GROUPS:
         raise HTTPException(status_code=400, detail="Please tell us your age group")
@@ -33,12 +51,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Please enter your name")
     if len(user.password) < MIN_PASSWORD_LENGTH:
         raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
-    existing_user = db.query(User).filter(User.email == user.email).first()
-    if existing_user:
+    SIGNUP_PER_IP.use(client_ip(request))
+    email = user.email.strip().lower()
+    if find_user_by_email(db, email):
         raise HTTPException(status_code=400, detail="Email already exists")
-    
+
     hashed_password = hash_password(user.password)
-    new_user = User(name=user.name, email=user.email, password=hashed_password)
+    new_user = User(name=user.name.strip(), email=email, password=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -69,17 +88,23 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return {"message": "User created successfully"}
 
 @router.post("/login")
-def login(request: LoginSchema, db: Session = Depends(get_db)):
+def login(request: LoginSchema, http_request: Request, db: Session = Depends(get_db)):
+    email, ip = request.email.strip().lower(), client_ip(http_request)
+    LOGIN_PER_EMAIL.check(email)
+    LOGIN_PER_IP.check(ip)
 
-    user = db.query(User).filter(User.email == request.email).first()
-
-    password_ok = verify_password(request.password,user.password) if user else False
+    user = find_user_by_email(db, email)
+    # Always run one bcrypt check so the response time doesn't reveal whether the email exists.
+    password_ok = verify_password(request.password, user.password if user else _DUMMY_HASH)
 
     if not user or not password_ok:
+        LOGIN_PER_EMAIL.hit(email)
+        LOGIN_PER_IP.hit(ip)
         raise HTTPException(
         status_code=401,
-        detail="Invalid username or password")
-    access_token = create_access_token(data={"user_id": user.id})
+        detail="Invalid email or password")
+    LOGIN_PER_EMAIL.reset(email)
+    access_token = token_for_user(user)
 
     return {
         "access_token": access_token,
@@ -103,17 +128,26 @@ class UpdateProfile(BaseModel):
 
 
 class ChangePassword(BaseModel):
-    current_password: str
-    new_password: str
+    current_password: str = Field(..., max_length=128)
+    new_password: str = Field(..., max_length=128)
 
 
 class DeleteAccount(BaseModel):
-    password: str
+    password: str = Field(..., max_length=128)
 
 
 class UpdateSettings(BaseModel):
     carry_over_budget: bool | None = None
     onboarding_completed: bool | None = None
+
+
+def _check_password(user: User, password: str, wrong_message: str) -> None:
+    """Confirm the account password, limiting guesses in case a session was stolen."""
+    PASSWORD_CHECK_PER_USER.check(user.id)
+    if not verify_password(password, user.password):
+        PASSWORD_CHECK_PER_USER.hit(user.id)
+        raise HTTPException(status_code=400, detail=wrong_message)
+    PASSWORD_CHECK_PER_USER.reset(user.id)
 
 
 def _settings_row(db: Session, user_id: int) -> UserSettings | None:
@@ -133,15 +167,15 @@ def update_profile(body: UpdateProfile, current_user: User = Depends(get_current
 
 @router.post("/users/me/password")
 def change_password(body: ChangePassword, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not verify_password(body.current_password, current_user.password):
-        raise HTTPException(status_code=400, detail="Your current password is incorrect")
+    _check_password(current_user, body.current_password, "Your current password is incorrect")
     if len(body.new_password) < MIN_PASSWORD_LENGTH:
         raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
     if verify_password(body.new_password, current_user.password):
         raise HTTPException(status_code=400, detail="Your new password must be different from the current one")
     current_user.password = hash_password(body.new_password)
     db.commit()
-    return {"message": "Password changed"}
+    # Changing the password signs out every other device; this device gets a fresh token.
+    return {"message": "Password changed", "access_token": token_for_user(current_user), "token_type": "bearer"}
 
 
 @router.get("/users/me/settings")
@@ -171,8 +205,7 @@ def update_settings(body: UpdateSettings, current_user: User = Depends(get_curre
 @router.post("/users/me/delete")
 def delete_account(body: DeleteAccount, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Permanently delete the account and every row that belongs to it."""
-    if not verify_password(body.password, current_user.password):
-        raise HTTPException(status_code=400, detail="Password is incorrect")
+    _check_password(current_user, body.password, "Password is incorrect")
     user_id = current_user.id
     for model in USER_OWNED_MODELS:
         db.query(model).filter(model.user_id == user_id).delete(synchronize_session=False)

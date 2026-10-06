@@ -1,6 +1,6 @@
 
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session
 from schemas.expense_schema import ExpenseCreate
 from models.expense_model import Expense
@@ -96,8 +96,8 @@ def query_expenses(
     min_amount: float = None,
     max_amount: float = None,
     sort: str = "newest",
-    page: int = 1,
-    limit: int = 20,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -106,10 +106,13 @@ def query_expenses(
 
     parsed_start = None
     parsed_end = None
-    if start_date:
-        parsed_start = date_type.fromisoformat(start_date)
-    if end_date:
-        parsed_end = date_type.fromisoformat(end_date)
+    try:
+        if start_date:
+            parsed_start = date_type.fromisoformat(start_date)
+        if end_date:
+            parsed_end = date_type.fromisoformat(end_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Dates must look like 2026-01-31")
 
     result = ExpenseQueryService.query(
         db=db,

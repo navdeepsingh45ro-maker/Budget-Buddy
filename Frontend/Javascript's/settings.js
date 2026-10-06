@@ -177,7 +177,9 @@ requireAuth();
         const done = setBusy(pwSaveBtn, 'Updating…');
         pwCancelBtn.disabled = true;
         try {
-            await apiPost('/users/me/password', { current_password: current, new_password: next });
+            // Changing the password signs out every other device; keep this one logged in.
+            const res = await apiPost('/users/me/password', { current_password: current, new_password: next });
+            if (res && res.access_token) setToken(res.access_token);
             pwForm.reset();
             resetEyes(pwForm);
             showLine(pwSuccess, 'Password changed');

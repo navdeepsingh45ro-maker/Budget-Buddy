@@ -621,8 +621,10 @@ async function handleNotificationClick(n, cardEl) {
 function getNotificationTarget(actionType, payload) {
     switch (actionType) {
         case 'monthly_report':
-            if (payload && payload.month && payload.year) {
-                return `budget_overview.html?report=${payload.year}-${payload.month}`;
+            // Only plain integers are allowed into the URL (payload can come from the query string)
+            if (payload && Number.isInteger(Number(payload.month)) && Number.isInteger(Number(payload.year))
+                && Number(payload.month) >= 1 && Number(payload.month) <= 12 && Number(payload.year) >= 2000 && Number(payload.year) <= 2100) {
+                return `budget_overview.html?report=${Number(payload.year)}-${Number(payload.month)}`;
             }
             return 'budget_overview.html';
         case 'budget_history':

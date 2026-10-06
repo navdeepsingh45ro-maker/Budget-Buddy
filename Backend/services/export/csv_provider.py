@@ -3,6 +3,7 @@ import io
 from typing import List, Tuple
 from models.expense_model import Expense
 from services.export.provider_interface import BaseExportProvider
+from services.export.provider_interface import safe_cell
 
 class CSVExportProvider(BaseExportProvider):
     def generate(self, expenses: List[Expense]) -> Tuple[bytes, str]:
@@ -27,11 +28,11 @@ class CSVExportProvider(BaseExportProvider):
             
             writer.writerow([
                 date_str,
-                exp.category or "",
-                exp.subcategory or "",
+                safe_cell(exp.category),
+                safe_cell(exp.subcategory),
                 f"{exp.amount:.2f}" if exp.amount is not None else "0.00",
-                exp.payment_method or "",
-                exp.note or "",
+                safe_cell(exp.payment_method),
+                safe_cell(exp.note),
                 created_str
             ])
             

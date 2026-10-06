@@ -163,17 +163,21 @@ function renderRecurring(items) {
             </div>
             
             <div class="flex justify-end gap-2 border-t border-surface-variant/30 pt-3 mt-1">
-                <button onclick="toggleRtStatus(${Number(rt.id)}, ${rt.is_active})" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+                <button data-rt-action="toggle" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
                     ${rt.is_active ? 'Pause' : 'Resume'}
                 </button>
-                <button onclick="editRt(${escapeHtml(JSON.stringify(rt))})" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
+                <button data-rt-action="edit" class="px-3 py-1.5 border border-outline-variant/30 rounded-lg text-[12px] font-semibold text-on-surface-variant hover:bg-surface-container transition-all">
                     Edit
                 </button>
-                <button onclick="deleteRt(${Number(rt.id)})" class="px-3 py-1.5 border border-error/30 text-error rounded-lg text-[12px] font-semibold hover:bg-error-container/20 transition-all">
+                <button data-rt-action="delete" class="px-3 py-1.5 border border-error/30 text-error rounded-lg text-[12px] font-semibold hover:bg-error-container/20 transition-all">
                     Delete
                 </button>
             </div>
         `;
+        // Wire buttons with listeners (no inline handlers carrying server data)
+        itemEl.querySelector('[data-rt-action="toggle"]').addEventListener('click', () => window.toggleRtStatus(Number(rt.id), Boolean(rt.is_active)));
+        itemEl.querySelector('[data-rt-action="edit"]').addEventListener('click', () => window.editRt(rt));
+        itemEl.querySelector('[data-rt-action="delete"]').addEventListener('click', () => window.deleteRt(Number(rt.id)));
         rtList.appendChild(itemEl);
     });
 }

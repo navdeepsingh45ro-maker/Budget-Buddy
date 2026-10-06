@@ -3,7 +3,9 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user_model import User
-from auth.jwt_handler import verify_access_token
+import hmac
+
+from auth.jwt_handler import password_fingerprint, verify_access_token
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -22,4 +24,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         # so the app clears the token and returns to the login screen.
         raise HTTPException(status_code=401, detail="Your session has ended. Please log in again.")
     
+    # Tokens issued before the last password change (or reset) are no longer valid.
+    if not hmac.compare_digest(str(payload.get("pwd") or ""), password_fingerprint(user.password)):
+        raise HTTPException(status_code=401, detail="Your session has ended. Please log in again.")
+
     return user

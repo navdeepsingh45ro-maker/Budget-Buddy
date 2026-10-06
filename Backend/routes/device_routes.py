@@ -4,24 +4,24 @@ from database import get_db
 from models.user_model import User
 from auth.auth2 import get_current_user
 from services.device_service import DeviceService
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 router = APIRouter(prefix="/devices", tags=["Devices"])
 
 class DeviceRegister(BaseModel):
-    platform: str
-    device_token: Optional[str] = None
-    device_name: Optional[str] = None
-    manufacturer: Optional[str] = None
-    model: Optional[str] = None
-    os_version: Optional[str] = None
-    app_version: Optional[str] = None
-    language: Optional[str] = None
-    timezone: Optional[str] = None
+    platform: str = Field(..., max_length=20)
+    device_token: Optional[str] = Field(None, max_length=1000)
+    device_name: Optional[str] = Field(None, max_length=100)
+    manufacturer: Optional[str] = Field(None, max_length=100)
+    model: Optional[str] = Field(None, max_length=100)
+    os_version: Optional[str] = Field(None, max_length=50)
+    app_version: Optional[str] = Field(None, max_length=50)
+    language: Optional[str] = Field(None, max_length=20)
+    timezone: Optional[str] = Field(None, max_length=64)
 
 class DeviceUpdate(BaseModel):
-    device_token: Optional[str] = None
+    device_token: Optional[str] = Field(None, max_length=1000)
     is_active: Optional[bool] = None
 
 @router.post("/register")

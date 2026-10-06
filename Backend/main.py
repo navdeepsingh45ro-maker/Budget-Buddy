@@ -34,7 +34,24 @@ async def lifespan(app: FastAPI):
     start_scheduler()
     yield
 
-app = FastAPI(lifespan=lifespan)
+# APP_ENV=production hides the interactive API docs and drops the localhost CORS origins.
+IS_PRODUCTION = os.getenv("APP_ENV", "").lower() == "production"
+
+app = FastAPI(lifespan=lifespan, **({"docs_url": None, "redoc_url": None, "openapi_url": None} if IS_PRODUCTION else {}))
+
+
+@app.middleware("http")
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    # Responses hold personal finance data: browsers and proxies must not keep copies.
+    response.headers.setdefault("Cache-Control", "no-store")
+    if IS_PRODUCTION:
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return response
+
 app.include_router(router)
 app.include_router(auth_router)
 app.include_router(push_router)
@@ -68,7 +85,7 @@ EXTRA_ORIGINS = [o.strip().rstrip("/") for o in os.getenv("FRONTEND_ORIGINS", ""
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=LOCAL_ORIGINS + EXTRA_ORIGINS,
+    allow_origins=([] if IS_PRODUCTION else LOCAL_ORIGINS) + EXTRA_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

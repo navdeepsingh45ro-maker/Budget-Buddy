@@ -13,24 +13,24 @@ router = APIRouter(prefix="/recurring", tags=["Recurring Transactions"])
 
 class RecurringCreate(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
-    amount: float = Field(..., gt=0)
-    category: str
-    subcategory: Optional[str] = None
-    notes: Optional[str] = None
-    payment_method: Optional[str] = None
-    frequency: str = Field(..., description="daily | weekly | monthly | yearly")
+    amount: float = Field(..., gt=0, le=1_000_000_000, allow_inf_nan=False)
+    category: str = Field(..., max_length=40)
+    subcategory: Optional[str] = Field(None, max_length=60)
+    notes: Optional[str] = Field(None, max_length=500)
+    payment_method: Optional[str] = Field(None, max_length=40)
+    frequency: str = Field(..., max_length=10, description="daily | weekly | monthly | yearly")
     start_date: date
     end_date: Optional[date] = None
 
 
 class RecurringUpdate(BaseModel):
-    title: Optional[str] = None
-    amount: Optional[float] = None
-    category: Optional[str] = None
-    subcategory: Optional[str] = None
-    notes: Optional[str] = None
-    payment_method: Optional[str] = None
-    frequency: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    amount: Optional[float] = Field(None, gt=0, le=1_000_000_000, allow_inf_nan=False)
+    category: Optional[str] = Field(None, max_length=40)
+    subcategory: Optional[str] = Field(None, max_length=60)
+    notes: Optional[str] = Field(None, max_length=500)
+    payment_method: Optional[str] = Field(None, max_length=40)
+    frequency: Optional[str] = Field(None, max_length=10)
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     is_active: Optional[bool] = None

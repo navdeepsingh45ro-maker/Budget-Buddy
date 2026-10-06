@@ -288,7 +288,7 @@ function createMonthCard(item) {
     const monthName = item.month_label.split(' ')[0];
 
     const wrapper = document.createElement('div');
-    wrapper.id = `month-${item.year}-${item.month}`;
+    wrapper.id = `month-${Number(item.year)}-${Number(item.month)}`;
 
     const card = document.createElement('div');
     card.className = 'bg-surface-container-lowest rounded-2xl border border-surface-variant/30 premium-shadow p-4 cursor-pointer hover:border-primary/30 active:scale-[0.98] transition-all';
@@ -311,7 +311,7 @@ function createMonthCard(item) {
         </div>
 
         <div class="h-2 bg-surface-container-high rounded-full overflow-hidden mb-3">
-            <div class="h-full ${colors.bar} rounded-full transition-all duration-700 ease-out" style="width: ${item.budget_progress}%"></div>
+            <div class="h-full ${colors.bar} rounded-full transition-all duration-700 ease-out" style="width: ${Number(item.budget_progress) || 0}%"></div>
         </div>
 
         <div class="flex justify-between text-[12px]">
@@ -507,7 +507,7 @@ function buildDetailView(report) {
             <div class="grid grid-cols-3 gap-2 text-center">
                 <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-variant/20">
                     <p class="text-[10px] text-outline uppercase">Expenses</p>
-                    <p class="text-body-sm font-bold text-on-surface">${report.expense_count}</p>
+                    <p class="text-body-sm font-bold text-on-surface">${escapeHtml(report.expense_count)}</p>
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl p-2.5 border border-surface-variant/20">
                     <p class="text-[10px] text-outline uppercase">Top Category</p>
@@ -526,7 +526,7 @@ function buildDetailView(report) {
                 <p class="text-label-md font-bold text-on-surface-variant mb-2">Category Breakdown</p>
                 <div class="bg-surface-container-lowest rounded-xl border border-surface-variant/20 p-3 mb-2 flex justify-center ${!hasCategoryData ? 'hidden' : ''}">
                     <div class="w-48 h-48 relative">
-                        <canvas id="pie-chart-${report.year}-${report.month}"></canvas>
+                        <canvas id="pie-chart-${Number(report.year)}-${Number(report.month)}"></canvas>
                     </div>
                 </div>
                 <div class="bg-surface-container-lowest rounded-xl border border-surface-variant/20 px-3 divide-y divide-surface-container">

@@ -18,18 +18,26 @@ from database import get_db
 from services.summary_service import FinancialSummaryGenerator
 from services.insight_engine import build_insight
 from services.insight_updater import key_hash, refresh_user_insight, situation_key
+from services.rate_limit import Limit
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 logger = logging.getLogger("ai_routes")
 
 
 class ParseExpenseRequest(BaseModel):
-    text: str = Field(..., min_length=1, description="Natural language expense text")
+    text: str = Field(..., min_length=1, max_length=500, description="Natural language expense text")
 
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=500)
 
 AI_BUSY = "Buddy's AI is busy right now. Please try again in a moment or enter the expense manually."
+
+# Per-user daily caps on the AI calls that cost money (chat has its own cap in gemini_chat).
+DAY = 24 * 60 * 60
+PARSE_PER_DAY = Limit("ai-parse", max_events=100, window_seconds=DAY,
+                      message="You've reached today's limit for voice entries. You can still add expenses by typing.")
+SCAN_PER_DAY = Limit("ai-scan", max_events=30, window_seconds=DAY,
+                     message="You've reached today's limit for receipt scans. You can still add expenses by typing.")
 
 MAX_RECEIPT_BYTES = 10 * 1024 * 1024
 RECEIPT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"}
@@ -41,6 +49,7 @@ def parse_expense(request: ParseExpenseRequest, current_user: User = Depends(get
 
     if not text:
         raise HTTPException(status_code=400, detail="Text cannot be empty")
+    PARSE_PER_DAY.use(current_user.id)
 
     try:
         return GeminiParser().parse_expense(text)
@@ -59,6 +68,7 @@ async def scan_receipt_route(file: UploadFile = File(...), current_user: User = 
         raise HTTPException(status_code=400, detail="The photo is empty. Please try again.")
     if len(image) > MAX_RECEIPT_BYTES:
         raise HTTPException(status_code=413, detail="That photo is too large (max 10 MB).")
+    SCAN_PER_DAY.use(current_user.id)
 
     try:
         result = await run_in_threadpool(scan_receipt, image, file.content_type)

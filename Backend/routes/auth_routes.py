@@ -4,8 +4,8 @@ import hmac
 import secrets
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from auth.hashing import hash_password
@@ -14,6 +14,7 @@ from database import get_db
 from models.password_reset_model import PasswordReset
 from models.user_model import User
 from services.email_service import send_password_reset_code
+from services.rate_limit import Limit, client_ip
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -22,17 +23,25 @@ MAX_ATTEMPTS = 5            # wrong guesses allowed per code
 MAX_CODES_PER_HOUR = 5      # emails sent per user per hour
 MIN_PASSWORD_LENGTH = 8
 
+FORGOT_PER_IP = Limit("forgot-ip", max_events=10, window_seconds=60 * 60)
+RESET_PER_IP = Limit("reset-ip", max_events=30, window_seconds=60 * 60)
+
 GENERIC_MESSAGE = "If an account exists for that email, a reset code has been sent."
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: str
+    email: str = Field(..., max_length=254)
 
 
 class ResetPasswordRequest(BaseModel):
-    email: str
-    code: str
-    new_password: str
+    email: str = Field(..., max_length=254)
+    code: str = Field(..., max_length=12)
+    new_password: str = Field(..., max_length=128)
+
+
+def _find_user(db: Session, email: str) -> User | None:
+    from routes.user_routes import find_user_by_email
+    return find_user_by_email(db, email)
 
 
 def _hash_code(code: str) -> str:
@@ -40,11 +49,11 @@ def _hash_code(code: str) -> str:
 
 
 @router.post("/forgot-password")
-def forgot_password(request: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def forgot_password(request: ForgotPasswordRequest, background_tasks: BackgroundTasks, http_request: Request,
+                    db: Session = Depends(get_db)):
+    FORGOT_PER_IP.use(client_ip(http_request))
     # Same response whether or not the email exists, so accounts can't be discovered.
-    user = db.query(User).filter(User.email == request.email.strip().lower()).first()
-    if not user:
-        user = db.query(User).filter(User.email == request.email.strip()).first()
+    user = _find_user(db, request.email)
     if not user:
         return {"message": GENERIC_MESSAGE}
 
@@ -54,7 +63,8 @@ def forgot_password(request: ForgotPasswordRequest, background_tasks: Background
         PasswordReset.created_at > now - timedelta(hours=1),
     ).count()
     if recent >= MAX_CODES_PER_HOUR:
-        raise HTTPException(status_code=429, detail="Too many reset requests. Please try again in an hour.")
+        # Stay silent: an error here would reveal that this email has an account.
+        return {"message": GENERIC_MESSAGE}
 
     # A new code replaces any earlier unused ones.
     db.query(PasswordReset).filter(
@@ -74,15 +84,14 @@ def forgot_password(request: ForgotPasswordRequest, background_tasks: Background
 
 
 @router.post("/reset-password")
-def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+def reset_password(request: ResetPasswordRequest, http_request: Request, db: Session = Depends(get_db)):
+    RESET_PER_IP.use(client_ip(http_request))
     if len(request.new_password) < MIN_PASSWORD_LENGTH:
         raise HTTPException(status_code=400, detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
 
     invalid = HTTPException(status_code=400, detail="Invalid or expired code")
 
-    user = db.query(User).filter(User.email == request.email.strip().lower()).first()
-    if not user:
-        user = db.query(User).filter(User.email == request.email.strip()).first()
+    user = _find_user(db, request.email)
     if not user:
         raise invalid
 
@@ -95,7 +104,7 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
         raise invalid
 
     if reset.attempts >= MAX_ATTEMPTS:
-        raise HTTPException(status_code=429, detail="Too many wrong attempts. Please request a new code.")
+        raise invalid  # same answer as a wrong code, so this doesn't confirm the account exists
 
     if not hmac.compare_digest(reset.code_hash, _hash_code(request.code.strip())):
         reset.attempts += 1

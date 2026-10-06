@@ -7,7 +7,7 @@ from pathlib import Path
 # SQLite file so tests can never touch the real Backend/database.db.
 _db_file = Path(tempfile.mkdtemp()) / "test.db"
 os.environ["DATABASE_URL"] = f"sqlite:///{_db_file}"
-os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production")
+os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-0123456789")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pytest  # noqa: E402
@@ -61,3 +61,10 @@ def push_calls(monkeypatch):
     monkeypatch.setenv("VAPID_PRIVATE_KEY", "test-private-key")
     monkeypatch.setattr(push_service, "is_quiet_hours", lambda now=None: False)  # daytime unless a test says otherwise
     return calls
+
+
+@pytest.fixture(autouse=True)
+def fresh_rate_limits():
+    """Every test starts with empty rate-limit counters."""
+    from services import rate_limit
+    rate_limit.reset_all()

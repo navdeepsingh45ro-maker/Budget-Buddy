@@ -56,7 +56,7 @@ def test_code_locks_after_too_many_wrong_attempts():
 
     # Even the right code is refused once the attempt limit is hit.
     r = client.post("/auth/reset-password", json={"email": "brute@example.com", "code": code, "new_password": "NewPass!123"})
-    assert r.status_code == 429
+    assert r.status_code == 400 and r.json()["detail"] == "Invalid or expired code"
 
 
 def test_new_code_replaces_old_one():
