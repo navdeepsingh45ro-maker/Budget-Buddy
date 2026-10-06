@@ -20,7 +20,10 @@ if DATABASE_URL.startswith("postgres://"):
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(DATABASE_URL)
+    # Hosted Postgres (e.g. Neon's free plan) goes to sleep when idle and drops open
+    # connections. pool_pre_ping checks a connection before using it and quietly
+    # reconnects, so a request after a quiet spell doesn't fail.
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=300)
 
 SessionLocal = sessionmaker(
     autocommit=False,
