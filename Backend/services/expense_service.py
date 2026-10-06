@@ -82,11 +82,11 @@ class ExpenseService:
         # ones caused by an expense they just added in the app stay in the drawer.
         budget_push = USER_SETUP if is_recurring else None
         if background_tasks:
-            background_tasks.add_task(refresh_user_insight, user_id)
+            background_tasks.add_task(refresh_user_insight, user_id, budget_push)
             background_tasks.add_task(evaluate_budget_triggers, user_id, budget_push)
         else:
             try:
-                refresh_user_insight(user_id)
+                refresh_user_insight(user_id, budget_push)
             except Exception as e:
                 logger.error(f"Insight refresh failed for user {user_id}: {e}")
 

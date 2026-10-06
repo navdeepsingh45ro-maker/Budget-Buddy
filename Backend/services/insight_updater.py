@@ -19,7 +19,6 @@ from services.ai_insight_generator import generate_coach_tip
 from services.insight_engine import build_insight
 from services.locks import keyed_lock
 from services.notification_service import NotificationService
-from services.push_service import APP
 from services.summary_service import FinancialSummaryGenerator, local_today
 
 logger = logging.getLogger("insight_updater")
@@ -41,14 +40,19 @@ def key_hash(key: str) -> str:
     return hashlib.sha256(key.encode("utf-8")).hexdigest()
 
 
-def refresh_user_insight(user_id: int):
+def refresh_user_insight(user_id: int, push_origin: str | None = None):
+    """push_origin decides whether a resulting Buddy alert buzzes the user's devices.
+
+    None (default) = the user caused this refresh while using the app, so the
+    alert only goes to the drawer. Pass USER_SETUP when a recurring bill caused it.
+    """
     # One refresh per user at a time: concurrent triggers wait, then see the
     # situation is already handled and skip (no duplicate AI call, no crash).
     with keyed_lock(("insight", user_id)):
-        _refresh(user_id)
+        _refresh(user_id, push_origin)
 
 
-def _refresh(user_id: int):
+def _refresh(user_id: int, push_origin: str | None = None):
     db: Session = SessionLocal()
     try:
         summary = FinancialSummaryGenerator.generate_summary(user_id, db)
@@ -60,7 +64,7 @@ def _refresh(user_id: int):
             logger.info("User %s: situation unchanged (%s); no AI call.", user_id, key)
             return
 
-        _maybe_alert(db, user_id, summary, insight)
+        _maybe_alert(db, user_id, summary, insight, push_origin)
 
         today = local_today().isoformat()
         meta = (record.summary_snapshot or {}) if record else {}
@@ -98,7 +102,7 @@ def _refresh(user_id: int):
         db.close()
 
 
-def _maybe_alert(db: Session, user_id: int, summary: dict, insight: dict):
+def _maybe_alert(db: Session, user_id: int, summary: dict, insight: dict, push_origin: str | None = None):
     situation = insight["situation"]
     if situation not in ALERT_SITUATIONS:
         return
@@ -111,6 +115,6 @@ def _maybe_alert(db: Session, user_id: int, summary: dict, insight: dict):
     NotificationService.create_ai_notification(
         db=db, user_id=user_id, title=ALERT_SITUATIONS[situation], message=insight["insight"],
         insight_type=situation, month=summary["month"], year=summary["year"],
-        push_origin=APP,
+        push_origin=push_origin,
     )
     db.commit()
